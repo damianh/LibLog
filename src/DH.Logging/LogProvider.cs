@@ -1,0 +1,59 @@
+namespace DH.Logging
+{
+	using System;
+	using System.Diagnostics;
+	using DH.Logging.LogProviders;
+
+	public static class LogProvider
+	{
+		private static ILogProvider currentLogProvider;
+
+		static LogProvider()
+		{
+			if(NLogLogProvider.IsLoggerAvailable())
+			{
+				currentLogProvider = new NLogLogProvider();
+			}
+			else if(Log4NetLogProvider.IsLoggerAvailable())
+			{
+				currentLogProvider = new Log4NetLogProvider();
+			}
+		}
+
+		public static ILog GetCurrentClassLogger()
+		{
+#if SILVERLIGHT
+			var stackFrame = new StackTrace().GetFrame(1);
+#else
+			var stackFrame = new StackFrame(1, false);
+#endif
+			return GetLogger(stackFrame.GetMethod().DeclaringType);
+		}
+
+		public static ILog GetLogger(Type type)
+		{
+			return GetLogger(type.FullName);
+		}
+
+		public static ILog GetLogger(string name)
+		{
+			ILogProvider temp = currentLogProvider;
+			return temp == null ? new NoOpLogger() : temp.GetLogger(name);
+		}
+
+		public static void SetCurrentLogProvider(ILogProvider logProvider)
+		{
+			currentLogProvider = logProvider;
+		}
+
+		private class NoOpLogger : ILog
+		{
+			public void Log(LogLevel logLevel, Func<string> messageFunc)
+			{}
+
+			public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
+				where TException : Exception
+			{}
+		}
+	}
+}

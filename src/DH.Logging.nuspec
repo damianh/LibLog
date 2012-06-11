@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+	<title>DH Logging</title>
+    <id>DH.Logging</id>
+    <version>0.0.0.0</version>
+    <authors>Damian Hickey</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A dependency free logging abstraction that supports NLog, Log4Net or allows you to specify your own logging provider</description>
+	<projectUrl>https://bitbucket.org/damianh/dh.logging</projectUrl>
+	<references>
+		<reference file="DH.Logging.dll" />
+	</references>
+  </metadata>
+  <files>
+    <file src="..\build\DH.Logging\lib\net40\**" target="lib\net40" />
+  </files>
+</package>
+
