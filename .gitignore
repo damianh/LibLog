@@ -1,0 +1,4 @@
+*.user
+src/packages
+*.cache
+*_Resharper*
