@@ -1,0 +1,69 @@
+﻿namespace Tests.DH.Logging
+{
+	using System;
+	using Xunit;
+	using global::DH.Logging;
+
+	public class LoggerExecutionWrapperTests
+	{
+		private readonly LoggerExecutionWrapper _sut;
+		private readonly FakeLogger _fakeLogger;
+
+		public LoggerExecutionWrapperTests()
+		{
+			_fakeLogger = new FakeLogger();
+			_sut = new LoggerExecutionWrapper(_fakeLogger);
+		}
+
+		[Fact]
+		public void When_logging_and_message_factory_throws_Then_should_log_exception()
+		{
+			var exception = new Exception("Message");
+			_sut.Log(LogLevel.Info, () => { throw exception; });
+			Assert.Same(exception, _fakeLogger.Exception);
+		}
+
+		[Fact]
+		public void When_logging_with_exception_and_message_factory_throws_Then_should_log_exception()
+		{
+			var exception = new Exception("Message");
+			_sut.Log(LogLevel.Info, () => { throw exception; }, exception);
+			Assert.Same(exception, _fakeLogger.Exception);
+		}
+
+		public class FakeLogger : ILog
+		{
+			private LogLevel _logLevel;
+
+			public LogLevel LogLevel
+			{
+				get { return _logLevel; }
+			}
+
+			public string Message
+			{
+				get { return _message; }
+			}
+
+			public Exception Exception
+			{
+				get { return _exception; }
+			}
+
+			private string _message;
+			private Exception _exception;
+
+			public void Log(LogLevel logLevel, Func<string> messageFunc)
+			{
+				messageFunc();
+			}
+
+			public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
+			{
+				_logLevel = logLevel;
+				_message = messageFunc();
+				_exception = exception;
+			}
+		}
+	}
+}

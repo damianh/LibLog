@@ -50,10 +50,12 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="LoggerExecutionWrapperTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingDisabledTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingEnabledTests.cs" />
     <Compile Include="LogProviders\NLogLogProviderLoggingDisabedTests.cs" />
     <Compile Include="LogProviders\NLogLogProviderLoggingEnabledTests.cs" />
+    <Compile Include="LogProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

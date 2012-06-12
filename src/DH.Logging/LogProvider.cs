@@ -8,18 +8,6 @@ namespace DH.Logging
 	{
 		private static ILogProvider currentLogProvider;
 
-		static LogProvider()
-		{
-			if(NLogLogProvider.IsLoggerAvailable())
-			{
-				currentLogProvider = new NLogLogProvider();
-			}
-			else if(Log4NetLogProvider.IsLoggerAvailable())
-			{
-				currentLogProvider = new Log4NetLogProvider();
-			}
-		}
-
 		public static ILog GetCurrentClassLogger()
 		{
 #if SILVERLIGHT
@@ -37,8 +25,8 @@ namespace DH.Logging
 
 		public static ILog GetLogger(string name)
 		{
-			ILogProvider temp = currentLogProvider;
-			return temp == null ? new NoOpLogger() : temp.GetLogger(name);
+			ILogProvider temp = currentLogProvider ?? ResolveLogProvider();
+			return temp == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(temp.GetLogger(name));
 		}
 
 		public static void SetCurrentLogProvider(ILogProvider logProvider)
@@ -46,7 +34,20 @@ namespace DH.Logging
 			currentLogProvider = logProvider;
 		}
 
-		private class NoOpLogger : ILog
+		private static ILogProvider ResolveLogProvider()
+		{
+			if (NLogLogProvider.IsLoggerAvailable())
+			{
+				return new NLogLogProvider();
+			}
+			if (Log4NetLogProvider.IsLoggerAvailable())
+			{
+				return new Log4NetLogProvider();
+			}
+			return null;
+		}
+
+		public class NoOpLogger : ILog
 		{
 			public void Log(LogLevel logLevel, Func<string> messageFunc)
 			{}

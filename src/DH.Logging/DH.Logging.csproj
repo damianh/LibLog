@@ -45,6 +45,7 @@
     <Compile Include="LogLevel.cs" />
     <Compile Include="LogProvider.cs" />
     <Compile Include="LogProviders\Log4NetLogProvider.cs" />
+    <Compile Include="LoggerExecutionWrapper.cs" />
     <Compile Include="LogProviders\NLogLogProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

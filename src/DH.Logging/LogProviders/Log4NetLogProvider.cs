@@ -8,6 +8,7 @@ namespace DH.Logging.LogProviders
 	public class Log4NetLogProvider : ILogProvider
 	{
 		private readonly Func<string, object> getLoggerByNameDelegate;
+		private static bool providerAvailabilityOverride = true;
 
 		public Log4NetLogProvider()
 		{
@@ -18,6 +19,12 @@ namespace DH.Logging.LogProviders
 			getLoggerByNameDelegate = GetGetLoggerMethodCall();
 		}
 
+		public static bool ProviderAvailabilityOverride
+		{
+			get { return providerAvailabilityOverride; }
+			set { providerAvailabilityOverride = value; }
+		}
+
 		public ILog GetLogger(string name)
 		{
 			return new Log4NetLogger(getLoggerByNameDelegate(name));
@@ -25,7 +32,7 @@ namespace DH.Logging.LogProviders
 
 		public static bool IsLoggerAvailable()
 		{
-			return GetLogManagerType() != null;
+			return ProviderAvailabilityOverride && GetLogManagerType() != null;
 		}
 
 		private static Type GetLogManagerType()
@@ -43,7 +50,7 @@ namespace DH.Logging.LogProviders
 			return Expression.Lambda<Func<string, object>>(methodCall, new[] {resultValue}).Compile();
 		}
 #if !NET_3_5
-		private class Log4NetLogger : ILog
+		public class Log4NetLogger : ILog
 		{
 			private readonly dynamic logger;
 
@@ -128,7 +135,7 @@ namespace DH.Logging.LogProviders
 			}
 		}
 #else
-		private class Log4NetLogger : ILog
+		public class Log4NetLogger : ILog
 		{
 			private readonly object logger;
 			private static readonly Type LoggerType = Type.GetType("log4net.ILog, log4net");

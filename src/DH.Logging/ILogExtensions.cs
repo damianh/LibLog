@@ -17,7 +17,7 @@ namespace DH.Logging
 			logger.Log(LogLevel.Debug, () => message);
 		}
 
-		public static void Debug(this ILog logger, string message, params object[] args)
+		public static void DebugFormat(this ILog logger, string message, params object[] args)
 		{
 			GuardAgainstNullLogger(logger);
 			logger.Log(LogLevel.Debug, () => string.Format(CultureInfo.InvariantCulture, message, args));
@@ -29,7 +29,7 @@ namespace DH.Logging
 			logger.Log(LogLevel.Error, () => message);
 		}
 
-		public static void Error(this ILog logger, string message, params object[] args)
+		public static void ErrorFormat(this ILog logger, string message, params object[] args)
 		{
 			GuardAgainstNullLogger(logger);
 			logger.Log(LogLevel.Error, () => string.Format(CultureInfo.InvariantCulture, message, args));
@@ -41,7 +41,19 @@ namespace DH.Logging
 			logger.Log(LogLevel.Error, () => message, exception);
 		}
 
-		public static void Info(this ILog logger, string message, params object[] args)
+		public static void Info(this ILog logger, Func<string> messageFunc)
+		{
+			GuardAgainstNullLogger(logger);
+			logger.Log(LogLevel.Info, messageFunc);
+		}
+
+		public static void Info(this ILog logger, string message)
+		{
+			GuardAgainstNullLogger(logger);
+			logger.Log(LogLevel.Info, () => message);
+		}
+
+		public static void InfoFormat(this ILog logger, string message, params object[] args)
 		{
 			GuardAgainstNullLogger(logger);
 			logger.Log(LogLevel.Info, () => string.Format(CultureInfo.InvariantCulture, message, args));
@@ -53,7 +65,13 @@ namespace DH.Logging
 			logger.Log(LogLevel.Warn, messageFunc);
 		}
 
-		public static void Warn(this ILog logger, string message, params object[] args)
+		public static void Warn(this ILog logger, string message)
+		{
+			GuardAgainstNullLogger(logger);
+			logger.Log(LogLevel.Warn, () => message);
+		}
+
+		public static void WarnFormat(this ILog logger, string message, params object[] args)
 		{
 			GuardAgainstNullLogger(logger);
 			logger.Log(LogLevel.Warn, () => string.Format(CultureInfo.InvariantCulture, message, args));
