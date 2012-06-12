@@ -18,17 +18,20 @@
 		[Fact]
 		public void When_logging_and_message_factory_throws_Then_should_log_exception()
 		{
-			var exception = new Exception("Message");
-			_sut.Log(LogLevel.Info, () => { throw exception; });
-			Assert.Same(exception, _fakeLogger.Exception);
+			var loggingException = new Exception("Message");
+			_sut.Log(LogLevel.Info, () => { throw loggingException; });
+			Assert.Same(loggingException, _fakeLogger.Exception);
+			Assert.Equal(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
 		}
 
 		[Fact]
 		public void When_logging_with_exception_and_message_factory_throws_Then_should_log_exception()
 		{
-			var exception = new Exception("Message");
-			_sut.Log(LogLevel.Info, () => { throw exception; }, exception);
-			Assert.Same(exception, _fakeLogger.Exception);
+			var appException = new Exception("Message");
+			var loggingException = new Exception("Message");
+			_sut.Log(LogLevel.Info, () => { throw loggingException; }, appException);
+			Assert.Same(loggingException, _fakeLogger.Exception);
+			Assert.Equal(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
 		}
 
 		public class FakeLogger : ILog
@@ -60,9 +63,13 @@
 
 			public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
 			{
-				_logLevel = logLevel;
-				_message = messageFunc();
-				_exception = exception;
+				string message = messageFunc();
+				if (message != null)
+				{
+					_logLevel = logLevel;
+					_message = messageFunc() ?? _message;
+					_exception = exception;
+				}
 			}
 		}
 	}

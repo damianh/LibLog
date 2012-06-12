@@ -5,6 +5,7 @@
 	public class LoggerExecutionWrapper : ILog
 	{
 		private readonly ILog _logger;
+		public static string FailedToGenerateLogMessage = "Failed to generate log message";
 
 		public ILog WrappedLogger
 		{
@@ -26,7 +27,7 @@
 				}
 				catch (Exception ex)
 				{
-					Log(LogLevel.Error, () => ex.ToString(), ex);
+					Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
 				}
 				return null;
 			};
@@ -43,7 +44,7 @@
 				}
 				catch (Exception ex)
 				{
-					Log(LogLevel.Error, () => ex.ToString(), ex);
+					Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
 				}
 				return null;
 			};
