@@ -8,7 +8,7 @@ namespace DH.Logging.LogProviders
 	public class NLogLogProvider : ILogProvider
 	{
 		private readonly Func<string, object> getLoggerByNameDelegate;
-		private static bool providerAvailabilityOverride = true;
+		private static bool _providerIsAvailableOverride = true;
 		
 		public NLogLogProvider()
 		{
@@ -19,10 +19,10 @@ namespace DH.Logging.LogProviders
 			getLoggerByNameDelegate = GetGetLoggerMethodCall();
 		}
 
-		public static bool ProviderAvailabilityOverride
+		public static bool ProviderIsAvailableOverride
 		{
-			get { return providerAvailabilityOverride; }
-			set { providerAvailabilityOverride = value; }
+			get { return _providerIsAvailableOverride; }
+			set { _providerIsAvailableOverride = value; }
 		}
 
 		public ILog GetLogger(string name)
@@ -32,7 +32,7 @@ namespace DH.Logging.LogProviders
 
 		public static bool IsLoggerAvailable()
 		{
-			return ProviderAvailabilityOverride && GetLogManagerType() != null;
+			return ProviderIsAvailableOverride && GetLogManagerType() != null;
 		}
 
 		private static Type GetLogManagerType()

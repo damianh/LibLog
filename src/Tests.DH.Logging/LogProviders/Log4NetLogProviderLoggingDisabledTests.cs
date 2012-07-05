@@ -1,26 +1,25 @@
-namespace Raven.Tests.Abstractions.Logging.LogProviders
+namespace Tests.DH.Logging.LogProviders
 {
 	using System;
-	using DH.Logging;
-	using DH.Logging.LogProviders;
 	using Xunit;
+	using global::DH.Logging.LogProviders;
 	using log4net;
 	using log4net.Appender;
 	using log4net.Config;
 	using log4net.Filter;
-	using ILog = DH.Logging.ILog;
+	using LogLevel = global::DH.Logging.LogLevel;
 
 	public class Log4NetLogProviderLoggingDisabledTests : IDisposable
 	{
-		private readonly MemoryAppender memoryAppender;
-		private readonly ILog sut;
+		private readonly MemoryAppender _memoryAppender;
+		private readonly global::DH.Logging.ILog _sut;
 
 		public Log4NetLogProviderLoggingDisabledTests()
 		{
-			memoryAppender = new MemoryAppender();
-			memoryAppender.AddFilter(new DenyAllFilter());
-			BasicConfigurator.Configure(memoryAppender);
-			sut = new Log4NetLogProvider().GetLogger("Test");
+			_memoryAppender = new MemoryAppender();
+			_memoryAppender.AddFilter(new DenyAllFilter());
+			BasicConfigurator.Configure(_memoryAppender);
+			_sut = new Log4NetLogProvider().GetLogger("Test");
 		}
 
 		public void Dispose()
@@ -29,27 +28,9 @@ namespace Raven.Tests.Abstractions.Logging.LogProviders
 		}
 
 		[Fact]
-		public void For_Trace_Then_should_not_log()
-		{
-			AssertShouldNotLog(LogLevel.Trace);
-		}
-
-		[Fact]
 		public void For_Debug_Then_should_not_log()
 		{
 			AssertShouldNotLog(LogLevel.Debug);
-		}
-
-		[Fact]
-		public void For_Info_Then_should_not_log()
-		{
-			AssertShouldNotLog(LogLevel.Info);
-		}
-
-		[Fact]
-		public void For_Warn_Then_should_not_log()
-		{
-			AssertShouldNotLog(LogLevel.Warn);
 		}
 
 		[Fact]
@@ -64,11 +45,29 @@ namespace Raven.Tests.Abstractions.Logging.LogProviders
 			AssertShouldNotLog(LogLevel.Fatal);
 		}
 
-		private void AssertShouldNotLog(DH.Logging.LogLevel logLevel)
+		[Fact]
+		public void For_Info_Then_should_not_log()
 		{
-			sut.Log(logLevel, () => "m");
-			sut.Log(logLevel, () => "m", new Exception("e"));
-			Assert.Empty(memoryAppender.GetEvents());
+			AssertShouldNotLog(LogLevel.Info);
+		}
+
+		[Fact]
+		public void For_Trace_Then_should_not_log()
+		{
+			AssertShouldNotLog(LogLevel.Trace);
+		}
+
+		[Fact]
+		public void For_Warn_Then_should_not_log()
+		{
+			AssertShouldNotLog(LogLevel.Warn);
+		}
+
+		private void AssertShouldNotLog(LogLevel logLevel)
+		{
+			_sut.Log(logLevel, () => "m");
+			_sut.Log(logLevel, () => "m", new Exception("e"));
+			Assert.Empty(_memoryAppender.GetEvents());
 		}
 	}
 }
