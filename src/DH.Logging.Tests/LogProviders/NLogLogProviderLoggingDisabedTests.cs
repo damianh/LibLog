@@ -1,14 +1,11 @@
-namespace Tests.DH.Logging.LogProviders
-{
-    using System;
-    using NLog;
-    using NLog.Config;
-    using NLog.Targets;
-    using Xunit;
-    using global::DH.Logging;
-    using global::DH.Logging.LogProviders;
-    using LogLevel = NLog.LogLevel;
+using System;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
+using Xunit;
 
+namespace DH.Logging.LogProviders
+{
     public class NLogLogProviderLoggingDisabedTests : IDisposable
     {
         private ILog _sut;
@@ -22,42 +19,42 @@ namespace Tests.DH.Logging.LogProviders
         [Fact]
         public void For_Debug_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Debug);
+            ConfigureLogger(NLog.LogLevel.Debug);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Debug);
         }
 
         [Fact]
         public void For_Error_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Error);
+            ConfigureLogger(NLog.LogLevel.Error);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Error);
         }
 
         [Fact]
         public void For_Fatal_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Fatal);
+            ConfigureLogger(NLog.LogLevel.Fatal);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Fatal);
         }
 
         [Fact]
         public void For_Info_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Info);
+            ConfigureLogger(NLog.LogLevel.Info);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Info);
         }
 
         [Fact]
         public void For_Trace_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Trace);
+            ConfigureLogger(NLog.LogLevel.Trace);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Trace);
         }
 
         [Fact]
         public void For_Warn_Then_should_not_log()
         {
-            ConfigureLogger(LogLevel.Warn);
+            ConfigureLogger(NLog.LogLevel.Warn);
             AssertShouldNotLog(global::DH.Logging.LogLevel.Warn);
         }
 
@@ -68,13 +65,13 @@ namespace Tests.DH.Logging.LogProviders
             Assert.Empty(_target.Logs);
         }
 
-        private void ConfigureLogger(LogLevel nlogLogLevel)
+        private void ConfigureLogger(NLog.LogLevel nlogLogLevel)
         {
             var config = new LoggingConfiguration();
             _target = new MemoryTarget();
             _target.Layout = "${level:uppercase=true}|${message}|${exception}";
             config.AddTarget("memory", _target);
-            var loggingRule = new LoggingRule("*", LogLevel.Trace, _target);
+            var loggingRule = new LoggingRule("*", NLog.LogLevel.Trace, _target);
             loggingRule.DisableLoggingForLevel(nlogLogLevel);
             config.LoggingRules.Add(loggingRule);
             LogManager.Configuration = config;

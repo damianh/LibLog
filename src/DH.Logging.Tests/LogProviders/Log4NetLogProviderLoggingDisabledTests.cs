@@ -1,14 +1,12 @@
-namespace Tests.DH.Logging.LogProviders
-{
-    using System;
-    using Xunit;
-    using global::DH.Logging.LogProviders;
-    using log4net;
-    using log4net.Appender;
-    using log4net.Config;
-    using log4net.Filter;
-    using LogLevel = global::DH.Logging.LogLevel;
+using System;
+using log4net;
+using log4net.Appender;
+using log4net.Config;
+using log4net.Filter;
+using Xunit;
 
+namespace DH.Logging.LogProviders
+{
     public class Log4NetLogProviderLoggingDisabledTests : IDisposable
     {
         private readonly MemoryAppender _memoryAppender;

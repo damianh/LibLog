@@ -1,14 +1,11 @@
-﻿namespace Tests.DH.Logging.LogProviders
-{
-    using System;
-    using NLog;
-    using NLog.Config;
-    using NLog.Targets;
-    using Xunit;
-    using global::DH.Logging;
-    using global::DH.Logging.LogProviders;
-    using LogLevel = NLog.LogLevel;
+﻿using System;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
+using Xunit;
 
+namespace DH.Logging.LogProviders
+{
     public class NLogLogProviderLoggingEnabledTests : IDisposable
     {
         private readonly ILog _sut;
@@ -20,7 +17,7 @@
             _target = new MemoryTarget();
             _target.Layout = "${level:uppercase=true}|${message}|${exception}";
             config.AddTarget("memory", _target);
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, _target));
+            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, _target));
             LogManager.Configuration = config;
             _sut = new NLogLogProvider().GetLogger("Test");
         }

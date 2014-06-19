@@ -1,10 +1,9 @@
-﻿namespace Tests.DH.Logging
-{
-    using System;
-    using Xunit;
-    using global::DH.Logging;
-    using global::DH.Logging.LogProviders;
+﻿using System;
+using DH.Logging.LogProviders;
+using Xunit;
 
+namespace DH.Logging
+{
     public class LogProviderTests : IDisposable
     {
         [Fact]

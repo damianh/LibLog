@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DH.Logging", "DH.Logging\DH.Logging.csproj", "{B94A94E1-3C80-40CC-A79A-244446B3F75A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.DH.Logging", "Tests.DH.Logging\Tests.DH.Logging.csproj", "{543C177D-4ED3-45C2-BAC8-6A4E89D802BA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DH.Logging.Tests", "DH.Logging.Tests\DH.Logging.Tests.csproj", "{543C177D-4ED3-45C2-BAC8-6A4E89D802BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -8,8 +8,8 @@
     <ProjectGuid>{543C177D-4ED3-45C2-BAC8-6A4E89D802BA}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tests.DH.Logging</RootNamespace>
-    <AssemblyName>Tests.DH.Logging</AssemblyName>
+    <RootNamespace>DH.Logging</RootNamespace>
+    <AssemblyName>DH.Logging.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

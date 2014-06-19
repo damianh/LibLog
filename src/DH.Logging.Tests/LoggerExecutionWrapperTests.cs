@@ -1,9 +1,8 @@
-﻿namespace Tests.DH.Logging
-{
-    using System;
-    using Xunit;
-    using global::DH.Logging;
+﻿using System;
+using Xunit;
 
+namespace DH.Logging
+{
     public class LoggerExecutionWrapperTests
     {
         private readonly LoggerExecutionWrapper _sut;
