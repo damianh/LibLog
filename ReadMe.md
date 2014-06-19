@@ -20,7 +20,7 @@ What about a shared Common.Logging you ask? No, you are still introducing a depe
 ### Using
 * Copy all of the files into your library
 * Change the namespaces
-* Getting a current class logger
+* Getting a current class logger:
 
 ```csharp
 public class MyClass
