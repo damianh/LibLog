@@ -6,15 +6,11 @@ namespace DH.Logging
 
     public static class LogProvider
     {
-        private static ILogProvider currentLogProvider;
+        private static ILogProvider _currentLogProvider;
 
         public static ILog GetCurrentClassLogger()
         {
-#if SILVERLIGHT
-            var stackFrame = new StackTrace().GetFrame(1);
-#else
             var stackFrame = new StackFrame(1, false);
-#endif
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
 
@@ -25,13 +21,13 @@ namespace DH.Logging
 
         public static ILog GetLogger(string name)
         {
-            ILogProvider temp = currentLogProvider ?? ResolveLogProvider();
+            ILogProvider temp = _currentLogProvider ?? ResolveLogProvider();
             return temp == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(temp.GetLogger(name));
         }
 
         public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
-            currentLogProvider = logProvider;
+            _currentLogProvider = logProvider;
         }
 
         private static ILogProvider ResolveLogProvider()
@@ -40,11 +36,7 @@ namespace DH.Logging
             {
                 return new NLogLogProvider();
             }
-            if (Log4NetLogProvider.IsLoggerAvailable())
-            {
-                return new Log4NetLogProvider();
-            }
-            return null;
+            return Log4NetLogProvider.IsLoggerAvailable() ? new Log4NetLogProvider() : null;
         }
 
         public class NoOpLogger : ILog

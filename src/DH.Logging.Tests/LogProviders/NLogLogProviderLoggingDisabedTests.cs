@@ -20,42 +20,42 @@ namespace DH.Logging.LogProviders
         public void For_Debug_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Debug);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Debug);
+            AssertShouldNotLog(LogLevel.Debug);
         }
 
         [Fact]
         public void For_Error_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Error);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Error);
+            AssertShouldNotLog(LogLevel.Error);
         }
 
         [Fact]
         public void For_Fatal_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Fatal);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Fatal);
+            AssertShouldNotLog(LogLevel.Fatal);
         }
 
         [Fact]
         public void For_Info_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Info);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Info);
+            AssertShouldNotLog(LogLevel.Info);
         }
 
         [Fact]
         public void For_Trace_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Trace);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Trace);
+            AssertShouldNotLog(LogLevel.Trace);
         }
 
         [Fact]
         public void For_Warn_Then_should_not_log()
         {
             ConfigureLogger(NLog.LogLevel.Warn);
-            AssertShouldNotLog(global::DH.Logging.LogLevel.Warn);
+            AssertShouldNotLog(LogLevel.Warn);
         }
 
         private void AssertShouldNotLog(global::DH.Logging.LogLevel logLevel)
@@ -68,8 +68,7 @@ namespace DH.Logging.LogProviders
         private void ConfigureLogger(NLog.LogLevel nlogLogLevel)
         {
             var config = new LoggingConfiguration();
-            _target = new MemoryTarget();
-            _target.Layout = "${level:uppercase=true}|${message}|${exception}";
+            _target = new MemoryTarget {Layout = "${level:uppercase=true}|${message}|${exception}"};
             config.AddTarget("memory", _target);
             var loggingRule = new LoggingRule("*", NLog.LogLevel.Trace, _target);
             loggingRule.DisableLoggingForLevel(nlogLogLevel);

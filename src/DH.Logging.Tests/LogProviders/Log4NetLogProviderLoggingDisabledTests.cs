@@ -10,7 +10,7 @@ namespace DH.Logging.LogProviders
     public class Log4NetLogProviderLoggingDisabledTests : IDisposable
     {
         private readonly MemoryAppender _memoryAppender;
-        private readonly global::DH.Logging.ILog _sut;
+        private readonly ILog _sut;
 
         public Log4NetLogProviderLoggingDisabledTests()
         {

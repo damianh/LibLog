@@ -30,7 +30,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_debug_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Debug, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Debug, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("DEBUG|m|e", _target.Logs[0]);
         }
@@ -38,7 +38,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_debug_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Debug, () => "m");
+            _sut.Log(LogLevel.Debug, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("DEBUG|m|", _target.Logs[0]);
         }
@@ -46,7 +46,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_error_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Error, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Error, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("ERROR|m|e", _target.Logs[0]);
         }
@@ -54,7 +54,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_error_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Error, () => "m");
+            _sut.Log(LogLevel.Error, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("ERROR|m|", _target.Logs[0]);
         }
@@ -62,7 +62,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_fatal_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Fatal, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Fatal, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("FATAL|m|e", _target.Logs[0]);
         }
@@ -70,7 +70,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_fatal_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Fatal, () => "m");
+            _sut.Log(LogLevel.Fatal, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("FATAL|m|", _target.Logs[0]);
         }
@@ -78,7 +78,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_info_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Info, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Info, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("INFO|m|e", _target.Logs[0]);
         }
@@ -86,7 +86,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_info_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Info, () => "m");
+            _sut.Log(LogLevel.Info, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("INFO|m|", _target.Logs[0]);
         }
@@ -94,7 +94,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_trace_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Trace, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Trace, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("TRACE|m|e", _target.Logs[0]);
         }
@@ -102,7 +102,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_trace_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Trace, () => "m");
+            _sut.Log(LogLevel.Trace, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("TRACE|m|", _target.Logs[0]);
         }
@@ -110,7 +110,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_warn_exception()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Warn, () => "m", new Exception("e"));
+            _sut.Log(LogLevel.Warn, () => "m", new Exception("e"));
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("WARN|m|e", _target.Logs[0]);
         }
@@ -118,7 +118,7 @@ namespace DH.Logging.LogProviders
         [Fact]
         public void Should_be_able_to_log_warn_message()
         {
-            _sut.Log(global::DH.Logging.LogLevel.Warn, () => "m");
+            _sut.Log(LogLevel.Warn, () => "m");
             Assert.NotEmpty(_target.Logs);
             Assert.Equal("WARN|m|", _target.Logs[0]);
         }
