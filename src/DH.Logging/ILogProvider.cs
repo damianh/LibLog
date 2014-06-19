@@ -1,7 +1,7 @@
 namespace DH.Logging
 {
-	public interface ILogProvider
-	{
-		ILog GetLogger(string name);
-	}
+    public interface ILogProvider
+    {
+        ILog GetLogger(string name);
+    }
 }
