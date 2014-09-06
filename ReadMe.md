@@ -1,4 +1,4 @@
-# LibLog
+# LibLog [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
 
 A single file for you to either copy and paste, or [install via nuget][0], into your library, framework or application that allows dependency free logging with support for NLog, Log4Net or allow the user to define a custom provider. NLog / Log4Net are dynamically loaded if they are deployed. 
 
