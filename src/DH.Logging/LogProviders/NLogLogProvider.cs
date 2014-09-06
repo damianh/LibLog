@@ -7,7 +7,7 @@ namespace DH.Logging.LogProviders
 
     public class NLogLogProvider : ILogProvider
     {
-        private readonly Func<string, object> getLoggerByNameDelegate;
+        private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
         
         public NLogLogProvider()
@@ -16,7 +16,7 @@ namespace DH.Logging.LogProviders
             {
                 throw new InvalidOperationException("NLog.LogManager not found");
             }
-            getLoggerByNameDelegate = GetGetLoggerMethodCall();
+            _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
 
         public static bool ProviderIsAvailableOverride
@@ -27,7 +27,7 @@ namespace DH.Logging.LogProviders
 
         public ILog GetLogger(string name)
         {
-            return new NLogLogger(getLoggerByNameDelegate(name));
+            return new NLogLogger(_getLoggerByNameDelegate(name));
         }
 
         public static bool IsLoggerAvailable()

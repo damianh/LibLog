@@ -5,7 +5,7 @@
     public class LoggerExecutionWrapper : ILog
     {
         private readonly ILog _logger;
-        public static string FailedToGenerateLogMessage = "Failed to generate log message";
+        public const string FailedToGenerateLogMessage = "Failed to generate log message";
 
         public ILog WrappedLogger
         {
