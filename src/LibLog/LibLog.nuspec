@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>1.0.0-alpha2</version>
+        <version>1.0.0-alpha4</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/DH.Logging/blob/master/licence.txt</licenseUrl>
@@ -21,6 +21,6 @@ This package is a version of option 3:
         <tags>logging, framework, component, nlog, log4net</tags>
     </metadata>
     <files>
-    	<file src="Logging.cs.pp" target="content\net40" />
+        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.0\Logging.cs.pp" />
     </files>
 </package>
