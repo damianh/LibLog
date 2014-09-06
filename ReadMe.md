@@ -1,6 +1,6 @@
 # LibLog [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
 
-A single file for you to either copy and paste, or [install via nuget][0], into your library, framework or application that allows dependency free logging. It contains transparent builtin support for NLog, Log4Net or allows the user to define a custom provider. A user just has to reference NLog / Log4Net in their project and your component will automatically log without the user having to do any wireup or configuration. 
+A single file for you to either copy and paste, or [install via nuget][0], into your library, framework or application that allows dependency free logging. It contains transparent builtin support for [NLog][3], [Log4Net][4] or allows the user to define a custom provider. A user just has to reference NLog / Log4Net in their project and your component will automatically log without the user having to do any wireup or configuration. 
 
 The ILog interface consists of just 2 methods, which contrasts with the large interface (~65 members) in Log4Net and Common.Logging.
 
@@ -40,3 +40,5 @@ Logging is licensed under [MIT Licence][2].
 [0]: https://www.nuget.org/packages/LibLog
 [1]: https://github.com/damianh/LibLog/blob/master/src/LibLog/Logging.cs
 [2]: http://www.opensource.org/licenses/MIT
+[3]: http://nlog-project.org/
+[4]: https://logging.apache.org/log4net/
