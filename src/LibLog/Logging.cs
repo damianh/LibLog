@@ -1,7 +1,7 @@
 ﻿//===============================================================================
-// LibraryLogger
+// LibLog
 //
-// https://github.com/damianh/LibraryLogger
+// https://github.com/damianh/LibLog
 //===============================================================================
 // Copyright © 2011-2014 Damian Hickey.  All rights reserved.
 //
@@ -145,6 +145,11 @@ namespace DH.Logging
     public static class LogProvider
     {
         private static ILogProvider _currentLogProvider;
+
+        public static ILog For<T>()
+        {
+            return GetLogger(typeof(T));
+        }
 
         public static ILog GetCurrentClassLogger()
         {
