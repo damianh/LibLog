@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>1.0.0-alpha4</version>
+        <version>1.1.1-build1</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
@@ -15,12 +15,12 @@ Option 1 is not desirable because it forces your users to use a particular frame
 This package is a version of option 3:
 - It will add an ILog, ILogProvider etc to YourRootNamespace.Logging
 - ILog is 2 methods to implement in comparision to Common.Logging ILog's ~65 members
-- Using reflection, it transparently supports NLog and Log4Net without any wiring up required by an end user.</description>
+- Using reflection, it transparently supports NLog, Log4Net and Enterprise Logging without any wiring up required by an end user.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.</summary>
         <copyright>Damian Hickey 2014</copyright>
-        <tags>logging, framework, component, nlog, log4net</tags>
+        <tags>logging, framework, component, nlog, log4net, entlib logging</tags>
     </metadata>
     <files>
-        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.0\Logging.cs.pp" />
+        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.1\Logging.cs.pp" />
     </files>
 </package>
