@@ -146,6 +146,11 @@ namespace DH.Logging
     {
         private static ILogProvider _currentLogProvider;
 
+        public static ILog For<T>()
+        {
+            return GetLogger(typeof(T));
+        }
+
         public static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
