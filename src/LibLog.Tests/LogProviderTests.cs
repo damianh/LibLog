@@ -1,9 +1,9 @@
-﻿using System;
-using DH.Logging.LogProviders;
-using Xunit;
-
-namespace DH.Logging
+﻿namespace LibLog.Logging
 {
+    using System;
+    using LibLog.Logging.LogProviders;
+    using Xunit;
+
     public class LogProviderTests : IDisposable
     {
         [Fact]

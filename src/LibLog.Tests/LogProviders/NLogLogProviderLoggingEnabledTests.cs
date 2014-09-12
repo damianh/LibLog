@@ -1,11 +1,12 @@
-﻿using System;
-using NLog;
-using NLog.Config;
-using NLog.Targets;
-using Xunit;
-
-namespace DH.Logging.LogProviders
+﻿namespace LibLog.Logging.LogProviders
 {
+    using System;
+    using NLog;
+    using NLog.Config;
+    using NLog.Targets;
+    using Xunit;
+    using LogLevel = LibLog.Logging.LogLevel;
+
     public class NLogLogProviderLoggingEnabledTests : IDisposable
     {
         private readonly ILog _sut;

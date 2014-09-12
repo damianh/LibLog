@@ -29,7 +29,7 @@ namespace $rootnamespace$.Logging
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using $rootnamespace$.Logging.LogProviders;
+    using LibLog.Logging.LogProviders;
 
     public interface ILog
     {

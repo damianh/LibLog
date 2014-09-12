@@ -24,12 +24,12 @@
 // SOFTWARE.
 //===============================================================================
 
-namespace DH.Logging
+namespace LibLog.Logging
 {
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using DH.Logging.LogProviders;
+    using LibLog.Logging.LogProviders;
 
     public interface ILog
     {
@@ -248,7 +248,7 @@ namespace DH.Logging
     }
 }
 
-namespace DH.Logging.LogProviders
+namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;

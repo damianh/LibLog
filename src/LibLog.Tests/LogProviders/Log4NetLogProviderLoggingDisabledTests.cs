@@ -1,12 +1,13 @@
-using System;
-using log4net;
-using log4net.Appender;
-using log4net.Config;
-using log4net.Filter;
-using Xunit;
-
-namespace DH.Logging.LogProviders
+namespace LibLog.Logging.LogProviders
 {
+    using System;
+    using log4net;
+    using log4net.Appender;
+    using log4net.Config;
+    using log4net.Filter;
+    using Xunit;
+    using ILog = LibLog.Logging.ILog;
+
     public class Log4NetLogProviderLoggingDisabledTests : IDisposable
     {
         private readonly MemoryAppender _memoryAppender;

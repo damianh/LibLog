@@ -1,8 +1,8 @@
-﻿using System;
-using Xunit;
-
-namespace DH.Logging
+﻿namespace LibLog.Logging
 {
+    using System;
+    using Xunit;
+
     public class LoggerExecutionWrapperTests
     {
         private readonly LoggerExecutionWrapper _sut;

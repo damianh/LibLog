@@ -1,15 +1,15 @@
-using System;
-using Xunit;
-
-namespace DH.Logging.LogProviders
+namespace LibLog.Logging.LogProviders
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using LibLog.Logging;
     using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
     using Microsoft.Practices.EnterpriseLibrary.Logging;
     using Microsoft.Practices.EnterpriseLibrary.Logging.Filters;
     using Microsoft.Practices.ServiceLocation;
+    using Xunit;
 
     public class EntLibLogProviderLoggingTests : IDisposable
     {

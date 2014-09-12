@@ -1,11 +1,12 @@
-using System;
-using NLog;
-using NLog.Config;
-using NLog.Targets;
-using Xunit;
-
-namespace DH.Logging.LogProviders
+namespace LibLog.Logging.LogProviders
 {
+    using System;
+    using NLog;
+    using NLog.Config;
+    using NLog.Targets;
+    using Xunit;
+    using LogLevel = LibLog.Logging.LogLevel;
+
     public class NLogLogProviderLoggingDisabedTests : IDisposable
     {
         private ILog _sut;
@@ -58,7 +59,7 @@ namespace DH.Logging.LogProviders
             AssertShouldNotLog(LogLevel.Warn);
         }
 
-        private void AssertShouldNotLog(global::DH.Logging.LogLevel logLevel)
+        private void AssertShouldNotLog(LogLevel logLevel)
         {
             _sut.Log(logLevel, () => "m");
             _sut.Log(logLevel, () => "m", new Exception("e"));
