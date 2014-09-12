@@ -38,7 +38,7 @@ public class MyClass
 }
 ```
 
-Yes, of couse you can do `GetLogger<MyClass>()` and all that.
+Yes, of couse you can do `LogProvider.For<MyClass>()` and all that.
 
 ### License
 
