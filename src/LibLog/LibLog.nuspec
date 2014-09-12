@@ -5,7 +5,7 @@
         <version>1.0.0-alpha4</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
-        <licenseUrl>https://github.com/damianh/DH.Logging/blob/master/licence.txt</licenseUrl>
+        <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <developmentDependency>true</developmentDependency>
         <description>If you are a library or framework author and you wish to provid logging support to your component there are a couple of options 1) Depend on Log4Net/NLog 2) Depend on Common.Logging 3) Implement your own ILog interface and make your consumers wire it up.
