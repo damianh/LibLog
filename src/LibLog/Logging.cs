@@ -179,7 +179,11 @@ namespace DH.Logging
             {
                 return new NLogLogProvider();
             }
-            return Log4NetLogProvider.IsLoggerAvailable() ? new Log4NetLogProvider() : null;
+            if (Log4NetLogProvider.IsLoggerAvailable())
+            {
+                return new Log4NetLogProvider();
+            }
+            return EntLibLogProvider.IsLoggerAvailable() ? new EntLibLogProvider() : null;
         }
 
         public class NoOpLogger : ILog
@@ -247,6 +251,8 @@ namespace DH.Logging
 namespace DH.Logging.LogProviders
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -519,6 +525,125 @@ namespace DH.Logging.LogProviders
                             _logger.Debug(messageFunc(), exception);
                         }
                         break;
+                }
+            }
+        }
+    }
+
+    public class EntLibLogProvider : ILogProvider
+    {
+        private static bool _providerIsAvailableOverride = true;
+        private readonly MethodInfo _logEntryMethod;
+        private readonly Func<string, string, TraceEventType, object> _createEntryFunc;
+
+        public EntLibLogProvider()
+        {
+            if (!IsLoggerAvailable())
+            {
+                throw new InvalidOperationException("Microsoft.Practices.EnterpriseLibrary.Logging.Logger not found");
+            }
+            _logEntryMethod = GetLoggerMethod();
+            _createEntryFunc = GetCreateEntryFunc();
+        }
+
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return _providerIsAvailableOverride; }
+            set { _providerIsAvailableOverride = value; }
+        }
+
+        public ILog GetLogger(string name)
+        {
+            return new EntLibLogger(name, _createEntryFunc, _logEntryMethod);
+        }
+
+        public static bool IsLoggerAvailable()
+        {
+            return ProviderIsAvailableOverride && GetEntryType() != null;
+        }
+
+        private static MethodInfo GetLoggerMethod()
+        {
+            var loggingType = GetLoggingType("Logger");
+            return loggingType.GetMethod("Write", new[] { GetEntryType() });
+        }
+
+        private static Type GetEntryType()
+        {
+            return GetLoggingType("LogEntry");
+        }
+
+        private static Type GetLoggingType(string name)
+        {
+            return Type.GetType(string.Format("Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging", name));
+        }
+
+        private static Func<string, string, TraceEventType, object> GetCreateEntryFunc()
+        {
+            var entryType = GetEntryType();
+
+            var logNameParameter = Expression.Parameter(typeof(string), "logName");
+            var messageParameter = Expression.Parameter(typeof(string), "message");
+            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+
+            var memberInit = Expression.MemberInit(Expression.New(entryType), new[]
+            {
+                Expression.Bind(entryType.GetProperty("Message"), messageParameter),
+                Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
+                Expression.Bind(entryType.GetProperty("TimeStamp"),
+                    Expression.Property(null, typeof (DateTime).GetProperty("UtcNow"))),
+                Expression.Bind(entryType.GetProperty("Categories"),
+                    Expression.ListInit(
+                        Expression.New(typeof (List<string>)),
+                        typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
+                        logNameParameter))
+            });
+            return Expression.Lambda<Func<string, string, TraceEventType, object>>(memberInit, logNameParameter, messageParameter, severityParameter).Compile();
+        }
+
+        public class EntLibLogger : ILog
+        {
+            private readonly string _loggerName;
+            private readonly Func<string, string, TraceEventType, object> _createLogEntryFunc;
+            private readonly MethodInfo _writeMethod;
+
+            internal EntLibLogger(string loggerName, Func<string, string, TraceEventType, object> createLogEntryFunc, MethodInfo writeMethod)
+            {
+                _loggerName = loggerName;
+                _createLogEntryFunc = createLogEntryFunc;
+                _writeMethod = writeMethod;
+            }
+
+            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            {
+                var severity = MapSeverity(logLevel);
+                object entry = _createLogEntryFunc(_loggerName, messageFunc(), severity);
+                _writeMethod.Invoke(null, new[] { entry });
+            }
+
+            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
+                where TException : Exception
+            {
+                var severity = MapSeverity(logLevel);
+                var message = messageFunc() + Environment.NewLine + exception;
+                object entry = _createLogEntryFunc(_loggerName, message, severity);
+                _writeMethod.Invoke(null, new[] { entry });
+            }
+
+            private static TraceEventType MapSeverity(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Fatal:
+                        return TraceEventType.Critical;
+                    case LogLevel.Error:
+                        return TraceEventType.Error;
+                    case LogLevel.Warn:
+                        return TraceEventType.Warning;
+                    case LogLevel.Info:
+                        return TraceEventType.Information;
+                    default:
+                        return TraceEventType.Verbose;
                 }
             }
         }
