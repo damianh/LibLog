@@ -1,7 +1,7 @@
 ﻿//===============================================================================
-// LibLogger
+// LibLog
 //
-// https://github.com/damianh/LibLogger
+// https://github.com/damianh/LibLog
 //===============================================================================
 // Copyright © 2011-2014 Damian Hickey.  All rights reserved.
 //
