@@ -27,11 +27,23 @@ namespace DH.Logging
         }
 
         [Fact]
-        public void When_neither_NLog_or_Log4Net_is_available_Then_should_get_NoOpLogger()
+        public void When_neither_NLog_or_Log4Net_is_available_Then_should_get_EntLibLogger()
         {
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
+            EntLibLogProvider.ProviderIsAvailableOverride = true;
+            ILog logger = LogProvider.GetLogger(GetType());
+            Assert.IsType<EntLibLogProvider.EntLibLogger>(((LoggerExecutionWrapper)logger).WrappedLogger);
+        }
+
+        [Fact]
+        public void When_neither_NLog_or_Log4Net_or_EntLib_is_available_Then_should_get_NoOpLogger()
+        {
+            LogProvider.SetCurrentLogProvider(null);
+            NLogLogProvider.ProviderIsAvailableOverride = false;
+            Log4NetLogProvider.ProviderIsAvailableOverride = false;
+            EntLibLogProvider.ProviderIsAvailableOverride = false;
             ILog logger = LogProvider.GetLogger(GetType());
             Assert.IsType<LogProvider.NoOpLogger>(logger);
         }
@@ -40,6 +52,7 @@ namespace DH.Logging
         {
             NLogLogProvider.ProviderIsAvailableOverride = true;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
+            EntLibLogProvider.ProviderIsAvailableOverride = true;
         }
     }
 }
