@@ -7,7 +7,6 @@
     using log4net.Appender;
     using log4net.Config;
     using log4net.Core;
-    using Xunit;
     using Xunit.Extensions;
     using ILog = LibLog.Logging.ILog;
 

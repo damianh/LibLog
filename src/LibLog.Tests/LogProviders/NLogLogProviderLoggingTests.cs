@@ -5,7 +5,6 @@
     using NLog;
     using NLog.Config;
     using NLog.Targets;
-    using Xunit;
     using Xunit.Extensions;
     using LogLevel = LibLog.Logging.LogLevel;
 
