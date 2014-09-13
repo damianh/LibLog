@@ -1,18 +1,67 @@
-namespace LibLog.Logging.LogProviders
+﻿namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using LibLog.Logging;
+    using FluentAssertions;
     using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
     using Microsoft.Practices.EnterpriseLibrary.Logging;
     using Microsoft.Practices.EnterpriseLibrary.Logging.Filters;
     using Microsoft.Practices.ServiceLocation;
-    using Xunit;
+    using Xunit.Extensions;
+    using LogLevel = LibLog.Logging.LogLevel;
 
     public class EntLibLogProviderLoggingTests : IDisposable
     {
+        private static readonly ILog Sut;
+        private static readonly LogWriterStub Target =  new LogWriterStub();
+
+        static EntLibLogProviderLoggingTests()
+        {
+            var container = new ServiceLocatorStub();
+            container.Register<LogWriter>(Target);
+            EnterpriseLibraryContainer.Current = container;
+            Sut = new EntLibLogProvider().GetLogger("Test");
+        }
+
+        public void Dispose()
+        {
+            Target.Logs.Clear();
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Error, TraceEventType.Error)]
+        [InlineData(LogLevel.Fatal, TraceEventType.Critical)]
+        [InlineData(LogLevel.Info, TraceEventType.Information)]
+        [InlineData(LogLevel.Trace, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Warn, TraceEventType.Warning)]
+        public void Should_be_able_to_log_message(LogLevel logLevel, TraceEventType severity)
+        {
+            Sut.Log(logLevel, () => "m");
+
+            Target.Logs[0].Message.Should().Be("m");
+            Target.Logs[0].Severity.Should().Be(severity);
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Error, TraceEventType.Error)]
+        [InlineData(LogLevel.Fatal, TraceEventType.Critical)]
+        [InlineData(LogLevel.Info, TraceEventType.Information)]
+        [InlineData(LogLevel.Trace, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Warn, TraceEventType.Warning)]
+        public void Should_be_able_to_log_message_and_exception(LogLevel logLevel, TraceEventType severity)
+        {
+            var exception = new Exception("e");
+
+            Sut.Log(logLevel, () => "m", exception);
+
+            Target.Logs[0].Message.Should().Be("m" + Environment.NewLine + exception);
+            Target.Logs[0].Severity.Should().Be(severity);
+        }
+       
         private class ServiceLocatorStub : ServiceLocatorImplBase
         {
             private readonly Dictionary<Type, object> _instances = new Dictionary<Type, object>();
@@ -24,7 +73,7 @@ namespace LibLog.Logging.LogProviders
 
             protected override IEnumerable<object> DoGetAllInstances(Type serviceType)
             {
-                return new[] { DoGetInstance(serviceType, null) };
+                return new[] {DoGetInstance(serviceType, null)};
             }
 
             public void Register<TService>(TService instance)
@@ -35,7 +84,7 @@ namespace LibLog.Logging.LogProviders
 
         private class LogWriterStub : LogWriter
         {
-            public readonly List<LogEntry> Entries = new List<LogEntry>();
+            public readonly List<LogEntry> Logs = new List<LogEntry>();
 
             public override T GetFilter<T>()
             {
@@ -64,7 +113,7 @@ namespace LibLog.Logging.LogProviders
 
             public override bool IsTracingEnabled()
             {
-                return false;
+                return true;
             }
 
             public override bool ShouldLog(LogEntry log)
@@ -74,39 +123,13 @@ namespace LibLog.Logging.LogProviders
 
             public override void Write(LogEntry log)
             {
-                Entries.Add(log);
+                Logs.Add(log);
             }
 
             public override IDictionary<string, LogSource> TraceSources
             {
                 get { return new Dictionary<string, LogSource>(); }
             }
-        }
-
-        public void Dispose()
-        {
-            EnterpriseLibraryContainer.Current = null;
-        }
-
-        [Fact]
-        public void Provider_should_log_events()
-        {
-            var writer = new LogWriterStub();
-            var container = new ServiceLocatorStub();
-            container.Register<LogWriter>(writer);
-            EnterpriseLibraryContainer.Current = container;
-
-            LogProvider.SetCurrentLogProvider(new EntLibLogProvider());
-
-            var log = LogProvider.GetLogger(GetType());
-            log.Log(LogLevel.Error, () => "test");
-
-            Assert.NotEmpty(writer.Entries);
-            Assert.Equal(1, writer.Entries.Count);
-            Assert.Equal("test", writer.Entries.Single().Message);
-            Assert.Equal(1, writer.Entries.Single().Categories.Count);
-            Assert.Equal(GetType().FullName, writer.Entries.Single().Categories.Single());
-            Assert.Equal(TraceEventType.Error, writer.Entries.Single().Severity);
         }
     }
 }
