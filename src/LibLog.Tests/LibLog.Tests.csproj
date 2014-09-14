@@ -81,6 +81,18 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net40\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net40\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net40\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net40\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="xunit, Version=1.9.2.1705, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
@@ -98,6 +110,7 @@
     <Compile Include="LoggerExecutionWrapperTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />
+    <Compile Include="LogProviders\SerilogLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\NLogLogProviderLoggingTests.cs" />
     <Compile Include="LogProviderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
