@@ -15,7 +15,7 @@ Option 1 is not desirable because it forces your users to use a particular frame
 This package is a variation of option 3 but will automatically wite thigs up too.
 - It will add an ILog, ILogProvider etc to YourRootNamespace.Logging
 - ILog is 2 methods to implement in comparison to Common.Logging ILog's ~65 members
-- Using reflection, it transparently supports NLog, Log4Net and Enterprise Logging without any wiring up required by an end user.</description>
+- Using reflection, it transparently supports NLog, Log4Net, EntLib Logging and Serilog without any wiring up required by an end user.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.</summary>
         <copyright>Damian Hickey 2014</copyright>
         <tags>logging, framework, component, nlog, log4net, entlib logging, serilog</tags>
