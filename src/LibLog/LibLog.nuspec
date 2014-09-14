@@ -2,25 +2,25 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>1.1.2</version>
+        <version>1.2.0</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <developmentDependency>true</developmentDependency>
-        <description>If you are a library or framework author and you wish to provid logging support to your component there are a couple of options 1) Depend on Log4Net/NLog 2) Depend on Common.Logging 3) Implement your own ILog interface and make your consumers wire it up.
+        <description>If you are a library or framework author and you wish to provide logging support in your component there are a  number of options: 1) Depend on Log4Net/NLog 2) Depend on Common.Logging 3) Implement your own ILog interface and make your consumers wire it up.
 
-Option 1 is not desirable because it forces your users to use a particular framework. Option 2 is not desirable because it will add yet more nuger package dependencies and project references with associated versioning concerns and requires wiring up with. Option 3 is desirable because it is dependency free but requires that your users to remember to write an adapter and wire things up.
+Option 1 is not desirable because it forces your users to use a particular framework. Option 2 is not desirable because it will add yet more nuget package dependencies and project references with associated versioning concerns in addition to wiring up. Option 3 is desirable because it is dependency free but requires that your users to remember to write an adapter and wire things up.
 
-This package is a version of option 3:
+This package is a variation of option 3 but will automatically wite thigs up too.
 - It will add an ILog, ILogProvider etc to YourRootNamespace.Logging
-- ILog is 2 methods to implement in comparision to Common.Logging ILog's ~65 members
+- ILog is 2 methods to implement in comparison to Common.Logging ILog's ~65 members
 - Using reflection, it transparently supports NLog, Log4Net and Enterprise Logging without any wiring up required by an end user.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.</summary>
         <copyright>Damian Hickey 2014</copyright>
-        <tags>logging, framework, component, nlog, log4net, entlib logging</tags>
+        <tags>logging, framework, component, nlog, log4net, entlib logging, serilog</tags>
     </metadata>
     <files>
-        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.1\Logging.cs.pp" />
+        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.2\Logging.cs.pp" />
     </files>
 </package>
