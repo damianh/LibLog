@@ -183,7 +183,11 @@ namespace LibLog.Logging
             {
                 return new Log4NetLogProvider();
             }
-            return EntLibLogProvider.IsLoggerAvailable() ? new EntLibLogProvider() : null;
+            if (EntLibLogProvider.IsLoggerAvailable())
+            {
+                return new EntLibLogProvider();
+            }
+            return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
         }
 
         public class NoOpLogger : ILog
