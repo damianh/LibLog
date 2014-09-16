@@ -29,7 +29,7 @@ The included providers, `NLogProvider`, `Log4NetProvider` and `EntLibLogProvider
 ```csharp
 public class MyClass
 {
-    private static readonly ILog Logger = LogProvider.GetCurrentClassLogger(); 
+    private static readonly ILog Logger = LogProvider.For<MyClass>(); 
     
     public MyClass()
     {
@@ -38,7 +38,11 @@ public class MyClass
 }
 ```
 
-Yes, of couse you can do `LogProvider.For<MyClass>()` and all that.
+Consumers can define their own provider in their application code to support custom loggers, decorate, etc:
+
+```csharp
+YourComponent.Logging.LogProvider.SetCurrentLogProvider(new CustomLogProvider())
+```
 
 ### Example usages
  - [RavenDB][7]
