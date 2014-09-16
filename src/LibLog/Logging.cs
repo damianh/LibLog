@@ -164,8 +164,8 @@ namespace LibLog.Logging
 
         public static ILog GetLogger(string name)
         {
-            ILogProvider temp = _currentLogProvider ?? ResolveLogProvider();
-            return temp == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(temp.GetLogger(name));
+            ILogProvider logProvider = _currentLogProvider ?? ResolveLogProvider();
+            return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
         public static void SetCurrentLogProvider(ILogProvider logProvider)
@@ -175,19 +175,30 @@ namespace LibLog.Logging
 
         private static ILogProvider ResolveLogProvider()
         {
-            if (NLogLogProvider.IsLoggerAvailable())
+            try
             {
-                return new NLogLogProvider();
+                if (NLogLogProvider.IsLoggerAvailable())
+                {
+                    return new NLogLogProvider();
+                }
+                if (Log4NetLogProvider.IsLoggerAvailable())
+                {
+                    return new Log4NetLogProvider();
+                }
+                if (EntLibLogProvider.IsLoggerAvailable())
+                {
+                    return new EntLibLogProvider();
+                }
+                return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
             }
-            if (Log4NetLogProvider.IsLoggerAvailable())
+            catch (Exception ex)
             {
-                return new Log4NetLogProvider();
+                Console.WriteLine(
+                    "Exception occured resolving a log proivder. Logging for this assembly {0} is disabled. {1}",
+                    typeof(LogProvider).Assembly.FullName,
+                    ex);
+                return null;
             }
-            if (EntLibLogProvider.IsLoggerAvailable())
-            {
-                return new EntLibLogProvider();
-            }
-            return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
         }
 
         public class NoOpLogger : ILog
