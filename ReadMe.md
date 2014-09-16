@@ -40,9 +40,15 @@ public class MyClass
 
 Yes, of couse you can do `LogProvider.For<MyClass>()` and all that.
 
+### Example usages
+ - [RavenDB][7]
+ - [Thinktecture.IdentityServer.v3][8]
+
 ### License
 
 Logging is licensed under [MIT Licence][2].
+
+Feedback, compliments or criticism: [@randompunter][6] 
 
 [0]: https://www.nuget.org/packages/LibLog
 [1]: https://github.com/damianh/LibLog/blob/master/src/LibLog/Logging.cs
@@ -50,3 +56,6 @@ Logging is licensed under [MIT Licence][2].
 [3]: http://nlog-project.org/
 [4]: https://logging.apache.org/log4net/
 [5]: http://msdn.microsoft.com/en-us/library/ff647183.aspx
+[6]: https://twitter.com/randompunter
+[7]: https://github.com/ayende/ravendb/tree/master/Raven.Abstractions/Logging
+[8]: https://github.com/thinktecture/Thinktecture.IdentityServer.v3/tree/master/source/Core/Logging
