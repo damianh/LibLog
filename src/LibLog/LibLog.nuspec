@@ -15,7 +15,7 @@ If you are a library or framework author and you wish to provide logging support
 
 Option 1 is not desirable because it forces your users to use a particular framework. Option 2 is not desirable because it will add yet more nuget package dependencies and project references with associated versioning concerns in addition to wiring up. Option 3 is desirable because it is dependency free but requires that your users to remember to write an adapter and wire things up.
 
-This package is a variation of option 3 but will automatically write things up too.
+This package is a variation of option 3 but will automatically wire things up too.
 - It will add an ILog, ILogProvider etc to YourRootNamespace.Logging
 - ILog is 2 methods to implement in comparison to Common.Logging ILog's ~65 members
 - Using reflection, it transparently supports NLog, Log4Net, EntLib Logging and Serilog without any wiring up required by an end user.</description>
