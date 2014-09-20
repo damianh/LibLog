@@ -115,3 +115,4 @@ src/eVision.Shell/Content/bootstrap/variables.css
 src/eVision.Shell/coverage/
 src/eVision.Shell/Content/bootstrap/variables.min.css
 src/_NCrunch_Fastnet/
+scripts/LibLog.*.nupkg
