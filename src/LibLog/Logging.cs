@@ -673,6 +673,7 @@ namespace LibLog.Logging.LogProviders
         private static readonly Type LogEntryType;
         private static readonly Type LoggerType;
         private static readonly Action<string, string, TraceEventType> WriteLogEntry;
+        private static Func<string, TraceEventType, bool> ShouldLogEntry;
 
         static EntLibLogProvider()
         {
@@ -683,6 +684,7 @@ namespace LibLog.Logging.LogProviders
                 return;
             }
             WriteLogEntry = GetWriteLogEntry();
+            ShouldLogEntry = GetShouldLogEntry();
         }
 
         public EntLibLogProvider()
@@ -701,7 +703,7 @@ namespace LibLog.Logging.LogProviders
 
         public ILog GetLogger(string name)
         {
-            return new EntLibLogger(name, WriteLogEntry);
+            return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry);
         }
 
         public static bool IsLoggerAvailable()
@@ -712,23 +714,11 @@ namespace LibLog.Logging.LogProviders
         private static Action<string, string, TraceEventType> GetWriteLogEntry()
         {
             // new LogEntry(...)
-            var entryType = LogEntryType;
             var logNameParameter = Expression.Parameter(typeof(string), "logName");
             var messageParameter = Expression.Parameter(typeof(string), "message");
             var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
 
-            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new MemberBinding[]
-            {
-                Expression.Bind(entryType.GetProperty("Message"), messageParameter),
-                Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
-                Expression.Bind(entryType.GetProperty("TimeStamp"),
-                    Expression.Property(null, typeof (DateTime).GetProperty("UtcNow"))),
-                Expression.Bind(entryType.GetProperty("Categories"),
-                    Expression.ListInit(
-                        Expression.New(typeof (List<string>)),
-                        typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
-                        logNameParameter))
-            });
+            MemberInitExpression memberInit = GetWriteLogExpression(messageParameter, severityParameter, logNameParameter);
 
             //Logger.Write(new LogEntry(....));
             MethodInfo writeLogEntryMethod = LoggerType.GetMethod("Write", new[] { LogEntryType });
@@ -741,20 +731,63 @@ namespace LibLog.Logging.LogProviders
                 severityParameter).Compile();
         }
 
+        private static Func<string, TraceEventType, bool> GetShouldLogEntry()
+        {
+            // new LogEntry(...)
+            var logNameParameter = Expression.Parameter(typeof(string), "logName");
+            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+
+            MemberInitExpression memberInit = GetWriteLogExpression(Expression.Constant("***dummy***"), severityParameter, logNameParameter);
+
+            //Logger.Write(new LogEntry(....));
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethod("ShouldLog", new[] { LogEntryType });
+            var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
+
+            return Expression.Lambda<Func<string, TraceEventType, bool>>(
+                writeLogEntryExpression,
+                logNameParameter,
+                severityParameter).Compile();
+        }
+
+        private static MemberInitExpression GetWriteLogExpression(Expression message,
+            ParameterExpression severityParameter, ParameterExpression logNameParameter)
+        {
+            var entryType = LogEntryType;
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new MemberBinding[]
+            {
+                Expression.Bind(entryType.GetProperty("Message"), message),
+                Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
+                Expression.Bind(entryType.GetProperty("TimeStamp"),
+                    Expression.Property(null, typeof (DateTime).GetProperty("UtcNow"))),
+                Expression.Bind(entryType.GetProperty("Categories"),
+                    Expression.ListInit(
+                        Expression.New(typeof (List<string>)),
+                        typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
+                        logNameParameter))
+            });
+            return memberInit;
+        }
+
         public class EntLibLogger : ILog
         {
             private readonly string _loggerName;
             private readonly Action<string, string, TraceEventType> _writeLog;
+            private readonly Func<string, TraceEventType, bool> _shouldLog;
 
-            internal EntLibLogger(string loggerName, Action<string, string, TraceEventType> writeLog)
+            internal EntLibLogger(string loggerName, Action<string, string, TraceEventType> writeLog, Func<string, TraceEventType, bool> shouldLog)
             {
                 _loggerName = loggerName;
                 _writeLog = writeLog;
+                _shouldLog = shouldLog;
             }
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
                 var severity = MapSeverity(logLevel);
+                if (messageFunc == null)
+                {
+                    return _shouldLog(_loggerName, severity);
+                }
                 _writeLog(_loggerName, messageFunc(), severity);
                 return true;
             }
