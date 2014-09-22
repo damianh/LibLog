@@ -668,9 +668,22 @@ namespace LibLog.Logging.LogProviders
 
     public class EntLibLogProvider : ILogProvider
     {
+        private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
         private static bool _providerIsAvailableOverride = true;
-        private readonly MethodInfo _logEntryMethod;
-        private readonly Func<string, string, TraceEventType, object> _createEntryFunc;
+        private static readonly Type LogEntryType;
+        private static readonly Type LoggerType;
+        private static readonly Action<string, string, TraceEventType> WriteLogEntry;
+
+        static EntLibLogProvider()
+        {
+            LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
+            LoggerType = Type.GetType(string.Format(TypeTemplate, "Logger"));
+            if (LogEntryType == null || LoggerType == null)
+            {
+                return;
+            }
+            WriteLogEntry = GetWriteLogEntry();
+        }
 
         public EntLibLogProvider()
         {
@@ -678,8 +691,6 @@ namespace LibLog.Logging.LogProviders
             {
                 throw new InvalidOperationException("Microsoft.Practices.EnterpriseLibrary.Logging.Logger not found");
             }
-            _logEntryMethod = GetLoggerMethod();
-            _createEntryFunc = GetCreateEntryFunc();
         }
 
         public static bool ProviderIsAvailableOverride
@@ -690,39 +701,23 @@ namespace LibLog.Logging.LogProviders
 
         public ILog GetLogger(string name)
         {
-            return new EntLibLogger(name, _createEntryFunc, _logEntryMethod);
+            return new EntLibLogger(name, WriteLogEntry);
         }
 
         public static bool IsLoggerAvailable()
         {
-            return ProviderIsAvailableOverride && GetEntryType() != null;
+            return ProviderIsAvailableOverride && LogEntryType != null;
         }
 
-        private static MethodInfo GetLoggerMethod()
+        private static Action<string, string, TraceEventType> GetWriteLogEntry()
         {
-            var loggingType = GetLoggingType("Logger");
-            return loggingType.GetMethod("Write", new[] { GetEntryType() });
-        }
-
-        private static Type GetEntryType()
-        {
-            return GetLoggingType("LogEntry");
-        }
-
-        private static Type GetLoggingType(string name)
-        {
-            return Type.GetType(string.Format("Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging", name));
-        }
-
-        private static Func<string, string, TraceEventType, object> GetCreateEntryFunc()
-        {
-            var entryType = GetEntryType();
-
+            // new LogEntry(...)
+            var entryType = LogEntryType;
             var logNameParameter = Expression.Parameter(typeof(string), "logName");
             var messageParameter = Expression.Parameter(typeof(string), "message");
             var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
 
-            var memberInit = Expression.MemberInit(Expression.New(entryType), new[]
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new MemberBinding[]
             {
                 Expression.Bind(entryType.GetProperty("Message"), messageParameter),
                 Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
@@ -734,8 +729,13 @@ namespace LibLog.Logging.LogProviders
                         typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
                         logNameParameter))
             });
-            return Expression.Lambda<Func<string, string, TraceEventType, object>>(
-                memberInit,
+
+            //Logger.Write(new LogEntry(....));
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethod("Write", new[] { LogEntryType });
+            var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
+
+            return Expression.Lambda<Action<string, string, TraceEventType>>(
+                writeLogEntryExpression,
                 logNameParameter,
                 messageParameter,
                 severityParameter).Compile();
@@ -744,21 +744,18 @@ namespace LibLog.Logging.LogProviders
         public class EntLibLogger : ILog
         {
             private readonly string _loggerName;
-            private readonly Func<string, string, TraceEventType, object> _createLogEntryFunc;
-            private readonly MethodInfo _writeMethod;
+            private readonly Action<string, string, TraceEventType> _writeLog;
 
-            internal EntLibLogger(string loggerName, Func<string, string, TraceEventType, object> createLogEntryFunc, MethodInfo writeMethod)
+            internal EntLibLogger(string loggerName, Action<string, string, TraceEventType> writeLog)
             {
                 _loggerName = loggerName;
-                _createLogEntryFunc = createLogEntryFunc;
-                _writeMethod = writeMethod;
+                _writeLog = writeLog;
             }
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
                 var severity = MapSeverity(logLevel);
-                object entry = _createLogEntryFunc(_loggerName, messageFunc(), severity);
-                _writeMethod.Invoke(null, new[] { entry });
+                _writeLog(_loggerName, messageFunc(), severity);
                 return true;
             }
 
@@ -767,8 +764,7 @@ namespace LibLog.Logging.LogProviders
             {
                 var severity = MapSeverity(logLevel);
                 var message = messageFunc() + Environment.NewLine + exception;
-                object entry = _createLogEntryFunc(_loggerName, message, severity);
-                _writeMethod.Invoke(null, new[] { entry });
+                _writeLog(_loggerName, message, severity);
             }
 
             private static TraceEventType MapSeverity(LogLevel logLevel)
@@ -870,7 +866,7 @@ namespace LibLog.Logging.LogProviders
                 VerboseLevel = Enum.Parse(logEventTypeType, "Verbose");
                 WarningLevel = Enum.Parse(logEventTypeType, "Warning");
 
-                // Func<object, object, bool> isEnabled = (logger, level) => { return ((ILogger)logger).IsEnabled(level); }
+                // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
                 var loggerType = Type.GetType("Serilog.ILogger, Serilog");
                 MethodInfo isEnabledMethodInfo = loggerType.GetMethod("IsEnabled");
                 ParameterExpression instanceParam = Expression.Parameter(typeof(object));
@@ -885,7 +881,7 @@ namespace LibLog.Logging.LogProviders
                 }).Compile();
 
                 // Action<object, object, string> Write =
-                // (logger, level, message) => { ((ILogger)logger).Write(level, message, new object[]); }
+                // (logger, level, message) => { ((SeriLog.ILoggerILogger)logger).Write(level, message, new object[]); }
                 MethodInfo writeMethodInfo = loggerType.GetMethod("Write", new[] { logEventTypeType, typeof(string), typeof(object[]) });
                 ParameterExpression messageParam = Expression.Parameter(typeof(string));
                 ConstantExpression propertyValuesParam = Expression.Constant(new object[0]);
