@@ -5,6 +5,7 @@
     using NLog;
     using NLog.Config;
     using NLog.Targets;
+    using Xunit;
     using Xunit.Extensions;
     using LogLevel = LibLog.Logging.LogLevel;
 
@@ -57,6 +58,12 @@
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
             _target.Logs[0].Should().Be(messagePrefix + "|m|e");
+        }
+
+        [Fact]
+        public void Can_check_is_log_level_enabled()
+        {
+           _sut.AssertCanCheckLogLevelsEnabled();
         }
     }
 }

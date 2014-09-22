@@ -4,6 +4,7 @@
     using FluentAssertions;
     using Serilog;
     using Serilog.Events;
+    using Xunit;
     using Xunit.Extensions;
     using LogLevel = LibLog.Logging.LogLevel;
 
@@ -55,6 +56,12 @@
             _logEvent.Level.Should().Be(logEventLevel);
             _logEvent.RenderMessage().Should().Be("m");
             _logEvent.Exception.Should().Be(exception);
+        }
+
+        [Fact]
+        public void Can_check_is_log_level_enabled()
+        {
+            _sut.AssertCanCheckLogLevelsEnabled();
         }
     }
 }

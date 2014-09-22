@@ -31,13 +31,39 @@ namespace LibLog.Logging
     using System.Globalization;
     using LibLog.Logging.LogProviders;
 
+    /// <summary>
+    /// Simple interface that represent a logger.
+    /// </summary>
     public interface ILog
     {
-        void Log(LogLevel logLevel, Func<string> messageFunc);
+        /// <summary>
+        /// Log a message the specified log level.
+        /// </summary>
+        /// <param name="logLevel">The log level.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <remarks>
+        /// Note to implementors: the message func should not be called if the loglevel is not enabled
+        /// so as not to incur perfomance penalties.
+        /// </remarks>
+        bool Log(LogLevel logLevel, Func<string> messageFunc);
 
+        /// <summary>
+        /// Log a message and exception at the specified log level.
+        /// </summary>
+        /// <typeparam name="TException">The type of the exception.</typeparam>
+        /// <param name="logLevel">The log level.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <param name="exception">The exception.</param>
+        /// <remarks>
+        /// Note to implementors: the message func should not be called if the loglevel is not enabled
+        /// so as not to incur perfomance penalties.
+        /// </remarks>
         void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception;
     }
 
+    /// <summary>
+    /// The log level.
+    /// </summary>
     public enum LogLevel
     {
         Trace,
@@ -50,6 +76,42 @@ namespace LibLog.Logging
 
     public static class LogExtensions
     {
+        public static bool IsDebugEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Debug, null);
+        }
+
+        public static bool IsErrorEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Error, null);
+        }
+
+        public static bool IsFatalEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Fatal, null);
+        }
+
+        public static bool IsInfoEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Info, null);
+        }
+
+        public static bool IsTraceEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Trace, null);
+        }
+
+        public static bool IsWarnEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Warn, null);
+        }
+
         public static void Debug(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
@@ -203,8 +265,10 @@ namespace LibLog.Logging
 
         public class NoOpLogger : ILog
         {
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
-            { }
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            {
+                return false;
+            }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
                 where TException : Exception
@@ -227,7 +291,7 @@ namespace LibLog.Logging
             _logger = logger;
         }
 
-        public void Log(LogLevel logLevel, Func<string> messageFunc)
+        public bool Log(LogLevel logLevel, Func<string> messageFunc)
         {
             Func<string> wrappedMessageFunc = () =>
             {
@@ -241,7 +305,7 @@ namespace LibLog.Logging
                 }
                 return null;
             };
-            _logger.Log(logLevel, wrappedMessageFunc);
+            return _logger.Log(logLevel, wrappedMessageFunc);
         }
 
         public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
@@ -324,47 +388,58 @@ namespace LibLog.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsLogLevelEnable(logLevel);
+                }
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (_logger.IsInfoEnabled)
                         {
                             _logger.Info(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.Warn(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.Error(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.Fatal(messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsTraceEnabled)
                         {
                             _logger.Trace(messageFunc());
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -408,6 +483,25 @@ namespace LibLog.Logging.LogProviders
                             _logger.TraceException(messageFunc(), exception);
                         }
                         break;
+                }
+            }
+
+            private bool IsLogLevelEnable(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        return _logger.IsDebugEnabled;
+                    case LogLevel.Info:
+                        return _logger.IsInfoEnabled;
+                    case LogLevel.Warn:
+                        return _logger.IsWarnEnabled;
+                    case LogLevel.Error:
+                        return _logger.IsErrorEnabled;
+                    case LogLevel.Fatal:
+                        return _logger.IsFatalEnabled;
+                    default:
+                        return _logger.IsTraceEnabled;
                 }
             }
         }
@@ -466,41 +560,51 @@ namespace LibLog.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsLogLevelEnable(logLevel);
+                }
                 switch (logLevel)
                 {
                     case LogLevel.Info:
                         if (_logger.IsInfoEnabled)
                         {
                             _logger.Info(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.Warn(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.Error(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.Fatal(messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc()); // Log4Net doesn't have a 'Trace' level, so all Trace messages are written as 'Debug'
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -538,6 +642,25 @@ namespace LibLog.Logging.LogProviders
                             _logger.Debug(messageFunc(), exception);
                         }
                         break;
+                }
+            }
+
+            private bool IsLogLevelEnable(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        return _logger.IsDebugEnabled;
+                    case LogLevel.Info:
+                        return _logger.IsInfoEnabled;
+                    case LogLevel.Warn:
+                        return _logger.IsWarnEnabled;
+                    case LogLevel.Error:
+                        return _logger.IsErrorEnabled;
+                    case LogLevel.Fatal:
+                        return _logger.IsFatalEnabled;
+                    default:
+                        return _logger.IsDebugEnabled;
                 }
             }
         }
@@ -631,11 +754,12 @@ namespace LibLog.Logging.LogProviders
                 _writeMethod = writeMethod;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
                 var severity = MapSeverity(logLevel);
                 object entry = _createLogEntryFunc(_loggerName, messageFunc(), severity);
                 _writeMethod.Invoke(null, new[] { entry });
+                return true;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -804,47 +928,59 @@ namespace LibLog.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsEnabled(_logger, DebugLevel);
+                }
+
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         if (IsEnabled(_logger, DebugLevel))
                         {
                             Write(_logger, DebugLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (IsEnabled(_logger, InformationLevel))
                         {
                             Write(_logger, InformationLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (IsEnabled(_logger, WarningLevel))
                         {
                             Write(_logger, WarningLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (IsEnabled(_logger, ErrorLevel))
                         {
                             Write(_logger, ErrorLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (IsEnabled(_logger, FatalLevel))
                         {
                             Write(_logger, FatalLevel, messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (IsEnabled(_logger, VerboseLevel))
                         {
                             Write(_logger, VerboseLevel, messageFunc());
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)

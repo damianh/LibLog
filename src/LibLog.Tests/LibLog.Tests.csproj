@@ -110,6 +110,7 @@
     <Compile Include="LoggerExecutionWrapperTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />
+    <Compile Include="LogProviders\LogExtensons.cs" />
     <Compile Include="LogProviders\SerilogLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\NLogLogProviderLoggingTests.cs" />
     <Compile Include="LogProviderTests.cs" />

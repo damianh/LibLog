@@ -9,6 +9,7 @@
     using Microsoft.Practices.EnterpriseLibrary.Logging;
     using Microsoft.Practices.EnterpriseLibrary.Logging.Filters;
     using Microsoft.Practices.ServiceLocation;
+    using Xunit;
     using Xunit.Extensions;
     using LogLevel = LibLog.Logging.LogLevel;
 
@@ -60,6 +61,12 @@
 
             Target.Logs[0].Message.Should().Be("m" + Environment.NewLine + exception);
             Target.Logs[0].Severity.Should().Be(severity);
+        }
+
+        [Fact]
+        public void Can_check_is_log_level_enabled()
+        {
+            Sut.AssertCanCheckLogLevelsEnabled();
         }
        
         private class ServiceLocatorStub : ServiceLocatorImplBase

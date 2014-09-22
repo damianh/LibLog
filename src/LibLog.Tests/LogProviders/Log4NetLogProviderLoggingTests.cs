@@ -7,6 +7,7 @@
     using log4net.Appender;
     using log4net.Config;
     using log4net.Core;
+    using Xunit;
     using Xunit.Extensions;
     using ILog = LibLog.Logging.ILog;
 
@@ -53,6 +54,12 @@
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
             GetSingleMessage().Should().Be(messagePrefix + "|m|e");
+        }
+
+        [Fact]
+        public void Can_check_is_log_level_enabled()
+        {
+            _sut.AssertCanCheckLogLevelsEnabled();
         }
 
         private string GetSingleMessage()

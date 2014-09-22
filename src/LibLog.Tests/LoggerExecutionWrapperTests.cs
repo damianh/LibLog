@@ -55,9 +55,10 @@
             private string _message;
             private Exception _exception;
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
                 messageFunc();
+                return true;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
