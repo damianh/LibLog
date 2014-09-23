@@ -68,7 +68,7 @@
         {
             Sut.AssertCanCheckLogLevelsEnabled();
         }
-       
+
         private class ServiceLocatorStub : ServiceLocatorImplBase
         {
             private readonly Dictionary<Type, object> _instances = new Dictionary<Type, object>();
