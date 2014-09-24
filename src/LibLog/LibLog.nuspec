@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>1.2.3</version>
+        <version>1.3</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
@@ -18,15 +18,17 @@ Option 1 is not desirable because it forces your users to use a particular frame
 This package is a variation of option 3 but will automatically wire things up too.
 - It will add an ILog, ILogProvider etc to YourRootNamespace.Logging
 - ILog is 2 methods to implement in comparison to Common.Logging ILog's ~65 members
-- Using reflection, it transparently supports NLog, Log4Net, EntLib Logging and Serilog without any wiring up required by an end user.</description>
+- Using optimized reflection, it transparently supports NLog, Log4Net, EntLib Logging and Serilog without any wiring up required by an end user, if the end user simply has a reference to any of these logging frameworks.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.</summary>
-        <copyright>Damian Hickey 2014</copyright>
+        <copyright>Damian Hickey and Contributors 2014</copyright>
+        <releaseNotes>- Add IsDebugEnabled(), IsInfoEnabled() etc to allow checking if a loglevel is enabled.
+- Performance improvement in EntLib logging provider.</releaseNotes>
         <tags>logging, framework, component, nlog, log4net, entlib, serilog</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.2\Logging.cs.pp" />
+        <file src="Logging.cs.pp" target="content\net40\App_Packages\LibLog.1.3\Logging.cs.pp" />
     </files>
 </package>
