@@ -199,6 +199,9 @@ namespace LibLog.Logging
         }
     }
 
+    /// <summary>
+    /// Represents a way to get a <see cref="ILog"/>
+    /// </summary>
     public interface ILogProvider
     {
         ILog GetLogger(string name);
@@ -212,28 +215,51 @@ namespace LibLog.Logging
     {
         private static ILogProvider _currentLogProvider;
 
+        /// <summary>
+        /// Gets a logger for the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
+        /// <returns>An instance of <see cref="ILog"/></returns>
         public static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
 
+        /// <summary>
+        /// Gets a logger for the current class.
+        /// </summary>
+        /// <returns>An instance of <see cref="ILog"/></returns>
         public static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
 
+        /// <summary>
+        /// Gets a logger for the specified type.
+        /// </summary>
+        /// <param name="type">The type whose name will be used for the logger.</param>
+        /// <returns>An instance of <see cref="ILog"/></returns>
         public static ILog GetLogger(Type type)
         {
             return GetLogger(type.FullName);
         }
 
+        /// <summary>
+        /// Gets a logger with the specified name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns>An instance of <see cref="ILog"/></returns>
         public static ILog GetLogger(string name)
         {
             ILogProvider logProvider = _currentLogProvider ?? ResolveLogProvider();
             return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
+        /// <summary>
+        /// Sets the current log provider.
+        /// </summary>
+        /// <param name="logProvider">The log provider.</param>
         public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
             _currentLogProvider = logProvider;
