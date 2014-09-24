@@ -204,6 +204,10 @@ namespace LibLog.Logging
         ILog GetLogger(string name);
     }
 
+
+    /// <summary>
+    /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
+    /// </summary>
     public static class LogProvider
     {
         private static ILogProvider _currentLogProvider;
