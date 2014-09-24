@@ -31,13 +31,39 @@ namespace $rootnamespace$.Logging
     using System.Globalization;
     using $rootnamespace$.Logging.LogProviders;
 
+    /// <summary>
+    /// Simple interface that represent a logger.
+    /// </summary>
     public interface ILog
     {
-        void Log(LogLevel logLevel, Func<string> messageFunc);
+        /// <summary>
+        /// Log a message the specified log level.
+        /// </summary>
+        /// <param name="logLevel">The log level.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <remarks>
+        /// Note to implementors: the message func should not be called if the loglevel is not enabled
+        /// so as not to incur perfomance penalties.
+        /// </remarks>
+        bool Log(LogLevel logLevel, Func<string> messageFunc);
 
+        /// <summary>
+        /// Log a message and exception at the specified log level.
+        /// </summary>
+        /// <typeparam name="TException">The type of the exception.</typeparam>
+        /// <param name="logLevel">The log level.</param>
+        /// <param name="messageFunc">The message function.</param>
+        /// <param name="exception">The exception.</param>
+        /// <remarks>
+        /// Note to implementors: the message func should not be called if the loglevel is not enabled
+        /// so as not to incur perfomance penalties.
+        /// </remarks>
         void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception;
     }
 
+    /// <summary>
+    /// The log level.
+    /// </summary>
     public enum LogLevel
     {
         Trace,
@@ -50,6 +76,42 @@ namespace $rootnamespace$.Logging
 
     public static class LogExtensions
     {
+        public static bool IsDebugEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Debug, null);
+        }
+
+        public static bool IsErrorEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Error, null);
+        }
+
+        public static bool IsFatalEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Fatal, null);
+        }
+
+        public static bool IsInfoEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Info, null);
+        }
+
+        public static bool IsTraceEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Trace, null);
+        }
+
+        public static bool IsWarnEnabled(this ILog logger)
+        {
+            GuardAgainstNullLogger(logger);
+            return logger.Log(LogLevel.Warn, null);
+        }
+
         public static void Debug(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
@@ -164,8 +226,8 @@ namespace $rootnamespace$.Logging
 
         public static ILog GetLogger(string name)
         {
-            ILogProvider temp = _currentLogProvider ?? ResolveLogProvider();
-            return temp == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(temp.GetLogger(name));
+            ILogProvider logProvider = _currentLogProvider ?? ResolveLogProvider();
+            return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
         public static void SetCurrentLogProvider(ILogProvider logProvider)
@@ -175,21 +237,38 @@ namespace $rootnamespace$.Logging
 
         private static ILogProvider ResolveLogProvider()
         {
-            if (NLogLogProvider.IsLoggerAvailable())
+            try
             {
-                return new NLogLogProvider();
+                if (NLogLogProvider.IsLoggerAvailable())
+                {
+                    return new NLogLogProvider();
+                }
+                if (Log4NetLogProvider.IsLoggerAvailable())
+                {
+                    return new Log4NetLogProvider();
+                }
+                if (EntLibLogProvider.IsLoggerAvailable())
+                {
+                    return new EntLibLogProvider();
+                }
+                return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
             }
-            if (Log4NetLogProvider.IsLoggerAvailable())
+            catch (Exception ex)
             {
-                return new Log4NetLogProvider();
+                Console.WriteLine(
+                    "Exception occured resolving a log proivder. Logging for this assembly {0} is disabled. {1}",
+                    typeof(LogProvider).Assembly.FullName,
+                    ex);
+                return null;
             }
-            return EntLibLogProvider.IsLoggerAvailable() ? new EntLibLogProvider() : null;
         }
 
         public class NoOpLogger : ILog
         {
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
-            { }
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            {
+                return false;
+            }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
                 where TException : Exception
@@ -212,7 +291,7 @@ namespace $rootnamespace$.Logging
             _logger = logger;
         }
 
-        public void Log(LogLevel logLevel, Func<string> messageFunc)
+        public bool Log(LogLevel logLevel, Func<string> messageFunc)
         {
             Func<string> wrappedMessageFunc = () =>
             {
@@ -226,7 +305,7 @@ namespace $rootnamespace$.Logging
                 }
                 return null;
             };
-            _logger.Log(logLevel, wrappedMessageFunc);
+            return _logger.Log(logLevel, wrappedMessageFunc);
         }
 
         public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
@@ -309,47 +388,58 @@ namespace $rootnamespace$.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsLogLevelEnable(logLevel);
+                }
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (_logger.IsInfoEnabled)
                         {
                             _logger.Info(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.Warn(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.Error(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.Fatal(messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsTraceEnabled)
                         {
                             _logger.Trace(messageFunc());
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -393,6 +483,25 @@ namespace $rootnamespace$.Logging.LogProviders
                             _logger.TraceException(messageFunc(), exception);
                         }
                         break;
+                }
+            }
+
+            private bool IsLogLevelEnable(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        return _logger.IsDebugEnabled;
+                    case LogLevel.Info:
+                        return _logger.IsInfoEnabled;
+                    case LogLevel.Warn:
+                        return _logger.IsWarnEnabled;
+                    case LogLevel.Error:
+                        return _logger.IsErrorEnabled;
+                    case LogLevel.Fatal:
+                        return _logger.IsFatalEnabled;
+                    default:
+                        return _logger.IsTraceEnabled;
                 }
             }
         }
@@ -451,41 +560,51 @@ namespace $rootnamespace$.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsLogLevelEnable(logLevel);
+                }
                 switch (logLevel)
                 {
                     case LogLevel.Info:
                         if (_logger.IsInfoEnabled)
                         {
                             _logger.Info(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.Warn(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.Error(messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.Fatal(messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc()); // Log4Net doesn't have a 'Trace' level, so all Trace messages are written as 'Debug'
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -525,14 +644,48 @@ namespace $rootnamespace$.Logging.LogProviders
                         break;
                 }
             }
+
+            private bool IsLogLevelEnable(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        return _logger.IsDebugEnabled;
+                    case LogLevel.Info:
+                        return _logger.IsInfoEnabled;
+                    case LogLevel.Warn:
+                        return _logger.IsWarnEnabled;
+                    case LogLevel.Error:
+                        return _logger.IsErrorEnabled;
+                    case LogLevel.Fatal:
+                        return _logger.IsFatalEnabled;
+                    default:
+                        return _logger.IsDebugEnabled;
+                }
+            }
         }
     }
 
     public class EntLibLogProvider : ILogProvider
     {
+        private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
         private static bool _providerIsAvailableOverride = true;
-        private readonly MethodInfo _logEntryMethod;
-        private readonly Func<string, string, TraceEventType, object> _createEntryFunc;
+        private static readonly Type LogEntryType;
+        private static readonly Type LoggerType;
+        private static readonly Action<string, string, TraceEventType> WriteLogEntry;
+        private static Func<string, TraceEventType, bool> ShouldLogEntry;
+
+        static EntLibLogProvider()
+        {
+            LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
+            LoggerType = Type.GetType(string.Format(TypeTemplate, "Logger"));
+            if (LogEntryType == null || LoggerType == null)
+            {
+                return;
+            }
+            WriteLogEntry = GetWriteLogEntry();
+            ShouldLogEntry = GetShouldLogEntry();
+        }
 
         public EntLibLogProvider()
         {
@@ -540,8 +693,6 @@ namespace $rootnamespace$.Logging.LogProviders
             {
                 throw new InvalidOperationException("Microsoft.Practices.EnterpriseLibrary.Logging.Logger not found");
             }
-            _logEntryMethod = GetLoggerMethod();
-            _createEntryFunc = GetCreateEntryFunc();
         }
 
         public static bool ProviderIsAvailableOverride
@@ -552,41 +703,59 @@ namespace $rootnamespace$.Logging.LogProviders
 
         public ILog GetLogger(string name)
         {
-            return new EntLibLogger(name, _createEntryFunc, _logEntryMethod);
+            return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry);
         }
 
         public static bool IsLoggerAvailable()
         {
-            return ProviderIsAvailableOverride && GetEntryType() != null;
+            return ProviderIsAvailableOverride && LogEntryType != null;
         }
 
-        private static MethodInfo GetLoggerMethod()
+        private static Action<string, string, TraceEventType> GetWriteLogEntry()
         {
-            var loggingType = GetLoggingType("Logger");
-            return loggingType.GetMethod("Write", new[] { GetEntryType() });
-        }
-
-        private static Type GetEntryType()
-        {
-            return GetLoggingType("LogEntry");
-        }
-
-        private static Type GetLoggingType(string name)
-        {
-            return Type.GetType(string.Format("Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging", name));
-        }
-
-        private static Func<string, string, TraceEventType, object> GetCreateEntryFunc()
-        {
-            var entryType = GetEntryType();
-
+            // new LogEntry(...)
             var logNameParameter = Expression.Parameter(typeof(string), "logName");
             var messageParameter = Expression.Parameter(typeof(string), "message");
             var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
 
-            var memberInit = Expression.MemberInit(Expression.New(entryType), new[]
+            MemberInitExpression memberInit = GetWriteLogExpression(messageParameter, severityParameter, logNameParameter);
+
+            //Logger.Write(new LogEntry(....));
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethod("Write", new[] { LogEntryType });
+            var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
+
+            return Expression.Lambda<Action<string, string, TraceEventType>>(
+                writeLogEntryExpression,
+                logNameParameter,
+                messageParameter,
+                severityParameter).Compile();
+        }
+
+        private static Func<string, TraceEventType, bool> GetShouldLogEntry()
+        {
+            // new LogEntry(...)
+            var logNameParameter = Expression.Parameter(typeof(string), "logName");
+            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+
+            MemberInitExpression memberInit = GetWriteLogExpression(Expression.Constant("***dummy***"), severityParameter, logNameParameter);
+
+            //Logger.Write(new LogEntry(....));
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethod("ShouldLog", new[] { LogEntryType });
+            var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
+
+            return Expression.Lambda<Func<string, TraceEventType, bool>>(
+                writeLogEntryExpression,
+                logNameParameter,
+                severityParameter).Compile();
+        }
+
+        private static MemberInitExpression GetWriteLogExpression(Expression message,
+            ParameterExpression severityParameter, ParameterExpression logNameParameter)
+        {
+            var entryType = LogEntryType;
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new MemberBinding[]
             {
-                Expression.Bind(entryType.GetProperty("Message"), messageParameter),
+                Expression.Bind(entryType.GetProperty("Message"), message),
                 Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
                 Expression.Bind(entryType.GetProperty("TimeStamp"),
                     Expression.Property(null, typeof (DateTime).GetProperty("UtcNow"))),
@@ -596,31 +765,31 @@ namespace $rootnamespace$.Logging.LogProviders
                         typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
                         logNameParameter))
             });
-            return Expression.Lambda<Func<string, string, TraceEventType, object>>(
-                memberInit,
-                logNameParameter,
-                messageParameter,
-                severityParameter).Compile();
+            return memberInit;
         }
 
         public class EntLibLogger : ILog
         {
             private readonly string _loggerName;
-            private readonly Func<string, string, TraceEventType, object> _createLogEntryFunc;
-            private readonly MethodInfo _writeMethod;
+            private readonly Action<string, string, TraceEventType> _writeLog;
+            private readonly Func<string, TraceEventType, bool> _shouldLog;
 
-            internal EntLibLogger(string loggerName, Func<string, string, TraceEventType, object> createLogEntryFunc, MethodInfo writeMethod)
+            internal EntLibLogger(string loggerName, Action<string, string, TraceEventType> writeLog, Func<string, TraceEventType, bool> shouldLog)
             {
                 _loggerName = loggerName;
-                _createLogEntryFunc = createLogEntryFunc;
-                _writeMethod = writeMethod;
+                _writeLog = writeLog;
+                _shouldLog = shouldLog;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
                 var severity = MapSeverity(logLevel);
-                object entry = _createLogEntryFunc(_loggerName, messageFunc(), severity);
-                _writeMethod.Invoke(null, new[] { entry });
+                if (messageFunc == null)
+                {
+                    return _shouldLog(_loggerName, severity);
+                }
+                _writeLog(_loggerName, messageFunc(), severity);
+                return true;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
@@ -628,8 +797,7 @@ namespace $rootnamespace$.Logging.LogProviders
             {
                 var severity = MapSeverity(logLevel);
                 var message = messageFunc() + Environment.NewLine + exception;
-                object entry = _createLogEntryFunc(_loggerName, message, severity);
-                _writeMethod.Invoke(null, new[] { entry });
+                _writeLog(_loggerName, message, severity);
             }
 
             private static TraceEventType MapSeverity(LogLevel logLevel)
@@ -731,7 +899,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 VerboseLevel = Enum.Parse(logEventTypeType, "Verbose");
                 WarningLevel = Enum.Parse(logEventTypeType, "Warning");
 
-                // Func<object, object, bool> isEnabled = (logger, level) => { return ((ILogger)logger).IsEnabled(level); }
+                // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
                 var loggerType = Type.GetType("Serilog.ILogger, Serilog");
                 MethodInfo isEnabledMethodInfo = loggerType.GetMethod("IsEnabled");
                 ParameterExpression instanceParam = Expression.Parameter(typeof(object));
@@ -746,7 +914,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 }).Compile();
 
                 // Action<object, object, string> Write =
-                // (logger, level, message) => { ((ILogger)logger).Write(level, message, new object[]); }
+                // (logger, level, message) => { ((SeriLog.ILoggerILogger)logger).Write(level, message, new object[]); }
                 MethodInfo writeMethodInfo = loggerType.GetMethod("Write", new[] { logEventTypeType, typeof(string), typeof(object[]) });
                 ParameterExpression messageParam = Expression.Parameter(typeof(string));
                 ConstantExpression propertyValuesParam = Expression.Constant(new object[0]);
@@ -789,47 +957,59 @@ namespace $rootnamespace$.Logging.LogProviders
                 _logger = logger;
             }
 
-            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
+                if (messageFunc == null)
+                {
+                    return IsEnabled(_logger, DebugLevel);
+                }
+
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
                         if (IsEnabled(_logger, DebugLevel))
                         {
                             Write(_logger, DebugLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (IsEnabled(_logger, InformationLevel))
                         {
                             Write(_logger, InformationLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (IsEnabled(_logger, WarningLevel))
                         {
                             Write(_logger, WarningLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (IsEnabled(_logger, ErrorLevel))
                         {
                             Write(_logger, ErrorLevel, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (IsEnabled(_logger, FatalLevel))
                         {
                             Write(_logger, FatalLevel, messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (IsEnabled(_logger, VerboseLevel))
                         {
                             Write(_logger, VerboseLevel, messageFunc());
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
