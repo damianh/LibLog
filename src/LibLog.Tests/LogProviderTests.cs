@@ -24,7 +24,7 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
-            ILog logger = LogProvider.GetLogger(GetType());
+            ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<Log4NetLogProvider.Log4NetLogger>();
         }
@@ -36,7 +36,7 @@
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = true;
-            ILog logger = LogProvider.GetLogger(GetType());
+            ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<EntLibLogProvider.EntLibLogger>();
         }
@@ -49,7 +49,7 @@
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
-            ILog logger = LogProvider.GetLogger(GetType());
+            ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<SerilogLogProvider.SerilogLogger>();
         }
@@ -62,7 +62,7 @@
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
-            ILog logger = LogProvider.GetLogger(GetType());
+            ILog logger = LogProvider.For<LogProviderTests>();
 
             logger.Should().BeOfType<LogProvider.NoOpLogger>();
         }
