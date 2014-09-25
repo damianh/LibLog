@@ -1,8 +1,8 @@
 ﻿namespace LibLog.Logging
 {
-    using System;
     using FluentAssertions;
     using LibLog.Logging.LogProviders;
+    using System;
     using Xunit;
 
     public class LogProviderTests : IDisposable
@@ -15,7 +15,7 @@
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
             ILog logger = LogProvider.GetCurrentClassLogger();
 
-            ((LoggerExecutionWrapper) logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
+            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
         }
 
         [Fact]
@@ -65,6 +65,15 @@
             ILog logger = LogProvider.For<LogProviderTests>();
 
             logger.Should().BeOfType<LogProvider.NoOpLogger>();
+        }
+
+        [Fact]
+        public void When_Serilog_and_Log4Net_is_available_Then_should_get_Serilog()
+        {
+            LogProvider.SetCurrentLogProvider(null);
+            ILog logger = LogProvider.For<LogProviderTests>();
+
+            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<SerilogLogProvider.SerilogLogger>();
         }
 
         public void Dispose()

@@ -269,6 +269,10 @@ namespace $rootnamespace$.Logging
         {
             try
             {
+                if (SerilogLogProvider.IsLoggerAvailable())
+                {
+                    return new SerilogLogProvider();
+                }
                 if (NLogLogProvider.IsLoggerAvailable())
                 {
                     return new NLogLogProvider();
@@ -281,7 +285,6 @@ namespace $rootnamespace$.Logging
                 {
                     return new EntLibLogProvider();
                 }
-                return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
             }
             catch (Exception ex)
             {
@@ -289,8 +292,8 @@ namespace $rootnamespace$.Logging
                     "Exception occured resolving a log proivder. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).Assembly.FullName,
                     ex);
-                return null;
             }
+            return null;
         }
 
         public class NoOpLogger : ILog
