@@ -26,10 +26,10 @@
 
 namespace LibLog.Logging
 {
+    using LibLog.Logging.LogProviders;
     using System;
     using System.Diagnostics;
     using System.Globalization;
-    using LibLog.Logging.LogProviders;
 
     /// <summary>
     /// Simple interface that represent a logger.
@@ -269,6 +269,10 @@ namespace LibLog.Logging
         {
             try
             {
+                if (SerilogLogProvider.IsLoggerAvailable())
+                {
+                    return new SerilogLogProvider();
+                }
                 if (NLogLogProvider.IsLoggerAvailable())
                 {
                     return new NLogLogProvider();
@@ -281,7 +285,6 @@ namespace LibLog.Logging
                 {
                     return new EntLibLogProvider();
                 }
-                return SerilogLogProvider.IsLoggerAvailable() ? new SerilogLogProvider() : null;
             }
             catch (Exception ex)
             {
@@ -289,8 +292,8 @@ namespace LibLog.Logging
                     "Exception occured resolving a log proivder. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).Assembly.FullName,
                     ex);
-                return null;
             }
+            return null;
         }
 
         public class NoOpLogger : ILog
@@ -887,7 +890,7 @@ namespace LibLog.Logging.LogProviders
         private static Func<string, object> GetForContextMethodCall()
         {
             Type logManagerType = GetLogManagerType();
-            MethodInfo method = logManagerType.GetMethod("ForContext", new[] { typeof(string) , typeof(object), typeof(bool)});
+            MethodInfo method = logManagerType.GetMethod("ForContext", new[] { typeof(string), typeof(object), typeof(bool) });
             ParameterExpression propertyNameParam = Expression.Parameter(typeof(string), "propertyName");
             ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
             ParameterExpression destructureObjectsParam = Expression.Parameter(typeof(bool), "destructureObjects");
