@@ -294,7 +294,7 @@ namespace LibLog.Logging
         {
             if (logger == null)
             {
-                throw new ArgumentException("logger is null", "logger");
+                throw new ArgumentNullException("logger");
             }
         }
 
