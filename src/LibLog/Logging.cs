@@ -120,7 +120,6 @@ namespace LibLog.Logging
 
         public static void Debug(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsDebugEnabled())
             {
                 logger.Log(LogLevel.Debug, message.AsFunc());
@@ -129,7 +128,6 @@ namespace LibLog.Logging
 
         public static void DebugFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsDebugEnabled())
             {
                 logger.LogFormat(LogLevel.Debug, message, args);
@@ -138,7 +136,6 @@ namespace LibLog.Logging
 
         public static void DebugException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsDebugEnabled())
             {
                 logger.Log(LogLevel.Debug, message.AsFunc(), exception);
@@ -147,13 +144,11 @@ namespace LibLog.Logging
 
         public static void Error(this ILog logger, Func<string> messageFunc)
         {
-            GuardAgainstNullLogger(logger);
             logger.Log(LogLevel.Error, messageFunc);
         }
 
         public static void Error(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsErrorEnabled())
             {
                 logger.Log(LogLevel.Error, message.AsFunc());
@@ -162,7 +157,6 @@ namespace LibLog.Logging
 
         public static void ErrorFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsErrorEnabled())
             {
                 logger.LogFormat(LogLevel.Error, message, args);
@@ -171,7 +165,6 @@ namespace LibLog.Logging
 
         public static void ErrorException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsErrorEnabled())
             {
                 logger.Log(LogLevel.Error, message.AsFunc(), exception);
@@ -180,13 +173,11 @@ namespace LibLog.Logging
 
         public static void Fatal(this ILog logger, Func<string> messageFunc)
         {
-            GuardAgainstNullLogger(logger);
             logger.Log(LogLevel.Fatal, messageFunc);
         }
 
         public static void Fatal(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsFatalEnabled())
             {
                 logger.Log(LogLevel.Fatal, message.AsFunc());
@@ -195,7 +186,6 @@ namespace LibLog.Logging
 
         public static void FatalFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsFatalEnabled())
             {
                 logger.LogFormat(LogLevel.Fatal, message, args);
@@ -204,7 +194,6 @@ namespace LibLog.Logging
 
         public static void FatalException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsFatalEnabled())
             {
                 logger.Log(LogLevel.Fatal, message.AsFunc(), exception);
@@ -219,7 +208,6 @@ namespace LibLog.Logging
 
         public static void Info(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsInfoEnabled())
             {
                 logger.Log(LogLevel.Info, message.AsFunc());
@@ -228,7 +216,6 @@ namespace LibLog.Logging
 
         public static void InfoFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsInfoEnabled())
             {
                 logger.LogFormat(LogLevel.Info, message, args);
@@ -237,7 +224,6 @@ namespace LibLog.Logging
 
         public static void InfoException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsInfoEnabled())
             {
                 logger.Log(LogLevel.Info, message.AsFunc(), exception);
@@ -252,7 +238,6 @@ namespace LibLog.Logging
 
         public static void Trace(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsTraceEnabled())
             {
                 logger.Log(LogLevel.Trace, message.AsFunc());
@@ -261,7 +246,6 @@ namespace LibLog.Logging
 
         public static void TraceFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsTraceEnabled())
             {
                 logger.LogFormat(LogLevel.Trace, message, args);
@@ -270,7 +254,6 @@ namespace LibLog.Logging
 
         public static void TraceException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsTraceEnabled())
             {
                 logger.Log(LogLevel.Trace, message.AsFunc(), exception);
@@ -285,7 +268,6 @@ namespace LibLog.Logging
 
         public static void Warn(this ILog logger, string message)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsWarnEnabled())
             {
                 logger.Log(LogLevel.Warn, message.AsFunc());
@@ -294,7 +276,6 @@ namespace LibLog.Logging
 
         public static void WarnFormat(this ILog logger, string message, params object[] args)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsWarnEnabled())
             {
                 logger.LogFormat(LogLevel.Warn, message, args);
@@ -303,7 +284,6 @@ namespace LibLog.Logging
 
         public static void WarnException(this ILog logger, string message, Exception exception)
         {
-            GuardAgainstNullLogger(logger);
             if (logger.IsWarnEnabled())
             {
                 logger.Log(LogLevel.Warn, message.AsFunc(), exception);
