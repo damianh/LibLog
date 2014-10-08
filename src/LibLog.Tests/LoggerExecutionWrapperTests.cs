@@ -33,6 +33,13 @@
             Assert.Equal(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
         }
 
+        [Fact]
+        public void When_Asking_If_LogLevel_Is_Enabled_The_LoggerExecutionWrapper_Should_Not_Wrap_Message()
+        {
+            _sut.IsDebugEnabled();
+            Assert.NotEqual(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
+        }
+
         public class FakeLogger : ILog
         {
             private LogLevel _logLevel;
@@ -57,7 +64,10 @@
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc)
             {
-                messageFunc();
+                if (messageFunc != null)
+                {
+                    messageFunc();
+                }
                 return true;
             }
 
