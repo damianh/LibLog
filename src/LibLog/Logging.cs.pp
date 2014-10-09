@@ -326,6 +326,11 @@ namespace $rootnamespace$.Logging
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc)
         {
+			if (messageFunc == null)
+            {
+                return _logger.Log(logLevel, null);
+            }
+
             Func<string> wrappedMessageFunc = () =>
             {
                 try
