@@ -1166,9 +1166,6 @@ namespace $rootnamespace$.Logging.LogProviders
                     return true;
                 }
 
-                var currentStack = new StackTrace();
-                Trace.WriteLine(currentStack.ToString());
-
                 _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, null, false, 0, null,
                     _category, null, messageFunc.Invoke());
 
