@@ -1,8 +1,8 @@
 # LibLog [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
 
-A single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to enable dependency free logging. It contains transparent builtin support for [NLog][3], [Log4Net][4] and [EntLib Logging][5] or allows the user to define a custom provider.
+A single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to enable dependency free logging. It contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5] and [Serilog][9] or allows the user to define a custom provider. 
 
-When the DLL is added, It Just Works. i.e., all that's needed is to reference NLog / Log4Net in your app root so it ends up in the output directory and your component will automatically log without the user having to do any wireup or configuration. 
+When the DLL is added, It Just Works. i.e., all that's needed is to reference NLog / Log4Net in your app root so it ends up in the output directory and your component will automatically log without the user having to do any wireup or configuration. Loggers are either invoked dynamically (which is optimized) or via compiled expressions (also optimized).
 
 The `ILog` interface consists of just 2 methods, which contrasts with the large interface (~65 members) in `Log4Net` and `Common.Logging`.
 
@@ -63,3 +63,4 @@ Feedback, compliments or criticism: [@randompunter][6]
 [6]: https://twitter.com/randompunter
 [7]: https://github.com/ayende/ravendb/tree/master/Raven.Abstractions/Logging
 [8]: https://github.com/thinktecture/Thinktecture.IdentityServer.v3/tree/master/source/Core/Logging
+[9]: http://serilog.net/
