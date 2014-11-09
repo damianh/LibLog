@@ -39,6 +39,10 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\packages\FluentAssertions.3.2.1\lib\net40\FluentAssertions.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Gibraltar.Agent, Version=3.7.0.0, Culture=neutral, PublicKeyToken=ca42a1ee8d2e42d3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Gibraltar.Agent.3.7.0.2102\lib\4.0\Gibraltar.Agent.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -108,6 +112,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="LoggerExecutionWrapperTests.cs" />
+    <Compile Include="LogProviders\LoupeLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\LogExtensons.cs" />
