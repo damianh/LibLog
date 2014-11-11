@@ -11,8 +11,10 @@
         public void When_NLog_is_available_Then_should_get_NLogLogger()
         {
             LogProvider.SetCurrentLogProvider(null);
+            Log4NetLogProvider.ProviderIsAvailableOverride = false;
+            SerilogLogProvider.ProviderIsAvailableOverride = false;
+            EntLibLogProvider.ProviderIsAvailableOverride = false;
             NLogLogProvider.ProviderIsAvailableOverride = true;
-            Log4NetLogProvider.ProviderIsAvailableOverride = true;
             ILog logger = LogProvider.GetCurrentClassLogger();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
@@ -23,6 +25,8 @@
         {
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
+            SerilogLogProvider.ProviderIsAvailableOverride = false;
+            EntLibLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
             ILog logger = LogProvider.For<LogProviderTests>();
 
@@ -35,6 +39,7 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
+            SerilogLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = true;
             ILog logger = LogProvider.For<LogProviderTests>();
 
