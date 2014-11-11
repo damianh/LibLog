@@ -1,4 +1,4 @@
-# LibLog [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
+# LibLog [![Build status](https://ci.appveyor.com/api/projects/status/uvrk7uy2rx99m69n?svg=true)](https://ci.appveyor.com/project/damianh/libowin) [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
 
 A single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to enable dependency free logging. It contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10] or allows the user to define a custom provider. 
 
