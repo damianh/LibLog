@@ -20,10 +20,10 @@ The file provides:
 * An `ILogProvider` your framework / library / application uses to get a logger.
 * A static location where the application developer can set the `ILogProvider` and where you can retrieve it.
 
-The included providers, `NLogProvider`, `Log4NetProvider` and `EntLibLogProvider` serve as templates for an application developer can follow to define their own custom provider.
+The included providers, `NLogProvider`, `Log4NetProvider`, `SerilogProvider`, `EntLibLogProvider`, `LoupeLogProvider` serve as templates for an application developer can follow to define their own custom provider.
 
 ### Using
-* Copy [Logging.cs][1] into your library and manually change the namespace OR [install the nuget package][0] which contains the source and which will automatically set the namespace to your project's root namespace.
+* Copy [LibLog.cs][1] into your library and manually change the namespace OR [install the nuget package][0] which contains the source and which will automatically set the namespace to your project's root namespace.
 * To get a current class logger:
 
 ```csharp
@@ -50,12 +50,16 @@ YourComponent.Logging.LogProvider.SetCurrentLogProvider(new CustomLogProvider())
 
 ### License
 
-Logging is licensed under [MIT Licence][2].
+LibLog is licensed under [MIT Licence][2].
+
+### Contributing
+
+
 
 Feedback, compliments or criticism: [@randompunter][6] 
 
 [0]: https://www.nuget.org/packages/LibLog
-[1]: https://github.com/damianh/LibLog/blob/master/src/LibLog/Logging.cs
+[1]: https://github.com/damianh/LibLog/blob/master/src/LibLog/LibLog.cs
 [2]: http://www.opensource.org/licenses/MIT
 [3]: http://nlog-project.org/
 [4]: https://logging.apache.org/log4net/
