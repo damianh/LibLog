@@ -1121,7 +1121,7 @@ namespace LibLog.Logging.LogProviders
             {
                 if (messageFunc == null)
                 {
-                    return IsEnabled(_logger, DebugLevel);
+                    return IsEnabled(_logger, logLevel);
                 }
 
                 switch (logLevel)
