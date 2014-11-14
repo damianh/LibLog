@@ -52,10 +52,6 @@ YourComponent.Logging.LogProvider.SetCurrentLogProvider(new CustomLogProvider())
 
 LibLog is licensed under [MIT Licence][2].
 
-### Contributing
-
-
-
 Feedback, compliments or criticism: [@randompunter][6] 
 
 [0]: https://www.nuget.org/packages/LibLog
