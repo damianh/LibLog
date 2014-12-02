@@ -26,6 +26,7 @@
 
 namespace LibLog.Logging
 {
+    using System.Collections.Generic;
     using LibLog.Logging.LogProviders;
     using System;
     using System.Diagnostics;
@@ -382,29 +383,30 @@ namespace LibLog.Logging
             _currentLogProvider = logProvider;
         }
 
+        public delegate bool IsLoggerAvailable();
+
+        public delegate ILogProvider CreateLogProvider();
+
+        public static readonly List<Tuple<IsLoggerAvailable, CreateLogProvider>> LogProviderResolvers =
+            new List<Tuple<IsLoggerAvailable, CreateLogProvider>>
+        {
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(SerilogLogProvider.IsLoggerAvailable, () => new SerilogLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(NLogLogProvider.IsLoggerAvailable, () => new NLogLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(Log4NetLogProvider.IsLoggerAvailable, () => new Log4NetLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(EntLibLogProvider.IsLoggerAvailable, () => new EntLibLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(LoupeLogProvider.IsLoggerAvailable, () => new LoupeLogProvider())
+        };
+
         private static ILogProvider ResolveLogProvider()
         {
             try
             {
-                if (NLogLogProvider.IsLoggerAvailable())
+                foreach(var providerResolver in LogProviderResolvers)
                 {
-                    return new NLogLogProvider();
-                }
-                if (Log4NetLogProvider.IsLoggerAvailable())
-                {
-                    return new Log4NetLogProvider();
-                }
-                if (EntLibLogProvider.IsLoggerAvailable())
-                {
-                    return new EntLibLogProvider();
-                }
-                if (SerilogLogProvider.IsLoggerAvailable())
-                {
-                    return new SerilogLogProvider();
-                }
-                if (LoupeLogProvider.IsLoggerAvailable())
-                {
-                    return new LoupeLogProvider();
+                    if(providerResolver.Item1())
+                    {
+                        return providerResolver.Item2();
+                    }
                 }
             }
             catch (Exception ex)
@@ -1233,6 +1235,12 @@ namespace LibLog.Logging.LogProviders
             _logWriteDelegate = GetLogWriteDelegate();
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [provider is available override]. Used in tests.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [provider is available override]; otherwise, <c>false</c>.
+        /// </value>
         public static bool ProviderIsAvailableOverride
         {
             get { return _providerIsAvailableOverride; }
