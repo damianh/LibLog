@@ -24,6 +24,9 @@
 // SOFTWARE.
 //===============================================================================
 
+// Uncomment the following line for PCL compatability
+// #define PORTABLE
+
 namespace LibLog.Logging
 {
     using System.Collections.Generic;
@@ -343,6 +346,7 @@ namespace LibLog.Logging
             return GetLogger(typeof(T));
         }
 
+#if !PORTABLE
         /// <summary>
         /// Gets a logger for the current class.
         /// </summary>
@@ -352,6 +356,7 @@ namespace LibLog.Logging
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
+#endif
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -401,9 +406,9 @@ namespace LibLog.Logging
         {
             try
             {
-                foreach(var providerResolver in LogProviderResolvers)
+                foreach (var providerResolver in LogProviderResolvers)
                 {
-                    if(providerResolver.Item1())
+                    if (providerResolver.Item1())
                     {
                         return providerResolver.Item2();
                     }
@@ -411,8 +416,12 @@ namespace LibLog.Logging
             }
             catch (Exception ex)
             {
+#if PORTABLE
+                Debug.WriteLine(
+#else
                 Console.WriteLine(
-                    "Exception occured resolving a log provider. Logging for this assembly {0} is disabled. {1}",
+#endif
+"Exception occured resolving a log provider. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).Assembly.FullName,
                     ex);
             }
@@ -492,11 +501,12 @@ namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
+    using System.Linq;
+    using System.Diagnostics;
     using System.Threading;
 
     public class NLogLogProvider : ILogProvider
@@ -836,14 +846,18 @@ namespace LibLog.Logging.LogProviders
         private static bool _providerIsAvailableOverride = true;
         private static readonly Type LogEntryType;
         private static readonly Type LoggerType;
-        private static readonly Action<string, string, TraceEventType> WriteLogEntry;
-        private static Func<string, TraceEventType, bool> ShouldLogEntry;
+        private static readonly Type TraceEventTypeType;
+        private static readonly Action<string, string, int> WriteLogEntry;
+        private static Func<string, int, bool> ShouldLogEntry;
 
         static EntLibLogProvider()
         {
             LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
             LoggerType = Type.GetType(string.Format(TypeTemplate, "Logger"));
-            if (LogEntryType == null || LoggerType == null)
+            TraceEventTypeType = TraceEventTypeValues.Type;
+            if (LogEntryType == null
+                 || TraceEventTypeType == null
+                 || LoggerType == null)
             {
                 return;
             }
@@ -872,49 +886,57 @@ namespace LibLog.Logging.LogProviders
 
         public static bool IsLoggerAvailable()
         {
-            return ProviderIsAvailableOverride && LogEntryType != null;
+            return ProviderIsAvailableOverride
+                 && TraceEventTypeType != null
+                 && LogEntryType != null;
         }
 
-        private static Action<string, string, TraceEventType> GetWriteLogEntry()
+        private static Action<string, string, int> GetWriteLogEntry()
         {
             // new LogEntry(...)
             var logNameParameter = Expression.Parameter(typeof(string), "logName");
             var messageParameter = Expression.Parameter(typeof(string), "message");
-            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+            var severityParameter = Expression.Parameter(typeof(int), "severity");
 
-            MemberInitExpression memberInit = GetWriteLogExpression(messageParameter, severityParameter, logNameParameter);
+            MemberInitExpression memberInit = GetWriteLogExpression(
+                messageParameter,
+                Expression.Convert(severityParameter, TraceEventTypeType),
+                logNameParameter);
 
             //Logger.Write(new LogEntry(....));
             MethodInfo writeLogEntryMethod = LoggerType.GetMethod("Write", new[] { LogEntryType });
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
-            return Expression.Lambda<Action<string, string, TraceEventType>>(
+            return Expression.Lambda<Action<string, string, int>>(
                 writeLogEntryExpression,
                 logNameParameter,
                 messageParameter,
                 severityParameter).Compile();
         }
 
-        private static Func<string, TraceEventType, bool> GetShouldLogEntry()
+        private static Func<string, int, bool> GetShouldLogEntry()
         {
             // new LogEntry(...)
             var logNameParameter = Expression.Parameter(typeof(string), "logName");
-            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+            var severityParameter = Expression.Parameter(typeof(int), "severity");
 
-            MemberInitExpression memberInit = GetWriteLogExpression(Expression.Constant("***dummy***"), severityParameter, logNameParameter);
+            MemberInitExpression memberInit = GetWriteLogExpression(
+                Expression.Constant("***dummy***"),
+                Expression.Convert(severityParameter, TraceEventTypeType),
+                logNameParameter);
 
             //Logger.Write(new LogEntry(....));
             MethodInfo writeLogEntryMethod = LoggerType.GetMethod("ShouldLog", new[] { LogEntryType });
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
-            return Expression.Lambda<Func<string, TraceEventType, bool>>(
+            return Expression.Lambda<Func<string, int, bool>>(
                 writeLogEntryExpression,
                 logNameParameter,
                 severityParameter).Compile();
         }
 
         private static MemberInitExpression GetWriteLogExpression(Expression message,
-            ParameterExpression severityParameter, ParameterExpression logNameParameter)
+            Expression severityParameter, ParameterExpression logNameParameter)
         {
             var entryType = LogEntryType;
             MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new MemberBinding[]
@@ -935,10 +957,10 @@ namespace LibLog.Logging.LogProviders
         public class EntLibLogger : ILog
         {
             private readonly string _loggerName;
-            private readonly Action<string, string, TraceEventType> _writeLog;
-            private readonly Func<string, TraceEventType, bool> _shouldLog;
+            private readonly Action<string, string, int> _writeLog;
+            private readonly Func<string, int, bool> _shouldLog;
 
-            internal EntLibLogger(string loggerName, Action<string, string, TraceEventType> writeLog, Func<string, TraceEventType, bool> shouldLog)
+            internal EntLibLogger(string loggerName, Action<string, string, int> writeLog, Func<string, int, bool> shouldLog)
             {
                 _loggerName = loggerName;
                 _writeLog = writeLog;
@@ -964,20 +986,20 @@ namespace LibLog.Logging.LogProviders
                 _writeLog(_loggerName, message, severity);
             }
 
-            private static TraceEventType MapSeverity(LogLevel logLevel)
+            private static int MapSeverity(LogLevel logLevel)
             {
                 switch (logLevel)
                 {
                     case LogLevel.Fatal:
-                        return TraceEventType.Critical;
+                        return TraceEventTypeValues.Critical;
                     case LogLevel.Error:
-                        return TraceEventType.Error;
+                        return TraceEventTypeValues.Error;
                     case LogLevel.Warn:
-                        return TraceEventType.Warning;
+                        return TraceEventTypeValues.Warning;
                     case LogLevel.Info:
-                        return TraceEventType.Information;
+                        return TraceEventTypeValues.Information;
                     default:
-                        return TraceEventType.Verbose;
+                        return TraceEventTypeValues.Verbose;
                 }
             }
         }
@@ -1056,12 +1078,12 @@ namespace LibLog.Logging.LogProviders
             static SerilogLogger()
             {
                 var logEventTypeType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
-                DebugLevel = Enum.Parse(logEventTypeType, "Debug");
-                ErrorLevel = Enum.Parse(logEventTypeType, "Error");
-                FatalLevel = Enum.Parse(logEventTypeType, "Fatal");
-                InformationLevel = Enum.Parse(logEventTypeType, "Information");
-                VerboseLevel = Enum.Parse(logEventTypeType, "Verbose");
-                WarningLevel = Enum.Parse(logEventTypeType, "Warning");
+                DebugLevel = Enum.Parse(logEventTypeType, "Debug", false);
+                ErrorLevel = Enum.Parse(logEventTypeType, "Error", false);
+                FatalLevel = Enum.Parse(logEventTypeType, "Fatal", false);
+                InformationLevel = Enum.Parse(logEventTypeType, "Information", false);
+                VerboseLevel = Enum.Parse(logEventTypeType, "Verbose", false);
+                WarningLevel = Enum.Parse(logEventTypeType, "Warning", false);
 
                 // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
                 var loggerType = Type.GetType("Serilog.ILogger, Serilog");
@@ -1303,7 +1325,7 @@ namespace LibLog.Logging.LogProviders
                     return true;
                 }
 
-                _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, null, false, 0, null,
+                _logWriteDelegate(ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, null, false, 0, null,
                     _category, null, messageFunc.Invoke());
 
                 return true;
@@ -1318,26 +1340,26 @@ namespace LibLog.Logging.LogProviders
                     return;
                 }
 
-                _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
+                _logWriteDelegate(ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
                     _category, null, messageFunc.Invoke());
             }
 
-            public TraceEventType ToLogMessageSeverity(LogLevel logLevel)
+            public int ToLogMessageSeverity(LogLevel logLevel)
             {
                 switch (logLevel)
                 {
                     case LogLevel.Trace:
-                        return TraceEventType.Verbose;
+                        return TraceEventTypeValues.Verbose;
                     case LogLevel.Debug:
-                        return TraceEventType.Verbose;
+                        return TraceEventTypeValues.Verbose;
                     case LogLevel.Info:
-                        return TraceEventType.Information;
+                        return TraceEventTypeValues.Information;
                     case LogLevel.Warn:
-                        return TraceEventType.Warning;
+                        return TraceEventTypeValues.Warning;
                     case LogLevel.Error:
-                        return TraceEventType.Error;
+                        return TraceEventTypeValues.Error;
                     case LogLevel.Fatal:
-                        return TraceEventType.Critical;
+                        return TraceEventTypeValues.Critical;
                     default:
                         throw new ArgumentOutOfRangeException("logLevel");
                 }
@@ -1364,22 +1386,45 @@ namespace LibLog.Logging.LogProviders
 
     public class ColouredConsoleLogProvider : ILogProvider
     {
+        private static readonly Type ConsoleType;
+        private static readonly Type ConsoleColorType;
+        private static readonly Action<string> ConsoleWriteLine;
+        private static readonly Func<int> GetConsoleForeground;
+        private static readonly Action<int> SetConsoleForeground;
+
         static ColouredConsoleLogProvider()
         {
+            ConsoleType = Type.GetType("System.Console");
+            ConsoleColorType = ConsoleColorValues.Type;
+
+            if (!IsLoggerAvailable())
+            {
+                throw new InvalidOperationException("System.Console or System.ConsoleColor type not found");
+            }
+
             MessageFormatter = DefaultMessageFormatter;
-            Colors = new Dictionary<LogLevel, ConsoleColor> {
-                        { LogLevel.Fatal, ConsoleColor.Red },
-                        { LogLevel.Error, ConsoleColor.Yellow },
-                        { LogLevel.Warn, ConsoleColor.Magenta },
-                        { LogLevel.Info, ConsoleColor.White },
-                        { LogLevel.Debug, ConsoleColor.Gray },
-                        { LogLevel.Trace, ConsoleColor.DarkGray },
-                    };
+            Colors = new Dictionary<LogLevel, int>
+                {
+                    {LogLevel.Fatal, ConsoleColorValues.Red},
+                    {LogLevel.Error, ConsoleColorValues.Yellow},
+                    {LogLevel.Warn, ConsoleColorValues.Magenta},
+                    {LogLevel.Info, ConsoleColorValues.White},
+                    {LogLevel.Debug, ConsoleColorValues.Gray},
+                    {LogLevel.Trace, ConsoleColorValues.DarkGray},
+                };
+            ConsoleWriteLine = GetConsoleWrite();
+            GetConsoleForeground = GetGetConsoleForeground();
+            SetConsoleForeground = GetSetConsoleForeground();
+        }
+
+        public static bool IsLoggerAvailable()
+        {
+            return ConsoleType != null && ConsoleColorType != null;
         }
 
         public ILog GetLogger(string name)
         {
-            return new ColouredConsoleLogger(name);
+            return new ColouredConsoleLogger(name, ConsoleWriteLine, GetConsoleForeground, SetConsoleForeground);
         }
 
         /// <summary>
@@ -1396,7 +1441,7 @@ namespace LibLog.Logging.LogProviders
             object message,
             Exception e);
 
-        public static Dictionary<LogLevel, ConsoleColor> Colors { get; set; }
+        public static Dictionary<LogLevel, int> Colors { get; set; }
 
         public static MessageFormatterDelegate MessageFormatter { get; set; }
 
@@ -1427,13 +1472,51 @@ namespace LibLog.Logging.LogProviders
             return stringBuilder.ToString();
         }
 
+        private static Action<string> GetConsoleWrite()
+        {
+            var messageParameter = Expression.Parameter(typeof(string), "message");
+
+            MethodInfo writeMethod = ConsoleType.GetMethod("WriteLine", new[] { typeof(string) });
+            var writeExpression = Expression.Call(writeMethod, messageParameter);
+
+            return Expression.Lambda<Action<string>>(
+                writeExpression, messageParameter).Compile();
+        }
+
+        private static Func<int> GetGetConsoleForeground()
+        {
+            MethodInfo getForeground = ConsoleType.GetProperty("ForegroundColor").GetGetMethod();
+            var getForegroundExpression = Expression.Convert(Expression.Call(getForeground), typeof(int));
+
+            return Expression.Lambda<Func<int>>(getForegroundExpression).Compile();
+        }
+
+        private static Action<int> GetSetConsoleForeground()
+        {
+            var colorParameter = Expression.Parameter(typeof(int), "color");
+
+            MethodInfo setForeground = ConsoleType.GetProperty("ForegroundColor").GetSetMethod();
+            var setForegroundExpression = Expression.Call(setForeground,
+                Expression.Convert(colorParameter, ConsoleColorType));
+
+            return Expression.Lambda<Action<int>>(
+                setForegroundExpression, colorParameter).Compile();
+        }
+
         public class ColouredConsoleLogger : ILog
         {
             private readonly string _name;
+            private readonly Action<string> _write;
+            private readonly Func<int> _getForeground;
+            private readonly Action<int> _setForeground;
 
-            public ColouredConsoleLogger(string name)
+            public ColouredConsoleLogger(string name, Action<string> write,
+                Func<int> getForeground, Action<int> setForeground)
             {
                 _name = name;
+                _write = write;
+                _getForeground = getForeground;
+                _setForeground = setForeground;
             }
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc)
@@ -1443,7 +1526,7 @@ namespace LibLog.Logging.LogProviders
                     return true;
                 }
 
-                this.Write(logLevel, messageFunc());
+                Write(logLevel, messageFunc());
                 return true;
             }
 
@@ -1455,26 +1538,72 @@ namespace LibLog.Logging.LogProviders
             protected void Write(LogLevel logLevel, string message, Exception e = null)
             {
                 var formattedMessage = MessageFormatter(this._name, logLevel, message, e);
-                ConsoleColor color;
+                int color;
 
                 if (Colors.TryGetValue(logLevel, out color))
                 {
-                    var originalColor = Console.ForegroundColor;
+                    var originalColor = _getForeground();
                     try
                     {
-                        Console.ForegroundColor = color;
-                        Console.Out.WriteLine(formattedMessage);
+                        _setForeground(color);
+                        _write(formattedMessage);
                     }
                     finally
                     {
-                        Console.ForegroundColor = originalColor;
+                        _setForeground(originalColor);
                     }
                 }
                 else
                 {
-                    Console.Out.WriteLine(formattedMessage);
+                    _write(formattedMessage);
                 }
             }
+        }
+    }
+
+    internal static class TraceEventTypeValues
+    {
+        public static readonly Type Type;
+        public static readonly int Verbose;
+        public static readonly int Information;
+        public static readonly int Warning;
+        public static readonly int Error;
+        public static readonly int Critical;
+
+        static TraceEventTypeValues()
+        {
+            var assembly = typeof(Uri).Assembly; // This is to get to the System.dll assembly in a PCL compatible way.
+            if (assembly == null) return;
+            Type = assembly.GetType("System.Diagnostics.TraceEventType");
+            if (Type == null) return;
+            Verbose = (int)Enum.Parse(Type, "Verbose", false);
+            Information = (int)Enum.Parse(Type, "Information", false);
+            Warning = (int)Enum.Parse(Type, "Warning", false);
+            Error = (int)Enum.Parse(Type, "Error", false);
+            Critical = (int)Enum.Parse(Type, "Critical", false);
+        }
+    }
+
+    internal static class ConsoleColorValues
+    {
+        public static readonly Type Type;
+        public static readonly int Red;
+        public static readonly int Yellow;
+        public static readonly int Magenta;
+        public static readonly int White;
+        public static readonly int Gray;
+        public static readonly int DarkGray;
+
+        static ConsoleColorValues()
+        {
+            Type = Type.GetType("System.ConsoleColor");
+            if (Type == null) return;
+            Red = (int)Enum.Parse(Type, "Red", false);
+            Yellow = (int)Enum.Parse(Type, "Yellow", false);
+            Magenta = (int)Enum.Parse(Type, "Magenta", false);
+            White = (int)Enum.Parse(Type, "White", false);
+            Gray = (int)Enum.Parse(Type, "Gray", false);
+            DarkGray = (int)Enum.Parse(Type, "DarkGray", false);
         }
     }
 }
