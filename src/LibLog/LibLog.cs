@@ -531,7 +531,7 @@ namespace LibLog.Logging.LogProviders
 
         private static Type GetLogManagerType()
         {
-            return Type.GetType("NLog.LogManager, nlog");
+            return Type.GetType("NLog.LogManager, NLog");
         }
 
         private static Func<string, object> GetGetLoggerMethodCall()
