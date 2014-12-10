@@ -62,24 +62,19 @@
             private string _message;
             private Exception _exception;
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc != null)
                 {
-                    messageFunc();
+                    string message = messageFunc();
+                    if (message != null)
+                    {
+                        _logLevel = logLevel;
+                        _message = messageFunc() ?? _message;
+                        _exception = exception;
+                    }
                 }
                 return true;
-            }
-
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
-            {
-                string message = messageFunc();
-                if (message != null)
-                {
-                    _logLevel = logLevel;
-                    _message = messageFunc() ?? _message;
-                    _exception = exception;
-                }
             }
         }
     }
