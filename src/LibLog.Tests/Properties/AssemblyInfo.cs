@@ -1,4 +1,4 @@
 using System.Reflection;
 
-[assembly: AssemblyTitle("Tests.DH.Logging")]
+[assembly: AssemblyTitle("LibLog")]
 [assembly: AssemblyDescription("")]
