@@ -24,6 +24,8 @@
 // SOFTWARE.
 //===============================================================================
 
+#pragma warning disable 1591
+
 namespace LibLog.Logging
 {
     using System.Collections.Generic;
