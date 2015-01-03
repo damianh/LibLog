@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>2.0.0</version>
+        <version>2.0.1</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
@@ -28,6 +28,6 @@ This package is a variation of option 3 but will automatically wire things up to
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="content\net40\App_Packages\LibLog.1.4\LibLog.cs.pp" />
+        <file src="LibLog.cs.pp" target="content\net40\App_Packages\LibLog.2.0\LibLog.cs.pp" />
     </files>
 </package>
