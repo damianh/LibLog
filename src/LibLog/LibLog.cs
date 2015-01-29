@@ -780,6 +780,41 @@ namespace LibLog.Logging.LogProviders
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
         }
 
+        protected override OpenNdc GetOpenNdcMethod()
+        {
+            Type ndcContextType = Type.GetType("log4net.NDC, log4net");
+            MethodInfo method = ndcContextType.GetMethod("Push", new[] { typeof(string) });
+            ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
+            MethodCallExpression methodCall = Expression.Call(null, method, messageParam);
+            return Expression.Lambda<OpenNdc>(methodCall, messageParam).Compile();
+        }
+
+        protected override OpenMdc GetOpenMdcMethod()
+        {
+            Type mdcContextType = Type.GetType("log4net.MDC, log4net");
+
+            MethodInfo setMethod = mdcContextType.GetMethod("Set", new[] { typeof(string), typeof(string) });
+            MethodInfo removeMethod = mdcContextType.GetMethod("Remove", new[] { typeof(string) });
+            ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
+            ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
+
+            MethodCallExpression setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+            MethodCallExpression removeMethodCall = Expression.Call(null, removeMethod, keyParam);
+
+            Action<string, string> set = Expression
+                .Lambda<Action<string, string>>(setMethodCall, keyParam, valueParam)
+                .Compile();
+            Action<string> remove = Expression
+                .Lambda<Action<string>>(removeMethodCall, keyParam)
+                .Compile();
+
+            return (key, value) =>
+            {
+                set(key, value);
+                return new DisposableAction(() => remove(key));
+            };
+        }
+
         private static Type GetLogManagerType()
         {
             return Type.GetType("log4net.LogManager, log4net");
