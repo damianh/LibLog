@@ -49,6 +49,21 @@
         [InlineData(LogLevel.Info, LogEventLevel.Information)]
         [InlineData(LogLevel.Trace, LogEventLevel.Verbose)]
         [InlineData(LogLevel.Warn, LogEventLevel.Warning)]
+        public void Should_be_able_to_log_message_with_param(LogLevel logLevel, LogEventLevel logEventLevel)
+        {
+            _sut.Log(logLevel, () => "m {0}", null, "param");
+
+            _logEvent.Level.Should().Be(logEventLevel);
+            _logEvent.RenderMessage().Should().Be("m \"param\"");
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug, LogEventLevel.Debug)]
+        [InlineData(LogLevel.Error, LogEventLevel.Error)]
+        [InlineData(LogLevel.Fatal, LogEventLevel.Fatal)]
+        [InlineData(LogLevel.Info, LogEventLevel.Information)]
+        [InlineData(LogLevel.Trace, LogEventLevel.Verbose)]
+        [InlineData(LogLevel.Warn, LogEventLevel.Warning)]
         public void Should_be_able_to_log_message_and_exception(LogLevel logLevel, LogEventLevel logEventLevel)
         {
             var exception = new Exception("e");
