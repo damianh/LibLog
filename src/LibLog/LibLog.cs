@@ -566,10 +566,10 @@ namespace LibLog.Logging.LogProviders
         protected override OpenNdc GetOpenNdcMethod()
         {
             Type ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
-            MethodInfo method = ndcContextType.GetMethod("Push", new[] { typeof(string) });
+            MethodInfo pushMethod = ndcContextType.GetMethod("Push", new[] { typeof(string) });
             ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
-            MethodCallExpression methodCall = Expression.Call(null, method, messageParam);
-            return Expression.Lambda<OpenNdc>(methodCall, messageParam).Compile();
+            MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
+            return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
         }
 
         protected override OpenMdc GetOpenMdcMethod()
@@ -783,10 +783,10 @@ namespace LibLog.Logging.LogProviders
         protected override OpenNdc GetOpenNdcMethod()
         {
             Type ndcContextType = Type.GetType("log4net.NDC, log4net");
-            MethodInfo method = ndcContextType.GetMethod("Push", new[] { typeof(string) });
+            MethodInfo pushMethod = ndcContextType.GetMethod("Push", new[] { typeof(string) });
             ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
-            MethodCallExpression methodCall = Expression.Call(null, method, messageParam);
-            return Expression.Lambda<OpenNdc>(methodCall, messageParam).Compile();
+            MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
+            return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
         }
 
         protected override OpenMdc GetOpenMdcMethod()
@@ -1140,6 +1140,43 @@ namespace LibLog.Logging.LogProviders
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
         }
 
+        protected override OpenNdc GetOpenNdcMethod()
+        {
+            return message => GetPushProperty()("NDC", message);
+        }
+
+        protected override OpenMdc GetOpenMdcMethod()
+        {
+            return (key, value) => GetPushProperty()(key, value);
+        }
+
+        private static Func<string, string, IDisposable> GetPushProperty()
+        {
+            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
+            MethodInfo pushPropertyMethod = ndcContextType.GetMethod(
+                "PushProperty",
+                new[]
+                {
+                    typeof(string),
+                    typeof(object),
+                    typeof(bool)
+                });
+            ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
+            ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
+            ParameterExpression destructureObjectParam = Expression.Parameter(typeof(bool), "destructureObjects");
+            MethodCallExpression pushPropertyMethodCall = Expression
+                .Call(null, pushPropertyMethod, nameParam, valueParam, destructureObjectParam);
+            var pushProperty = Expression
+                .Lambda<Func<string, object, bool, IDisposable>>(
+                    pushPropertyMethodCall,
+                    nameParam,
+                    valueParam,
+                    destructureObjectParam)
+                .Compile();
+            
+            return (key, value) => pushProperty(key, value, false);
+        }
+
         private static Type GetLogManagerType()
         {
             return Type.GetType("Serilog.Log, Serilog");
@@ -1158,12 +1195,12 @@ namespace LibLog.Logging.LogProviders
                 valueParam,
                 destructureObjectsParam
             });
-            var func = Expression.Lambda<Func<string, object, bool, object>>(methodCall, new[]
-            {
+            var func = Expression.Lambda<Func<string, object, bool, object>>(
+                methodCall,
                 propertyNameParam,
                 valueParam,
-                destructureObjectsParam
-            }).Compile();
+                destructureObjectsParam)
+                .Compile();
             return name => func("Name", name, false);
         }
 
@@ -1361,6 +1398,23 @@ namespace LibLog.Logging.LogProviders
 
     public class LoupeLogProvider : LogProviderBase
     {
+        /// <summary>
+        /// The form of the Loupe Log.Write method we're using
+        /// </summary>
+        internal delegate void WriteDelegate(
+            int severity,
+            string logSystem,
+            int skipFrames,
+            Exception exception,
+            bool attributeToException,
+            int writeMode,
+            string detailsXml,
+            string category,
+            string caption,
+            string description,
+            params object[] args
+            );
+
         private static bool _providerIsAvailableOverride = true;
         private readonly WriteDelegate _logWriteDelegate;
 
@@ -1467,23 +1521,6 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
-
-        /// <summary>
-        /// The form of the Loupe Log.Write method we're using
-        /// </summary>
-        internal delegate void WriteDelegate(
-            int severity,
-            string logSystem,
-            int skipFrames,
-            Exception exception,
-            bool attributeToException,
-            int writeMode,
-            string detailsXml,
-            string category,
-            string caption,
-            string description,
-            params object[] args
-            );
     }
 
     public class ColouredConsoleLogProvider : LogProviderBase
