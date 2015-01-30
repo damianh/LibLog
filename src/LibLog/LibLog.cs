@@ -505,11 +505,9 @@ namespace LibLog.Logging.LogProviders
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq.Expressions;
-    using System.Net.Mime;
     using System.Reflection;
     using System.Text;
     using System.Text.RegularExpressions;
-    using System.Threading;
 
     public abstract class LogProviderBase : ILogProvider
     {
@@ -1667,30 +1665,11 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
-
-        internal class DisposableAction : IDisposable
-        {
-            private readonly Action _onDispose;
-
-            public DisposableAction(Action onDispose = null)
-            {
-                _onDispose = onDispose;
-            }
-
-            public void Dispose()
-            {
-                if (_onDispose != null)
-                {
-                    _onDispose();
-                }
-            }
-
-        }
     }
 
     internal static class LogMessageFormatter
     {
-        static Regex pattern = new Regex(@"\{\w{1,}\}");
+        private static readonly Regex Pattern = new Regex(@"\{\w{1,}\}");
 
         /// <summary>
         /// Some logging frameworks support structured logging, such as serilog. This will allow you to add names to structured data in a format string:
@@ -1704,14 +1683,16 @@ namespace LibLog.Logging.LogProviders
         /// <returns></returns>
         public static Func<string> SimulateStructuredLogging(Func<string> messageBuilder, object[] formatParameters)
         {
-            if (formatParameters == null)
+            if(formatParameters == null)
+            {
                 return messageBuilder;
+            }
 
             return () =>
             {
                 string targetMessage = messageBuilder();
                 int argumentIndex = 0;
-                foreach (Match match in pattern.Matches(targetMessage))
+                foreach (Match match in Pattern.Matches(targetMessage))
                 {
                     int notUsed;
                     if (!int.TryParse(match.Value.Substring(1, match.Value.Length -2), out notUsed))
@@ -1733,7 +1714,7 @@ namespace LibLog.Logging.LogProviders
 
         static string ReplaceFirst(string text, string search, string replace)
         {
-            int pos = text.IndexOf(search);
+            int pos = text.IndexOf(search, StringComparison.Ordinal);
             if (pos < 0)
             {
                 return text;
@@ -1742,7 +1723,6 @@ namespace LibLog.Logging.LogProviders
         }
         
     }
-
 
     internal class DisposableAction : IDisposable
     {
@@ -1761,5 +1741,4 @@ namespace LibLog.Logging.LogProviders
             }
         }
     }
-
 }
