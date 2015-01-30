@@ -295,8 +295,7 @@ namespace LibLog.Logging
 
         private static void LogFormat(this ILog logger, LogLevel logLevel, string message, params object[] args)
         {
-            var result = string.Format(CultureInfo.InvariantCulture, message, args);
-            logger.Log(logLevel, result.AsFunc());
+            logger.Log(logLevel, message.AsFunc(), null, args);
         }
 
         // Avoid the closure allocation, see https://gist.github.com/AArnott/d285feef75c18f6ecd2b
@@ -533,7 +532,7 @@ namespace LibLog.Logging.LogProviders
                 {
                     return IsLogLevelEnable(logLevel);
                 }
-                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 if(exception != null)
                 {
@@ -718,7 +717,7 @@ namespace LibLog.Logging.LogProviders
                     return IsLogLevelEnable(logLevel);
                 }
 
-                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 if (exception != null)
                 {
@@ -952,7 +951,8 @@ namespace LibLog.Logging.LogProviders
                     return _shouldLog(_loggerName, severity);
                 }
 
-                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
                 if (exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
@@ -1321,7 +1321,7 @@ namespace LibLog.Logging.LogProviders
                     return true;
                 }
 
-                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
                     _category, null, messageFunc.Invoke());
@@ -1450,6 +1450,8 @@ namespace LibLog.Logging.LogProviders
                     return true;
                 }
 
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
+
                 Write(logLevel, messageFunc(), exception);
                 return true;
             }
@@ -1478,12 +1480,24 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
-    }
 
-    public static class LogMessageFormatter
+    }
+        
+    internal static class LogMessageFormatter
     {
         static Regex pattern = new Regex(@"\{\w{1,}\}");
-        public static Func<string> Format(Func<string> messageBuilder, object[] formatParameters)
+
+        /// <summary>
+        /// Some logging frameworks support structured logging, such as serilog. This will allow you to add names to structured data in a format string:
+        /// For example: Log("Log message to {user}", user). This only works with serilog, but as the user of LibLog, you don't know if serilog is actually 
+        /// used. So, this class simulates that. it will replace any text in {curlybraces} with an index number. 
+        /// 
+        /// "Log {message} to {user}" would turn into => "Log {0} to {1}". Then the format parameters are handled using regular .net string.Format.
+        /// </summary>
+        /// <param name="messageBuilder">The message builder.</param>
+        /// <param name="formatParameters">The format parameters.</param>
+        /// <returns></returns>
+        public static Func<string> SimulateStructuredLogging(Func<string> messageBuilder, object[] formatParameters)
         {
             if (formatParameters == null)
                 return messageBuilder;
@@ -1503,7 +1517,7 @@ namespace LibLog.Logging.LogProviders
                 }
                 try
                 {
-                    return string.Format(targetMessage, formatParameters);
+                    return String.Format(CultureInfo.InvariantCulture, targetMessage, formatParameters);
                 }
                 catch (FormatException ex)
                 {
@@ -1523,4 +1537,5 @@ namespace LibLog.Logging.LogProviders
         }
         
     }
+
 }
