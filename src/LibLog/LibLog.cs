@@ -328,6 +328,8 @@ namespace LibLog.Logging
     public static class LogProvider
     {
         private static ILogProvider _currentLogProvider;
+        private const string NullLoggProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
+                                                "with a non-null value first.";
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -383,8 +385,7 @@ namespace LibLog.Logging
         {
             if(_currentLogProvider == null)
             {
-                throw new InvalidOperationException("Current Log Provider is not set. Call SetCurrentLogProvider " +
-                                                    "with a non-null value first.");
+                throw new InvalidOperationException(NullLoggProvider);
             }
             return _currentLogProvider.OpenNestedContext(message);
         }
@@ -393,8 +394,7 @@ namespace LibLog.Logging
         {
             if (_currentLogProvider == null)
             {
-                throw new InvalidOperationException("Current Log Provider is not set. Call SetCurrentLogProvider " +
-                                                    "with a non-null value first.");
+                throw new InvalidOperationException(NullLoggProvider);
             }
             return _currentLogProvider.OpenMappedContext(key, value);
         }
