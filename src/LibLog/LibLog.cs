@@ -316,9 +316,12 @@ namespace LibLog.Logging
     public interface ILogProvider
     {
         ILog GetLogger(string name);
+
+        IDisposable OpenNestedContext(string message);
+
+        IDisposable OpenMappedContext(string key, string value);
     }
-
-
+    
     /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
@@ -374,6 +377,26 @@ namespace LibLog.Logging
         public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
             _currentLogProvider = logProvider;
+        }
+
+        public static IDisposable OpenNestedConext(string message)
+        {
+            if(_currentLogProvider == null)
+            {
+                throw new InvalidOperationException("Current Log Provider is not set. Call SetCurrentLogProvider " +
+                                                    "with a non-null value first.");
+            }
+            return _currentLogProvider.OpenNestedContext(message);
+        }
+
+        public static IDisposable OpenMappedContext(string key, string value)
+        {
+            if (_currentLogProvider == null)
+            {
+                throw new InvalidOperationException("Current Log Provider is not set. Call SetCurrentLogProvider " +
+                                                    "with a non-null value first.");
+            }
+            return _currentLogProvider.OpenMappedContext(key, value);
         }
 
         public delegate bool IsLoggerAvailable();
@@ -469,9 +492,48 @@ namespace LibLog.Logging.LogProviders
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
-    using System.Threading;
 
-    public class NLogLogProvider : ILogProvider
+    public abstract class LogProviderBase : ILogProvider
+    {
+        protected delegate IDisposable OpenNdc(string message);
+        protected delegate IDisposable OpenMdc(string key, string value);
+
+        private readonly Lazy<OpenNdc> _lazyOpenNdcMethod;
+        private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
+        private static readonly IDisposable NoopDisposableInstance = new DisposableAction();
+
+        protected LogProviderBase()
+        {
+            _lazyOpenNdcMethod 
+                = new Lazy<OpenNdc>(GetOpenNdcMethod);
+            _lazyOpenMdcMethod
+               = new Lazy<OpenMdc>(GetOpenMdcMethod);
+        }
+
+        public abstract ILog GetLogger(string name);
+        
+        public IDisposable OpenNestedContext(string message)
+        {
+            return _lazyOpenNdcMethod.Value(message);
+        }
+
+        public IDisposable OpenMappedContext(string key, string value)
+        {
+            return _lazyOpenMdcMethod.Value(key, value);
+        }
+
+        protected virtual OpenNdc GetOpenNdcMethod()
+        {
+            return _ => NoopDisposableInstance;
+        }
+
+        protected virtual OpenMdc GetOpenMdcMethod()
+        {
+            return (_, __) => NoopDisposableInstance;
+        }
+    }
+
+    public class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -491,7 +553,7 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new NLogLogger(_getLoggerByNameDelegate(name));
         }
@@ -499,6 +561,41 @@ namespace LibLog.Logging.LogProviders
         public static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
+        }
+
+        protected override OpenNdc GetOpenNdcMethod()
+        {
+            Type ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
+            MethodInfo pushMethod = ndcContextType.GetMethod("Push", new[] { typeof(string) });
+            ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
+            MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
+            return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
+        }
+
+        protected override OpenMdc GetOpenMdcMethod()
+        {
+            Type mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
+
+            MethodInfo setMethod = mdcContextType.GetMethod("Set", new[] { typeof(string), typeof(string) });
+            MethodInfo removeMethod = mdcContextType.GetMethod("Remove", new[] { typeof(string) });
+            ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
+            ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
+
+            MethodCallExpression setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+            MethodCallExpression removeMethodCall = Expression.Call(null, removeMethod, keyParam);
+
+            Action<string, string> set = Expression
+                .Lambda<Action<string, string>>(setMethodCall, keyParam, valueParam)
+                .Compile();
+            Action<string> remove = Expression
+                .Lambda<Action<string>>(removeMethodCall, keyParam)
+                .Compile();
+
+            return (key, value) =>
+            {
+                set(key, value);
+                return new DisposableAction(() => remove(key));
+            };
         }
 
         private static Type GetLogManagerType()
@@ -511,8 +608,8 @@ namespace LibLog.Logging.LogProviders
             Type logManagerType = GetLogManagerType();
             MethodInfo method = logManagerType.GetMethod("GetLogger", new[] { typeof(string) });
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
-            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[] { nameParam });
-            return Expression.Lambda<Func<string, object>>(methodCall, new[] { nameParam }).Compile();
+            MethodCallExpression methodCall = Expression.Call(null, method, nameParam);
+            return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
         public class NLogLogger : ILog
@@ -653,7 +750,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class Log4NetLogProvider : ILogProvider
+    public class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -673,7 +770,7 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new Log4NetLogger(_getLoggerByNameDelegate(name));
         }
@@ -681,6 +778,41 @@ namespace LibLog.Logging.LogProviders
         public static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
+        }
+
+        protected override OpenNdc GetOpenNdcMethod()
+        {
+            Type ndcContextType = Type.GetType("log4net.NDC, log4net");
+            MethodInfo pushMethod = ndcContextType.GetMethod("Push", new[] { typeof(string) });
+            ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
+            MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
+            return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
+        }
+
+        protected override OpenMdc GetOpenMdcMethod()
+        {
+            Type mdcContextType = Type.GetType("log4net.MDC, log4net");
+
+            MethodInfo setMethod = mdcContextType.GetMethod("Set", new[] { typeof(string), typeof(string) });
+            MethodInfo removeMethod = mdcContextType.GetMethod("Remove", new[] { typeof(string) });
+            ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
+            ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
+
+            MethodCallExpression setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+            MethodCallExpression removeMethodCall = Expression.Call(null, removeMethod, keyParam);
+
+            Action<string, string> set = Expression
+                .Lambda<Action<string, string>>(setMethodCall, keyParam, valueParam)
+                .Compile();
+            Action<string> remove = Expression
+                .Lambda<Action<string>>(removeMethodCall, keyParam)
+                .Compile();
+
+            return (key, value) =>
+            {
+                set(key, value);
+                return new DisposableAction(() => remove(key));
+            };
         }
 
         private static Type GetLogManagerType()
@@ -821,7 +953,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class EntLibLogProvider : ILogProvider
+    public class EntLibLogProvider : LogProviderBase
     {
         private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
         private static bool _providerIsAvailableOverride = true;
@@ -856,7 +988,7 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry);
         }
@@ -978,7 +1110,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class SerilogLogProvider : ILogProvider
+    public class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -998,7 +1130,7 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new SerilogLogger(_getLoggerByNameDelegate(name));
         }
@@ -1006,6 +1138,43 @@ namespace LibLog.Logging.LogProviders
         public static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
+        }
+
+        protected override OpenNdc GetOpenNdcMethod()
+        {
+            return message => GetPushProperty()("NDC", message);
+        }
+
+        protected override OpenMdc GetOpenMdcMethod()
+        {
+            return (key, value) => GetPushProperty()(key, value);
+        }
+
+        private static Func<string, string, IDisposable> GetPushProperty()
+        {
+            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
+            MethodInfo pushPropertyMethod = ndcContextType.GetMethod(
+                "PushProperty",
+                new[]
+                {
+                    typeof(string),
+                    typeof(object),
+                    typeof(bool)
+                });
+            ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
+            ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
+            ParameterExpression destructureObjectParam = Expression.Parameter(typeof(bool), "destructureObjects");
+            MethodCallExpression pushPropertyMethodCall = Expression
+                .Call(null, pushPropertyMethod, nameParam, valueParam, destructureObjectParam);
+            var pushProperty = Expression
+                .Lambda<Func<string, object, bool, IDisposable>>(
+                    pushPropertyMethodCall,
+                    nameParam,
+                    valueParam,
+                    destructureObjectParam)
+                .Compile();
+            
+            return (key, value) => pushProperty(key, value, false);
         }
 
         private static Type GetLogManagerType()
@@ -1026,12 +1195,12 @@ namespace LibLog.Logging.LogProviders
                 valueParam,
                 destructureObjectsParam
             });
-            var func = Expression.Lambda<Func<string, object, bool, object>>(methodCall, new[]
-            {
+            var func = Expression.Lambda<Func<string, object, bool, object>>(
+                methodCall,
                 propertyNameParam,
                 valueParam,
-                destructureObjectsParam
-            }).Compile();
+                destructureObjectsParam)
+                .Compile();
             return name => func("Name", name, false);
         }
 
@@ -1227,8 +1396,25 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class LoupeLogProvider : ILogProvider
+    public class LoupeLogProvider : LogProviderBase
     {
+        /// <summary>
+        /// The form of the Loupe Log.Write method we're using
+        /// </summary>
+        internal delegate void WriteDelegate(
+            int severity,
+            string logSystem,
+            int skipFrames,
+            Exception exception,
+            bool attributeToException,
+            int writeMode,
+            string detailsXml,
+            string category,
+            string caption,
+            string description,
+            params object[] args
+            );
+
         private static bool _providerIsAvailableOverride = true;
         private readonly WriteDelegate _logWriteDelegate;
 
@@ -1254,7 +1440,7 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new LoupeLogger(name, _logWriteDelegate);
         }
@@ -1335,26 +1521,9 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
-
-        /// <summary>
-        /// The form of the Loupe Log.Write method we're using
-        /// </summary>
-        internal delegate void WriteDelegate(
-            int severity,
-            string logSystem,
-            int skipFrames,
-            Exception exception,
-            bool attributeToException,
-            int writeMode,
-            string detailsXml,
-            string category,
-            string caption,
-            string description,
-            params object[] args
-            );
     }
 
-    public class ColouredConsoleLogProvider : ILogProvider
+    public class ColouredConsoleLogProvider : LogProviderBase
     {
         static ColouredConsoleLogProvider()
         {
@@ -1369,7 +1538,7 @@ namespace LibLog.Logging.LogProviders
                     };
         }
 
-        public ILog GetLogger(string name)
+        public override ILog GetLogger(string name)
         {
             return new ColouredConsoleLogger(name);
         }
@@ -1461,6 +1630,24 @@ namespace LibLog.Logging.LogProviders
                 {
                     Console.Out.WriteLine(formattedMessage);
                 }
+            }
+        }
+    }
+
+    internal class DisposableAction : IDisposable
+    {
+        private readonly Action _onDispose;
+
+        public DisposableAction(Action onDispose = null)
+        {
+            _onDispose = onDispose;
+        }
+
+        public void Dispose()
+        {
+            if(_onDispose != null)
+            {
+                _onDispose();
             }
         }
     }

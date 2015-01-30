@@ -13,17 +13,19 @@
     {
         private readonly ILog _sut;
         private readonly MemoryTarget _target;
+        private ILogProvider _logProvider;
 
         public NLogLogProviderLoggingTests()
         {
             var config = new LoggingConfiguration();
             _target = new MemoryTarget
             {
-                Layout = "${level:uppercase=true}|${message}|${exception}"
+                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
             };
             config.AddTarget("memory", _target);
             config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, _target));
             LogManager.Configuration = config;
+            _logProvider = new NLogLogProvider();
             _sut = new NLogLogProvider().GetLogger("Test");
         }
 
@@ -43,7 +45,7 @@
         {
             _sut.Log(logLevel, () => "m");
 
-            _target.Logs[0].Should().Be(messagePrefix + "|m|");
+            _target.Logs[0].Should().Be(messagePrefix + "|||m|");
         }
 
         [Theory]
@@ -57,13 +59,33 @@
         {
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
-            _target.Logs[0].Should().Be(messagePrefix + "|m|e");
+            _target.Logs[0].Should().Be(messagePrefix + "|||m|e");
         }
 
         [Fact]
         public void Can_check_is_log_level_enabled()
         {
            _sut.AssertCanCheckLogLevelsEnabled();
+        }
+
+        [Fact]
+        public void Can_open_nested_diagnostics_context()
+        {
+            using (_logProvider.OpenNestedContext("context"))
+            {
+                _sut.Info("m");
+                _target.Logs[0].Should().Be("INFO|context||m|");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context()
+        {
+            using (_logProvider.OpenMappedContext("key", "value"))
+            {
+                _sut.Info("m");
+                _target.Logs[0].Should().Be("INFO||value|m|");
+            }
         }
     }
 }

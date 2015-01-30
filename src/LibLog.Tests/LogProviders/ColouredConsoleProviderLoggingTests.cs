@@ -2,19 +2,15 @@
 {
     using System;
     using System.IO;
-
     using FluentAssertions;
-
     using Xunit;
     using Xunit.Extensions;
 
-    public class ColouredConsoleProviderLoggingTests
+    public class ColouredConsoleProviderLoggingTests : IDisposable
     {
         private readonly ILog _sut;
-
         private readonly TextWriter _originalConsoleOut;
-
-        private StringWriter _target;
+        private readonly StringWriter _target;
 
         public ColouredConsoleProviderLoggingTests()
         {
@@ -43,7 +39,7 @@
         public void Should_be_able_to_log_message(LogLevel logLevel)
         {
             _sut.Log(logLevel, () => "m");
-            _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m|");
+            _target.ToString().Trim().Should().Be(logLevel + "|m|");
         }
 
         [Theory]
@@ -57,7 +53,7 @@
         {
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
-            _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m|e");
+            _target.ToString().Trim().Should().Be(logLevel + "|m|e");
         }
 
         [Fact]
