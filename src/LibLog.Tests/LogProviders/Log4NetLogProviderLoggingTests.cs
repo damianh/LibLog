@@ -58,6 +58,34 @@
             GetSingleMessage().Should().Be(messagePrefix + "|m|e");
         }
 
+        [Theory]
+        [InlineData(LogLevel.Debug, "DEBUG")]
+        [InlineData(LogLevel.Error, "ERROR")]
+        [InlineData(LogLevel.Fatal, "FATAL")]
+        [InlineData(LogLevel.Info, "INFO")]
+        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Warn, "WARN")]
+        public void Should_be_able_to_log_message_with_formatParams(LogLevel logLevel, string messagePrefix)
+        {
+            _sut.Log(logLevel, () => "m {0}", null, "replaced");
+
+            GetSingleMessage().Should().Be(messagePrefix + "|m replaced|");
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug, "DEBUG")]
+        [InlineData(LogLevel.Error, "ERROR")]
+        [InlineData(LogLevel.Fatal, "FATAL")]
+        [InlineData(LogLevel.Info, "INFO")]
+        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Warn, "WARN")]
+        public void Should_be_able_to_log_message_and_exception_with_formatParams(LogLevel logLevel, string messagePrefix)
+        {
+            _sut.Log(logLevel, () => "m {abc}", new Exception("e"), "replaced");
+
+            GetSingleMessage().Should().Be(messagePrefix + "|m replaced|e");
+        }
+
         [Fact]
         public void Can_check_is_log_level_enabled()
         {

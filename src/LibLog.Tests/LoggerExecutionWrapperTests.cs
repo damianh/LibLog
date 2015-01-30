@@ -62,7 +62,7 @@
             private string _message;
             private Exception _exception;
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
                 if (messageFunc != null)
                 {

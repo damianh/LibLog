@@ -63,6 +63,38 @@
             Target.Logs[0].Severity.Should().Be(severity);
         }
 
+        [Theory]
+        [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Error, TraceEventType.Error)]
+        [InlineData(LogLevel.Fatal, TraceEventType.Critical)]
+        [InlineData(LogLevel.Info, TraceEventType.Information)]
+        [InlineData(LogLevel.Trace, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Warn, TraceEventType.Warning)]
+        public void Should_be_able_to_log_message_with_formatparams(LogLevel logLevel, TraceEventType severity)
+        {
+            Sut.Log(logLevel, () => "m {0}", null, "replaced");
+
+            Target.Logs[0].Message.Should().Be("m replaced");
+            Target.Logs[0].Severity.Should().Be(severity);
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Error, TraceEventType.Error)]
+        [InlineData(LogLevel.Fatal, TraceEventType.Critical)]
+        [InlineData(LogLevel.Info, TraceEventType.Information)]
+        [InlineData(LogLevel.Trace, TraceEventType.Verbose)]
+        [InlineData(LogLevel.Warn, TraceEventType.Warning)]
+        public void Should_be_able_to_log_message_and_exception_with_formatparams(LogLevel logLevel, TraceEventType severity)
+        {
+            var exception = new Exception("e");
+
+            Sut.Log(logLevel, () => "m {abc}", exception, "replaced");
+
+            Target.Logs[0].Message.Should().Be("m replaced" + Environment.NewLine + exception);
+            Target.Logs[0].Severity.Should().Be(severity);
+        }
+
         [Fact]
         public void Can_check_is_log_level_enabled()
         {
