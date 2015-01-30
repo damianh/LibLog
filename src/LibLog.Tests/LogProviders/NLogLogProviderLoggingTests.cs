@@ -59,7 +59,7 @@
         {
             _sut.Log(logLevel, () => "m {0}", null, "formatParam");
 
-            _target.Logs[0].Should().Be(messagePrefix + "|m formatParam|");
+            _target.Logs[0].Should().Be(messagePrefix + "|||m formatParam|");
         }
 
         [Theory]
@@ -87,7 +87,7 @@
         {
             _sut.Log(logLevel, () => "m {abc}", new Exception("e"), new []{"replaced"});
 
-            _target.Logs[0].Should().Be(messagePrefix + "|m replaced|e");
+            _target.Logs[0].Should().Be(messagePrefix + "|||m replaced|e");
         }
 
         [Fact]

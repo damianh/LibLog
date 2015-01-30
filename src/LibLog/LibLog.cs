@@ -1544,14 +1544,15 @@ namespace LibLog.Logging.LogProviders
         static ColouredConsoleLogProvider()
         {
             MessageFormatter = DefaultMessageFormatter;
-            Colors = new Dictionary<LogLevel, ConsoleColor> {
-                        { LogLevel.Fatal, ConsoleColor.Red },
-                        { LogLevel.Error, ConsoleColor.Yellow },
-                        { LogLevel.Warn, ConsoleColor.Magenta },
-                        { LogLevel.Info, ConsoleColor.White },
-                        { LogLevel.Debug, ConsoleColor.Gray },
-                        { LogLevel.Trace, ConsoleColor.DarkGray },
-                    };
+            Colors = new Dictionary<LogLevel, ConsoleColor>
+            {
+                {LogLevel.Fatal, ConsoleColor.Red},
+                {LogLevel.Error, ConsoleColor.Yellow},
+                {LogLevel.Warn, ConsoleColor.Magenta},
+                {LogLevel.Info, ConsoleColor.White},
+                {LogLevel.Debug, ConsoleColor.Gray},
+                {LogLevel.Trace, ConsoleColor.DarkGray},
+            };
         }
 
         public override ILog GetLogger(string name)
@@ -1613,7 +1614,8 @@ namespace LibLog.Logging.LogProviders
                 _name = name;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception,
+                params object[] formatParameters)
             {
                 if (messageFunc == null)
                 {
@@ -1651,25 +1653,26 @@ namespace LibLog.Logging.LogProviders
             }
         }
 
-    internal class DisposableAction : IDisposable
-    {
-        private readonly Action _onDispose;
-
-        public DisposableAction(Action onDispose = null)
+        internal class DisposableAction : IDisposable
         {
-            _onDispose = onDispose;
-        }
+            private readonly Action _onDispose;
 
-        public void Dispose()
-        {
-            if(_onDispose != null)
+            public DisposableAction(Action onDispose = null)
             {
-                _onDispose();
+                _onDispose = onDispose;
             }
+
+            public void Dispose()
+            {
+                if (_onDispose != null)
+                {
+                    _onDispose();
+                }
+            }
+
         }
-        
     }
-        
+
     internal static class LogMessageFormatter
     {
         static Regex pattern = new Regex(@"\{\w{1,}\}");
@@ -1723,6 +1726,25 @@ namespace LibLog.Logging.LogProviders
             return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
         
+    }
+
+
+    internal class DisposableAction : IDisposable
+    {
+        private readonly Action _onDispose;
+
+        public DisposableAction(Action onDispose = null)
+        {
+            _onDispose = onDispose;
+        }
+
+        public void Dispose()
+        {
+            if(_onDispose != null)
+            {
+                _onDispose();
+            }
+        }
     }
 
 }
