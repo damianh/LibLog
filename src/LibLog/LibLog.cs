@@ -491,8 +491,11 @@ namespace LibLog.Logging.LogProviders
     using System.Diagnostics;
     using System.Globalization;
     using System.Linq.Expressions;
+    using System.Net.Mime;
     using System.Reflection;
     using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading;
 
     public abstract class LogProviderBase : ILogProvider
     {
@@ -628,6 +631,8 @@ namespace LibLog.Logging.LogProviders
                 {
                     return IsLogLevelEnable(logLevel);
                 }
+                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+
                 if(exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
@@ -1654,5 +1659,48 @@ namespace LibLog.Logging.LogProviders
                 _onDispose();
             }
         }
+        
+    public static class LogMessageFormatter
+    {
+        static Regex pattern = new Regex(@"\{\w{1,}\}");
+        public static Func<string> Format(Func<string> messageBuilder, object[] formatParameters)
+        {
+            if (formatParameters == null)
+                return messageBuilder;
+
+            return () =>
+            {
+                string targetMessage = messageBuilder();
+                int argumentIndex = 0;
+                foreach (Match match in pattern.Matches(targetMessage))
+                {
+                    int notUsed;
+                    if (!int.TryParse(match.Value.Substring(1, match.Value.Length -2), out notUsed))
+                    {
+                        targetMessage = ReplaceFirst(targetMessage, match.Value,
+                            "{" + argumentIndex++ + "}");
+                    }
+                }
+                try
+                {
+                    return string.Format(targetMessage, formatParameters);
+                }
+                catch (FormatException ex)
+                {
+                    throw new FormatException("The input string '" + targetMessage + "' could not be formatted using string.Format", ex);
+                }
+            };
+        }
+
+        static string ReplaceFirst(string text, string search, string replace)
+        {
+            int pos = text.IndexOf(search);
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
+        }
+        
     }
 }
