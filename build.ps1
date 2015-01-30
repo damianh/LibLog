@@ -15,6 +15,6 @@ foreach($packageConfig in $packageConfigs){
 	src\.nuget\nuget.exe i $packageConfig.FullName -o src\packages
 }
 
-Import-Module .\src\packages\psake.4.3.2\tools\psake.psm1
+Import-Module .\src\packages\psake.4.4.1\tools\psake.psm1
 Invoke-Psake .\default.ps1 default -framework "4.0x64" -properties @{ buildNumber=$buildNumber }
 Remove-Module psake
