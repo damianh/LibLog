@@ -3,14 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.Remoting.Messaging;
     using FluentAssertions;
     using Serilog;
+    using Serilog.Context;
     using Serilog.Events;
     using Xunit;
     using Xunit.Extensions;
     using LogLevel = LibLog.Logging.LogLevel;
 
-    public class SerilogLogProviderLoggingTests
+    public class SerilogLogProviderLoggingTests : IDisposable
     {
         private readonly ILog _sut;
         private LogEvent _logEvent;
@@ -153,6 +155,13 @@
             _logEvent.RenderMessage().Should().Be("Structured \"log\" message");
             _logEvent.Properties.Keys.Should().Contain("data");
             _logEvent.Properties["data"].ToString().Should().Be("\"log\"");
+        }
+
+        public void Dispose()
+        {
+            // Workaround for SerializationException on LogContext when using xUnit.net
+            // https://github.com/serilog/serilog/issues/109#issuecomment-40256706
+            CallContext.FreeNamedDataSlot(typeof(LogContext).FullName);
         }
 
         private static void AutoRollbackLoggerSetup(LogEventLevel minimumLevel, Action<ILog> @do)
