@@ -55,6 +55,33 @@
 
             _target.ToString().Trim().Should().Be(logLevel + "|m|e");
         }
+        
+        [Theory]
+        [InlineData(LogLevel.Debug)]
+        [InlineData(LogLevel.Error)]
+        [InlineData(LogLevel.Fatal)]
+        [InlineData(LogLevel.Info)]
+        [InlineData(LogLevel.Trace)]
+        [InlineData(LogLevel.Warn)]
+        public void Should_be_able_to_log_message_with_formatParams(LogLevel logLevel)
+        {
+            _sut.Log(logLevel, () => "m {0}", null, "replaced");
+            _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m replaced|");
+        }
+
+        [Theory]
+        [InlineData(LogLevel.Debug)]
+        [InlineData(LogLevel.Error)]
+        [InlineData(LogLevel.Fatal)]
+        [InlineData(LogLevel.Info)]
+        [InlineData(LogLevel.Trace)]
+        [InlineData(LogLevel.Warn)]
+        public void Should_be_able_to_log_message_and_exception_with_formatParams(LogLevel logLevel)
+        {
+            _sut.Log(logLevel, () => "m {abc}", new Exception("e"), "replaced");
+
+            _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m replaced|e");
+        }
 
         [Fact]
         public void Can_check_is_log_level_enabled()
