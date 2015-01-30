@@ -13,7 +13,7 @@
     {
         private readonly ILog _sut;
         private readonly MemoryTarget _target;
-        private ILogProvider _logProvider;
+        private readonly ILogProvider _logProvider;
 
         public NLogLogProviderLoggingTests()
         {
