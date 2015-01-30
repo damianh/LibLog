@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>2.0.1</version>
+        <version>3.0.0</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
@@ -21,13 +21,14 @@ This package is a variation of option 3 but will automatically wire things up to
 - Using optimized reflection, it transparently supports NLog, Log4Net, EntLib Logging, Serilog and Loupe without any wiring up required by an end user, if the end user simply has a reference to any of these logging frameworks.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.</summary>
         <copyright>Damian Hickey and Contributors 2014</copyright>
-        <releaseNotes>Add support for Loupe</releaseNotes>
+        <releaseNotes>Support for nested and mapped diagnostic contexts.
+        Better support for structured logging.</releaseNotes>
         <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="content\net40\App_Packages\LibLog.2.0\LibLog.cs.pp" />
+        <file src="LibLog.cs.pp" target="content\net40\App_Packages\LibLog.3.0\LibLog.cs.pp" />
     </files>
 </package>
