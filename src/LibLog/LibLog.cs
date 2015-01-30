@@ -493,7 +493,7 @@ namespace LibLog.Logging
                 }
                 return null;
             };
-            return _logger.Log(logLevel, wrappedMessageFunc, exception);
+            return _logger.Log(logLevel, wrappedMessageFunc, exception, formatParameters);
         }
     }
 }
