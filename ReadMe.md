@@ -6,6 +6,8 @@ When the DLL is added, It Just Works. i.e., all that's needed is to reference NL
 
 The `ILog` interface consists of just 2 methods, which contrasts with the large interface (~65 members) in `Log4Net` and `Common.Logging`.
 
+Nested Diagnostic Contexts(NDC) and Mapped Diagnostic Contexts (MDC) are available via `LogProvider.OpenNestedContext()` and `LogProvider.OpenMappedContext()`. Support has been implemented for NLog, Log4Net and Serilog. As fair as I know, EntLib Logging doesn't supported it (contact me if I'm wrong). Loupe support will come with next major version of Loupe.
+
 ### Why?
 
 A logging _implementation_ is an application level concern. Your library / framework should not have any dependencies on any specific logging library, but may still need to support logging.
@@ -33,7 +35,11 @@ public class MyClass
     
     public MyClass()
     {
-        Logger.Info(....);
+        using(LogProvider.OpenNestedContext("message"))
+        using(LogProvider.OpenMappedContext("key", "value"))
+        {
+            Logger.Info(....);
+        }
     }
 }
 ```
