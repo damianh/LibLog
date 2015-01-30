@@ -15,11 +15,13 @@
     {
         private readonly MemoryAppender _memoryAppender;
         private readonly ILog _sut;
+        private readonly ILogProvider _logProvider;
 
         public Log4NetLogProviderLoggingTests()
         {
             _memoryAppender = new MemoryAppender();
             BasicConfigurator.Configure(_memoryAppender);
+            _logProvider = new Log4NetLogProvider();
             _sut = new Log4NetLogProvider().GetLogger("Test");
         }
 
@@ -88,6 +90,32 @@
         public void Can_check_is_log_level_enabled()
         {
             _sut.AssertCanCheckLogLevelsEnabled();
+        }
+
+        [Fact]
+        public void Can_open_nested_diagnostics_context()
+        {
+            using (_logProvider.OpenNestedContext("context"))
+            {
+                _sut.Info("m");
+                var loggingEvent = _memoryAppender.GetEvents().Single();
+
+                loggingEvent.Properties.GetKeys().Should().Contain("NDC");
+                loggingEvent.Properties["NDC"].Should().Be("context");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context()
+        {
+            using (_logProvider.OpenMappedContext("key", "value"))
+            {
+                _sut.Info("m");
+                var loggingEvent = _memoryAppender.GetEvents().Single();
+
+                loggingEvent.Properties.GetKeys().Should().Contain("key");
+                loggingEvent.Properties["key"].Should().Be("value");
+            }
         }
 
         private string GetSingleMessage()

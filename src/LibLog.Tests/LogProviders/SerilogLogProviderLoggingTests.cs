@@ -14,17 +14,30 @@
     {
         private readonly ILog _sut;
         private LogEvent _logEvent;
+        private readonly SerilogLogProvider _logProvider;
+        private readonly IEnumerable<LogLevel> _allLevels = Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>().ToList();
+        private readonly IDictionary<LogLevel, Predicate<ILog>> _checkIsEnabledFor = new Dictionary<LogLevel, Predicate<ILog>>
+        {
+            {LogLevel.Trace, log => log.IsTraceEnabled()},
+            {LogLevel.Debug, log => log.IsDebugEnabled()},
+            {LogLevel.Info, log => log.IsInfoEnabled()},
+            {LogLevel.Warn, log => log.IsWarnEnabled()},
+            {LogLevel.Error, log => log.IsErrorEnabled()},
+            {LogLevel.Fatal, log => log.IsFatalEnabled()},
+        };
 
         public SerilogLogProviderLoggingTests()
         {
             var logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
                 .MinimumLevel.Is(LogEventLevel.Verbose)
                 .WriteTo.Observers(obs => obs.Subscribe(logEvent => _logEvent = logEvent))
                 .WriteTo.Console()
                 .CreateLogger();
 
             Log.Logger = logger;
-            _sut = new SerilogLogProvider().GetLogger("Test");
+            _logProvider = new SerilogLogProvider();
+            _sut = _logProvider.GetLogger("Test");
         }
 
         [Theory]
@@ -80,6 +93,30 @@
             _sut.AssertCanCheckLogLevelsEnabled();
         }
 
+        [Fact]
+        public void Can_open_nested_diagnostics_context()
+        {
+            using (_logProvider.OpenNestedContext("context"))
+            {
+                _sut.Info("m");
+
+                _logEvent.Properties.Keys.Should().Contain("NDC");
+                _logEvent.Properties["NDC"].ToString().Should().Be("\"context\"");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context()
+        {
+            using (_logProvider.OpenMappedContext("key", "value"))
+            {
+                _sut.Info("m");
+
+                _logEvent.Properties.Keys.Should().Contain("key");
+                _logEvent.Properties["key"].ToString().Should().Be("\"value\"");
+            }
+        }
+
         [Theory]
         [InlineData(LogEventLevel.Verbose, new []{LogLevel.Trace, LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Fatal})]
         [InlineData(LogEventLevel.Debug, new []{LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Fatal})]
@@ -107,18 +144,6 @@
                     }
                 });
         }
-
-        private readonly IDictionary<LogLevel, Predicate<ILog>> _checkIsEnabledFor = new Dictionary<LogLevel, Predicate<ILog>>
-        {
-            {LogLevel.Trace, log => log.IsTraceEnabled()},
-            {LogLevel.Debug, log => log.IsDebugEnabled()},
-            {LogLevel.Info, log => log.IsInfoEnabled()},
-            {LogLevel.Warn, log => log.IsWarnEnabled()},
-            {LogLevel.Error, log => log.IsErrorEnabled()},
-            {LogLevel.Fatal, log => log.IsFatalEnabled()},
-        };
-
-        private readonly IEnumerable<LogLevel> _allLevels = Enum.GetValues(typeof (LogLevel)).Cast<LogLevel>().ToList();
 
         private static void AutoRollbackLoggerSetup(LogEventLevel minimumLevel, Action<ILog> @do)
         {
