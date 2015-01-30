@@ -32,7 +32,6 @@ namespace LibLog.Logging
     using LibLog.Logging.LogProviders;
     using System;
     using System.Diagnostics;
-    using System.Globalization;
 
     /// <summary>
     /// Simple interface that represent a logger.
@@ -51,7 +50,7 @@ namespace LibLog.Logging
         /// Note to implementers: the message func should not be called if the loglevel is not enabled
         /// so as not to incur performance penalties.
         /// 
-        /// To check IsEnabled call Log with only LogLevel and check the return value, no event will be written
+        /// To check IsEnabled call Log with only LogLevel and check the return value, no event will be written.
         /// </remarks>
         bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters );
     }
@@ -315,13 +314,29 @@ namespace LibLog.Logging
     /// </summary>
     public interface ILogProvider
     {
+        /// <summary>
+        /// Gets the specified named logger.
+        /// </summary>
+        /// <param name="name">Name of the logger.</param>
+        /// <returns>The logger reference.</returns>
         ILog GetLogger(string name);
 
+        /// <summary>
+        /// Opens a nested diagnostics context. Not supported in EntLib logging.
+        /// </summary>
+        /// <param name="message">The message to add to the diagnostics context.</param>
+        /// <returns>A disposable that when disposed removes the message from the context.</returns>
         IDisposable OpenNestedContext(string message);
 
+        /// <summary>
+        /// Opens a mapped diagnostics context. Not supported in EntLib logging.
+        /// </summary>
+        /// <param name="key">A key.</param>
+        /// <param name="value">A value.</param>
+        /// <returns>A disposable that when disposed removes the map from the context.</returns>
         IDisposable OpenMappedContext(string key, string value);
     }
-    
+
     /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>

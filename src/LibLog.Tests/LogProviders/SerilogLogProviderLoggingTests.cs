@@ -145,6 +145,16 @@
                 });
         }
 
+        [Fact]
+        public void Can_log_structured_message()
+        {
+            _sut.InfoFormat("Structured {data} message", "log");
+
+            _logEvent.RenderMessage().Should().Be("Structured \"log\" message");
+            _logEvent.Properties.Keys.Should().Contain("data");
+            _logEvent.Properties["data"].ToString().Should().Be("\"log\"");
+        }
+
         private static void AutoRollbackLoggerSetup(LogEventLevel minimumLevel, Action<ILog> @do)
         {
             var originalLogger = Log.Logger;
