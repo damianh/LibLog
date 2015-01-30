@@ -717,6 +717,9 @@ namespace LibLog.Logging.LogProviders
                 {
                     return IsLogLevelEnable(logLevel);
                 }
+
+                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
+
                 if (exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
@@ -948,6 +951,8 @@ namespace LibLog.Logging.LogProviders
                 {
                     return _shouldLog(_loggerName, severity);
                 }
+
+                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
                 if (exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
@@ -1315,6 +1320,8 @@ namespace LibLog.Logging.LogProviders
                     //nothing to log..
                     return true;
                 }
+
+                messageFunc = LogMessageFormatter.Format(messageFunc, formatParameters);
 
                 _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
                     _category, null, messageFunc.Invoke());
