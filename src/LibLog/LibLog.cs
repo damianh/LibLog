@@ -1275,7 +1275,8 @@ namespace LibLog.Logging.LogProviders
 
                 // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
                 var loggerType = Type.GetType("Serilog.ILogger, Serilog");
-                MethodInfo isEnabledMethodInfo = loggerType.GetMethodPortable("IsEnabled");
+                var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                MethodInfo isEnabledMethodInfo = loggerType.GetMethodPortable("IsEnabled", logEventLevelType);
                 ParameterExpression instanceParam = Expression.Parameter(typeof(object));
                 UnaryExpression instanceCast = Expression.Convert(instanceParam, loggerType);
                 ParameterExpression levelParam = Expression.Parameter(typeof(object));
@@ -1852,13 +1853,13 @@ namespace LibLog.Logging.LogProviders
         internal static MethodInfo GetMethodPortable(this Type type, string name)
         {
 #if LIBLOG_PORTABLE
-            return type.GetRuntimeMethod(name, null);
+            return type.GetRuntimeMethod(name, new Type[]{});
 #else
             return type.GetMethod(name);
 #endif
         }
 
-        internal static MethodInfo GetMethodPortable(this Type type, string name, Type[] types)
+        internal static MethodInfo GetMethodPortable(this Type type, string name, params Type[] types)
         {
 #if LIBLOG_PORTABLE
             return type.GetRuntimeMethod(name, types);
