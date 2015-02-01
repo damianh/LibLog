@@ -16,7 +16,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false; 
-            ILog logger = LogProvider.GetCurrentClassLogger();
+            ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
         }
