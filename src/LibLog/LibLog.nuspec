@@ -29,6 +29,7 @@ This package is a variation of option 3 but will automatically wire things up to
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="content\App_Packages\LibLog.3.0\LibLog.cs.pp" />
+        <file src="LibLog.cs.pp" target="content\net40\App_Packages\LibLog.3.0\LibLog.cs.pp" />
+        <file src="LibLog.cs.pp" target="content\portable-net45+win+wpa81+MonoAndroid10+MonoTouch10\App_Packages\LibLog.3.0\LibLog.cs.pp" />
     </files>
 </package>
