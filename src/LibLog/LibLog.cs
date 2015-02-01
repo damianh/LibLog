@@ -3,7 +3,7 @@
 //
 // https://github.com/damianh/LibLog
 //===============================================================================
-// Copyright © 2011-2014 Damian Hickey.  All rights reserved.
+// Copyright © 2011-2015 Damian Hickey.  All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,10 @@
 // SOFTWARE.
 //===============================================================================
 
-// Uncomment the following line for PCL compatability
-//#define PORTABLE
+// ReSharper disable PossibleNullReferenceException
 
-// ReSharper disable All
+// Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
+
 namespace LibLog.Logging
 {
     using System.Collections.Generic;
@@ -358,7 +358,7 @@ namespace LibLog.Logging
             return GetLogger(typeof(T));
         }
 
-#if !PORTABLE
+#if !LIBLOG_PORTABLE
         /// <summary>
         /// Gets a logger for the current class.
         /// </summary>
@@ -446,7 +446,7 @@ namespace LibLog.Logging
             }
             catch (Exception ex)
             {
-#if PORTABLE
+#if LIBLOG_PORTABLE
                 Debug.WriteLine(
 #else
                 Console.WriteLine(
@@ -511,6 +511,7 @@ namespace LibLog.Logging.LogProviders
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -1165,7 +1166,10 @@ namespace LibLog.Logging.LogProviders
             static TraceEventTypeValues()
             {
                 var assembly = typeof(Uri).Assembly; // This is to get to the System.dll assembly in a PCL compatible way.
-                if (assembly == null) return;
+                if(assembly == null)
+                {
+                    return;
+                }
                 Type = assembly.GetType("System.Diagnostics.TraceEventType");
                 if (Type == null) return;
                 Verbose = (int)Enum.Parse(Type, "Verbose", false);
@@ -1177,6 +1181,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     public class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
