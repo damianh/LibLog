@@ -1152,6 +1152,29 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
+
+        private static class TraceEventTypeValues
+        {
+            internal static readonly Type Type;
+            internal static readonly int Verbose;
+            internal static readonly int Information;
+            internal static readonly int Warning;
+            internal static readonly int Error;
+            internal static readonly int Critical;
+
+            static TraceEventTypeValues()
+            {
+                var assembly = typeof(Uri).Assembly; // This is to get to the System.dll assembly in a PCL compatible way.
+                if (assembly == null) return;
+                Type = assembly.GetType("System.Diagnostics.TraceEventType");
+                if (Type == null) return;
+                Verbose = (int)Enum.Parse(Type, "Verbose", false);
+                Information = (int)Enum.Parse(Type, "Information", false);
+                Warning = (int)Enum.Parse(Type, "Warning", false);
+                Error = (int)Enum.Parse(Type, "Error", false);
+                Critical = (int)Enum.Parse(Type, "Critical", false);
+            }
+        }
     }
 
     public class SerilogLogProvider : LogProviderBase
@@ -1760,29 +1783,6 @@ namespace LibLog.Logging.LogProviders
                 Gray = (int)Enum.Parse(Type, "Gray", false);
                 DarkGray = (int)Enum.Parse(Type, "DarkGray", false);
             }
-        }
-    }
-
-    internal static class TraceEventTypeValues
-    {
-        public static readonly Type Type;
-        public static readonly int Verbose;
-        public static readonly int Information;
-        public static readonly int Warning;
-        public static readonly int Error;
-        public static readonly int Critical;
-
-        static TraceEventTypeValues()
-        {
-            var assembly = typeof(Uri).Assembly; // This is to get to the System.dll assembly in a PCL compatible way.
-            if (assembly == null) return;
-            Type = assembly.GetType("System.Diagnostics.TraceEventType");
-            if (Type == null) return;
-            Verbose = (int)Enum.Parse(Type, "Verbose", false);
-            Information = (int)Enum.Parse(Type, "Information", false);
-            Warning = (int)Enum.Parse(Type, "Warning", false);
-            Error = (int)Enum.Parse(Type, "Error", false);
-            Critical = (int)Enum.Parse(Type, "Critical", false);
         }
     }
 
