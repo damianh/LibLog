@@ -1738,6 +1738,29 @@ namespace LibLog.Logging.LogProviders
                 }
             }
         }
+
+        private static class ConsoleColorValues
+        {
+            internal static readonly Type Type;
+            internal static readonly int Red;
+            internal static readonly int Yellow;
+            internal static readonly int Magenta;
+            internal static readonly int White;
+            internal static readonly int Gray;
+            internal static readonly int DarkGray;
+
+            static ConsoleColorValues()
+            {
+                Type = Type.GetType("System.ConsoleColor");
+                if (Type == null) return;
+                Red = (int)Enum.Parse(Type, "Red", false);
+                Yellow = (int)Enum.Parse(Type, "Yellow", false);
+                Magenta = (int)Enum.Parse(Type, "Magenta", false);
+                White = (int)Enum.Parse(Type, "White", false);
+                Gray = (int)Enum.Parse(Type, "Gray", false);
+                DarkGray = (int)Enum.Parse(Type, "DarkGray", false);
+            }
+        }
     }
 
     internal static class TraceEventTypeValues
@@ -1760,29 +1783,6 @@ namespace LibLog.Logging.LogProviders
             Warning = (int)Enum.Parse(Type, "Warning", false);
             Error = (int)Enum.Parse(Type, "Error", false);
             Critical = (int)Enum.Parse(Type, "Critical", false);
-        }
-    }
-
-    internal static class ConsoleColorValues
-    {
-        internal static readonly Type Type;
-        public static readonly int Red;
-        public static readonly int Yellow;
-        public static readonly int Magenta;
-        public static readonly int White;
-        public static readonly int Gray;
-        public static readonly int DarkGray;
-
-        static ConsoleColorValues()
-        {
-            Type = Type.GetType("System.ConsoleColor");
-            if (Type == null) return;
-            Red = (int)Enum.Parse(Type, "Red", false);
-            Yellow = (int)Enum.Parse(Type, "Yellow", false);
-            Magenta = (int)Enum.Parse(Type, "Magenta", false);
-            White = (int)Enum.Parse(Type, "White", false);
-            Gray = (int)Enum.Parse(Type, "Gray", false);
-            DarkGray = (int)Enum.Parse(Type, "DarkGray", false);
         }
     }
 
