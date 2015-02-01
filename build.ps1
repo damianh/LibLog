@@ -9,6 +9,8 @@ if(Test-Path Env:\APPVEYOR_BUILD_NUMBER){
 
 "Build number $buildNumber"
 
+src\.nuget\nuget.exe i src\.nuget\packages.config -o src\packages
+
 $packageConfigs = Get-ChildItem . -Recurse | where{$_.Name -like "packages.*.config"}
 foreach($packageConfig in $packageConfigs){
     Write-Host "Restoring" $packageConfig.FullName
