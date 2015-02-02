@@ -137,6 +137,15 @@ namespace LibLog.Logging
             }
         }
 
+
+        public static void DebugException(this ILog logger, string message, Exception exception, params object[] formatParams)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                logger.Log(LogLevel.Debug, message.AsFunc(), exception, formatParams);
+            }
+        }
+
         public static void Error(this ILog logger, Func<string> messageFunc)
         {
             logger.Log(LogLevel.Error, messageFunc);
@@ -158,11 +167,11 @@ namespace LibLog.Logging
             }
         }
 
-        public static void ErrorException(this ILog logger, string message, Exception exception)
+        public static void ErrorException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsErrorEnabled())
             {
-                logger.Log(LogLevel.Error, message.AsFunc(), exception);
+                logger.Log(LogLevel.Error, message.AsFunc(), exception, formatParams);
             }
         }
 
@@ -187,11 +196,11 @@ namespace LibLog.Logging
             }
         }
 
-        public static void FatalException(this ILog logger, string message, Exception exception)
+        public static void FatalException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsFatalEnabled())
             {
-                logger.Log(LogLevel.Fatal, message.AsFunc(), exception);
+                logger.Log(LogLevel.Fatal, message.AsFunc(), exception, formatParams);
             }
         }
 
@@ -217,11 +226,11 @@ namespace LibLog.Logging
             }
         }
 
-        public static void InfoException(this ILog logger, string message, Exception exception)
+        public static void InfoException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsInfoEnabled())
             {
-                logger.Log(LogLevel.Info, message.AsFunc(), exception);
+                logger.Log(LogLevel.Info, message.AsFunc(), exception, formatParams);
             }
         }
 
@@ -247,11 +256,11 @@ namespace LibLog.Logging
             }
         }
 
-        public static void TraceException(this ILog logger, string message, Exception exception)
+        public static void TraceException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsTraceEnabled())
             {
-                logger.Log(LogLevel.Trace, message.AsFunc(), exception);
+                logger.Log(LogLevel.Trace, message.AsFunc(), exception, formatParams);
             }
         }
 
@@ -277,11 +286,11 @@ namespace LibLog.Logging
             }
         }
 
-        public static void WarnException(this ILog logger, string message, Exception exception)
+        public static void WarnException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsWarnEnabled())
             {
-                logger.Log(LogLevel.Warn, message.AsFunc(), exception);
+                logger.Log(LogLevel.Warn, message.AsFunc(), exception, formatParams);
             }
         }
 
