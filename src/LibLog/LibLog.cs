@@ -28,6 +28,8 @@
 
 // Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
 
+#pragma warning disable 1591
+
 namespace LibLog.Logging
 {
     using System.Collections.Generic;
@@ -510,7 +512,6 @@ namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
