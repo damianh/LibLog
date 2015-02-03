@@ -356,8 +356,8 @@ namespace LibLog.Logging
     public static class LogProvider
     {
         private static ILogProvider _currentLogProvider;
-        private const string NullLoggProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
-                                                "with a non-null value first.";
+        private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
+                                               "with a non-null value first.";
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -415,7 +415,7 @@ namespace LibLog.Logging
         {
             if(_currentLogProvider == null)
             {
-                throw new InvalidOperationException(NullLoggProvider);
+                throw new InvalidOperationException(NullLogProvider);
             }
             return _currentLogProvider.OpenNestedContext(message);
         }
@@ -424,7 +424,7 @@ namespace LibLog.Logging
         {
             if (_currentLogProvider == null)
             {
-                throw new InvalidOperationException(NullLoggProvider);
+                throw new InvalidOperationException(NullLogProvider);
             }
             return _currentLogProvider.OpenMappedContext(key, value);
         }
@@ -440,7 +440,8 @@ namespace LibLog.Logging
             new Tuple<IsLoggerAvailable, CreateLogProvider>(NLogLogProvider.IsLoggerAvailable, () => new NLogLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(Log4NetLogProvider.IsLoggerAvailable, () => new Log4NetLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(EntLibLogProvider.IsLoggerAvailable, () => new EntLibLogProvider()),
-            new Tuple<IsLoggerAvailable, CreateLogProvider>(LoupeLogProvider.IsLoggerAvailable, () => new LoupeLogProvider())
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(LoupeLogProvider.IsLoggerAvailable, () => new LoupeLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(ColouredConsoleLogProvider.IsLoggerAvailable, () => new ColouredConsoleLogProvider()),
         };
 
         private static ILogProvider ResolveLogProvider()
@@ -469,7 +470,7 @@ namespace LibLog.Logging
             return null;
         }
 
-        public class NoOpLogger : ILog
+        internal class NoOpLogger : ILog
         {
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
@@ -478,19 +479,19 @@ namespace LibLog.Logging
         }
     }
 
-    public class LoggerExecutionWrapper : ILog
+    internal class LoggerExecutionWrapper : ILog
     {
         private readonly ILog _logger;
-        public const string FailedToGenerateLogMessage = "Failed to generate log message";
+        internal const string FailedToGenerateLogMessage = "Failed to generate log message";
+
+        internal LoggerExecutionWrapper(ILog logger)
+        {
+            _logger = logger;
+        }
 
         public ILog WrappedLogger
         {
             get { return _logger; }
-        }
-
-        public LoggerExecutionWrapper(ILog logger)
-        {
-            _logger = logger;
         }
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
@@ -521,14 +522,13 @@ namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
     using System.Text.RegularExpressions;
 
-    public abstract class LogProviderBase : ILogProvider
+    internal abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
         protected delegate IDisposable OpenMdc(string key, string value);
@@ -568,7 +568,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class NLogLogProvider : LogProviderBase
+    internal class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -787,7 +787,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class Log4NetLogProvider : LogProviderBase
+    internal class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -812,7 +812,7 @@ namespace LibLog.Logging.LogProviders
             return new Log4NetLogger(_getLoggerByNameDelegate(name));
         }
 
-        public static bool IsLoggerAvailable()
+        internal static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
         }
@@ -993,7 +993,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class EntLibLogProvider : LogProviderBase
+    internal class EntLibLogProvider : LogProviderBase
     {
         private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
         private static bool _providerIsAvailableOverride = true;
@@ -1037,7 +1037,7 @@ namespace LibLog.Logging.LogProviders
             return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry);
         }
 
-        public static bool IsLoggerAvailable()
+        internal static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride
                  && TraceEventTypeType != null
@@ -1165,8 +1165,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
-    public class SerilogLogProvider : LogProviderBase
+    internal class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool _providerIsAvailableOverride = true;
@@ -1191,7 +1190,7 @@ namespace LibLog.Logging.LogProviders
             return new SerilogLogger(_getLoggerByNameDelegate(name));
         }
 
-        public static bool IsLoggerAvailable()
+        internal static bool IsLoggerAvailable()
         {
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
         }
@@ -1450,7 +1449,7 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class LoupeLogProvider : LogProviderBase
+    internal class LoupeLogProvider : LogProviderBase
     {
         /// <summary>
         /// The form of the Loupe Log.Write method we're using
@@ -1558,7 +1557,7 @@ namespace LibLog.Logging.LogProviders
                 return true;
             }
 
-            public int ToLogMessageSeverity(LogLevel logLevel)
+            private int ToLogMessageSeverity(LogLevel logLevel)
             {
                 switch (logLevel)
                 {
@@ -1607,14 +1606,16 @@ namespace LibLog.Logging.LogProviders
         }
     }
 
-    public class ColouredConsoleLogProvider : LogProviderBase
+    internal class ColouredConsoleLogProvider : LogProviderBase
     {
         private static readonly Type ConsoleType;
         private static readonly Type ConsoleColorType;
         private static readonly Action<string> ConsoleWriteLine;
         private static readonly Func<int> GetConsoleForeground;
         private static readonly Action<int> SetConsoleForeground;
-
+        private static bool _providerIsAvailableOverride = true;
+        private static readonly IDictionary<LogLevel, int> Colors;
+ 
         static ColouredConsoleLogProvider()
         {
             ConsoleType = Type.GetType("System.Console");
@@ -1640,9 +1641,9 @@ namespace LibLog.Logging.LogProviders
             SetConsoleForeground = GetSetConsoleForeground();
         }
 
-        public static bool IsLoggerAvailable()
+        internal static bool IsLoggerAvailable()
         {
-            return ConsoleType != null && ConsoleColorType != null;
+            return ProviderIsAvailableOverride && ConsoleType != null && ConsoleColorType != null;
         }
 
         public override ILog GetLogger(string name)
@@ -1658,15 +1659,19 @@ namespace LibLog.Logging.LogProviders
         /// <param name="message">The Log Message</param>
         /// <param name="e">The Exception, if there is one</param>
         /// <returns>A formatted Log Message string.</returns>
-        public delegate string MessageFormatterDelegate(
+        internal delegate string MessageFormatterDelegate(
             string loggerName,
             LogLevel level,
             object message,
             Exception e);
 
-        public static Dictionary<LogLevel, int> Colors { get; set; }
+        internal static MessageFormatterDelegate MessageFormatter { get; set; }
 
-        public static MessageFormatterDelegate MessageFormatter { get; set; }
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return _providerIsAvailableOverride; }
+            set { _providerIsAvailableOverride = value; }
+        }
 
         protected static string DefaultMessageFormatter(string loggerName, LogLevel level, object message, Exception e)
         {

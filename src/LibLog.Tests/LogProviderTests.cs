@@ -15,7 +15,8 @@
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
-            LoupeLogProvider.ProviderIsAvailableOverride = false; 
+            LoupeLogProvider.ProviderIsAvailableOverride = false;
+
             ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
@@ -30,6 +31,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
+
             ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<Log4NetLogProvider.Log4NetLogger>();
@@ -58,6 +60,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
+
             ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<SerilogLogProvider.SerilogLogger>();
@@ -72,9 +75,26 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
+
             ILog logger = LogProvider.For<LogProviderTests>();
 
             ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<LoupeLogProvider.LoupeLogger>();
+        }
+
+        [Fact]
+        public void When_ColourConsoleLoger_is_available_Then_should_get_LoupeLogger()
+        {
+            LogProvider.SetCurrentLogProvider(null);
+            NLogLogProvider.ProviderIsAvailableOverride = false;
+            Log4NetLogProvider.ProviderIsAvailableOverride = false;
+            EntLibLogProvider.ProviderIsAvailableOverride = false;
+            SerilogLogProvider.ProviderIsAvailableOverride = false;
+            LoupeLogProvider.ProviderIsAvailableOverride = false;
+            ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
+
+            ILog logger = LogProvider.For<LogProviderTests>();
+
+            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<ColouredConsoleLogProvider.ColouredConsoleLogger>();
         }
 
         [Fact]
@@ -86,6 +106,8 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
+            ColouredConsoleLogProvider.ProviderIsAvailableOverride = false;
+
             ILog logger = LogProvider.For<LogProviderTests>();
 
             logger.Should().BeOfType<LogProvider.NoOpLogger>();
@@ -98,6 +120,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = true;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
+            ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
         }
     }
 }
