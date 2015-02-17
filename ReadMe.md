@@ -74,6 +74,6 @@ Feedback, compliments or criticism: [@randompunter][6]
 [5]: http://msdn.microsoft.com/en-us/library/ff647183.aspx
 [6]: https://twitter.com/randompunter
 [7]: https://github.com/ayende/ravendb/tree/master/Raven.Abstractions/Logging
-[8]: https://github.com/thinktecture/Thinktecture.IdentityServer.v3/tree/master/source/Core/Logging
+[8]: https://github.com/IdentityServer/Thinktecture.IdentityServer3/tree/master/source/Core/Logging
 [9]: http://serilog.net/
 [10]: http://www.gibraltarsoftware.com/Loupe
