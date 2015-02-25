@@ -108,6 +108,17 @@
             logger.Should().BeOfType<LogProvider.NoOpLogger>();
         }
 
+        [Fact]
+        public void When_set_current_log_provider_then_should_raise_OnCurrentLogProviderSet()
+        {
+            ILogProvider provider = null;
+            LogProvider.OnCurrentLogProviderSet = p => provider = p;
+
+            LogProvider.SetCurrentLogProvider(new ColouredConsoleLogProvider());
+
+            provider.Should().NotBeNull();
+        }
+
         public void Dispose()
         {
             NLogLogProvider.ProviderIsAvailableOverride = true;

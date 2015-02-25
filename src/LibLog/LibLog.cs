@@ -370,6 +370,8 @@ namespace LibLog.Logging
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
         private static dynamic _currentLogProvider;
+        private static Action<ILogProvider> _onCurrentLogProviderSet;
+
 
         /// <summary>
         /// Sets the current log provider.
@@ -378,6 +380,18 @@ namespace LibLog.Logging
         public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
             _currentLogProvider = logProvider;
+
+            RaiseOnCurrentLogProviderSet();
+        }
+
+        internal static Action<ILogProvider> OnCurrentLogProviderSet
+        {
+            get { return _onCurrentLogProviderSet; }
+            set
+            {
+                _onCurrentLogProviderSet = value;
+                RaiseOnCurrentLogProviderSet();
+            }
         }
 
         internal static ILogProvider CurrentLogProvider
@@ -483,6 +497,14 @@ namespace LibLog.Logging
             new Tuple<IsLoggerAvailable, CreateLogProvider>(LoupeLogProvider.IsLoggerAvailable, () => new LoupeLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(ColouredConsoleLogProvider.IsLoggerAvailable, () => new ColouredConsoleLogProvider()),
         };
+
+        private static void RaiseOnCurrentLogProviderSet()
+        {
+            if (_onCurrentLogProviderSet != null)
+            {
+                _onCurrentLogProviderSet(_currentLogProvider);
+            }
+        }
 
         internal static ILogProvider ResolveLogProvider()
         {
