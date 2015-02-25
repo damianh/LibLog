@@ -10,7 +10,7 @@
         [Fact]
         public void When_NLog_is_available_Then_should_get_NLogLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = true;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
@@ -25,7 +25,7 @@
         [Fact]
         public void When_Log4Net_is_available_Then_should_get_Log4NetLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
@@ -40,7 +40,7 @@
         [Fact]
         public void When_EntLibLog_is_available_Then_should_get_EntLibLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
@@ -54,7 +54,7 @@
         [Fact]
         public void When_Serilog_is_available_Then_should_get_SeriLogLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
@@ -69,7 +69,7 @@
         [Fact]
         public void When_LoupLog_is_available_Then_should_get_LoupeLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
@@ -84,7 +84,7 @@
         [Fact]
         public void When_ColourConsoleLoger_is_available_Then_should_get_LoupeLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;
@@ -100,7 +100,7 @@
         [Fact]
         public void When_no_logger_is_available_Then_should_get_NoOpLogger()
         {
-            LogProvider.SetCurrentLogProvider(null);
+            LogProviderConfiguration.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = false;

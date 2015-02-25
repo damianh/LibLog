@@ -40,7 +40,12 @@ namespace LibLog.Logging
     /// <summary>
     /// Simple interface that represent a logger.
     /// </summary>
-    public interface ILog
+#if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+     interface ILog
     {
         /// <summary>
         /// Log a message the specified log level.
@@ -72,7 +77,12 @@ namespace LibLog.Logging
         Fatal
     }
 
-    public static class LogExtensions
+#if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+        static class LogExtensions
     {
         public static bool IsDebugEnabled(this ILog logger)
         {
@@ -322,10 +332,17 @@ namespace LibLog.Logging
         }
     }
 
+    
+
     /// <summary>
     /// Represents a way to get a <see cref="ILog"/>
     /// </summary>
-    public interface ILogProvider
+#if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+    interface ILogProvider
     {
         /// <summary>
         /// Gets the specified named logger.
@@ -351,11 +368,44 @@ namespace LibLog.Logging
     }
 
     /// <summary>
+    /// Static class that allows you to change the log provider used by LibLog. This class
+    /// is public static on purpose, because it's meant to be used by client applications. 
+    /// HOwever, the day to day methods called by consumers of liblog (such as LogProvider.GetLogger())
+    /// are by default ONLY accessable to the component itself. 
+    /// </summary>
+    public static class LogProviderConfiguration
+    {
+        private static dynamic _currentLogProvider;
+        /// <summary>
+        /// Sets the current log provider.
+        /// </summary>
+        /// <param name="logProvider">The log provider.</param>
+        public static void SetCurrentLogProvider(dynamic logProvider)
+        {
+            _currentLogProvider = logProvider;
+        }
+
+        internal static dynamic CurrentLogProvider
+        {
+            get
+            {
+                return _currentLogProvider;
+            }
+        }
+    }
+
+    /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
-    public static class LogProvider
+    
+    #if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+        static class LogProvider
     {
-        private static ILogProvider _currentLogProvider;
+        
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
 
@@ -398,35 +448,26 @@ namespace LibLog.Logging
         /// <returns>An instance of <see cref="ILog"/></returns>
         public static ILog GetLogger(string name)
         {
-            ILogProvider logProvider = _currentLogProvider ?? ResolveLogProvider();
+            ILogProvider logProvider = LogProviderConfiguration.CurrentLogProvider ?? ResolveLogProvider();
             return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
-        }
-
-        /// <summary>
-        /// Sets the current log provider.
-        /// </summary>
-        /// <param name="logProvider">The log provider.</param>
-        public static void SetCurrentLogProvider(ILogProvider logProvider)
-        {
-            _currentLogProvider = logProvider;
         }
 
         public static IDisposable OpenNestedConext(string message)
         {
-            if(_currentLogProvider == null)
+            if(LogProviderConfiguration.CurrentLogProvider == null)
             {
                 throw new InvalidOperationException(NullLogProvider);
             }
-            return _currentLogProvider.OpenNestedContext(message);
+            return LogProviderConfiguration.CurrentLogProvider.OpenNestedContext(message);
         }
 
         public static IDisposable OpenMappedContext(string key, string value)
         {
-            if (_currentLogProvider == null)
+            if (LogProviderConfiguration.CurrentLogProvider == null)
             {
                 throw new InvalidOperationException(NullLogProvider);
             }
-            return _currentLogProvider.OpenMappedContext(key, value);
+            return LogProviderConfiguration.CurrentLogProvider.OpenMappedContext(key, value);
         }
 
         public delegate bool IsLoggerAvailable();

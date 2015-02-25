@@ -40,7 +40,7 @@
             Assert.NotEqual(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
         }
 
-        public class FakeLogger : ILog
+        internal class FakeLogger : ILog
         {
             private LogLevel _logLevel;
 

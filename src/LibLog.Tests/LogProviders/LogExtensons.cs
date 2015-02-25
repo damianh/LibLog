@@ -3,7 +3,7 @@ namespace LibLog.Logging.LogProviders
     using System;
     using FluentAssertions;
 
-    public static class LogExtensons
+    internal static class LogExtensons
     {
         public static void AssertCanCheckLogLevelsEnabled(this ILog logger)
         {
