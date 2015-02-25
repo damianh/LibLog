@@ -21,7 +21,7 @@
             ColouredConsoleLogProvider.MessageFormatter =
                 (name, level, message, exception) => string.Format("{0}|{1}|{2}", level, message, exception != null ? exception.Message : null);
             
-            _sut = new ColouredConsoleLogProvider().GetLogger("Test");
+            _sut = new LoggerExecutionWrapper(new ColouredConsoleLogProvider().GetLogger("Test"));
         }
 
         public void Dispose()

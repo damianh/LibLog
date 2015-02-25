@@ -26,7 +26,7 @@
             config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, _target));
             LogManager.Configuration = config;
             _logProvider = new NLogLogProvider();
-            _sut = new NLogLogProvider().GetLogger("Test");
+            _sut = new LoggerExecutionWrapper(new NLogLogProvider().GetLogger("Test"));
         }
 
         public void Dispose()

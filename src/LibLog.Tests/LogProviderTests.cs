@@ -17,9 +17,8 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            ILog logger = LogProvider.For<LogProviderTests>();
-
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<NLogLogProvider.NLogLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<NLogLogProvider>();
         }
 
         [Fact]
@@ -32,9 +31,8 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            ILog logger = LogProvider.For<LogProviderTests>();
-
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<Log4NetLogProvider.Log4NetLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<Log4NetLogProvider>();
         }
 
         [Fact]
@@ -46,9 +44,9 @@
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
             EntLibLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
-            ILog logger = LogProvider.For<LogProviderTests>();
 
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<EntLibLogProvider.EntLibLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<EntLibLogProvider>();
         }
 
         [Fact]
@@ -61,9 +59,8 @@
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            ILog logger = LogProvider.For<LogProviderTests>();
-
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<SerilogLogProvider.SerilogLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<SerilogLogProvider>();
         }
 
         [Fact]
@@ -76,13 +73,12 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
 
-            ILog logger = LogProvider.For<LogProviderTests>();
-
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<LoupeLogProvider.LoupeLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<LoupeLogProvider>();
         }
 
         [Fact]
-        public void When_ColourConsoleLoger_is_available_Then_should_get_LoupeLogger()
+        public void When_ColourConsoleLoger_is_available_Then_should_get_ColourConsoleLoger()
         {
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
@@ -92,9 +88,8 @@
             LoupeLogProvider.ProviderIsAvailableOverride = false;
             ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
 
-            ILog logger = LogProvider.For<LogProviderTests>();
-
-            ((LoggerExecutionWrapper)logger).WrappedLogger.Should().BeOfType<ColouredConsoleLogProvider.ColouredConsoleLogger>();
+            var logProvider = LogProvider.ResolveLogProvider();
+            logProvider.Should().BeOfType<ColouredConsoleLogProvider>();
         }
 
         [Fact]
@@ -111,6 +106,17 @@
             ILog logger = LogProvider.For<LogProviderTests>();
 
             logger.Should().BeOfType<LogProvider.NoOpLogger>();
+        }
+
+        [Fact]
+        public void When_set_current_log_provider_then_should_raise_OnCurrentLogProviderSet()
+        {
+            ILogProvider provider = null;
+            LogProvider.OnCurrentLogProviderSet = p => provider = p;
+
+            LogProvider.SetCurrentLogProvider(new ColouredConsoleLogProvider());
+
+            provider.Should().NotBeNull();
         }
 
         public void Dispose()

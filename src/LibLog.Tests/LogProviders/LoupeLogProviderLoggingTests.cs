@@ -1,9 +1,7 @@
 ﻿namespace LibLog.Logging.LogProviders
 {
     using System;
-    using System.Linq;
     using System.Runtime.CompilerServices;
-    using FluentAssertions;
     using Gibraltar.Agent;
     using Xunit;
     using Xunit.Extensions;
@@ -11,11 +9,11 @@
 
     public class LoupeProviderLoggingTests : IDisposable
     {
-        private readonly ILog _logger;
+        private readonly ILog _sut;
 
         public LoupeProviderLoggingTests()
         {
-            _logger = new LoupeLogProvider().GetLogger("Test");
+            _sut = new LoggerExecutionWrapper(new LoupeLogProvider().GetLogger("Test"));
         }
 
         public void Dispose()
@@ -34,7 +32,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Should_be_able_to_log_message(LogLevel logLevel, string messagePrefix)
         {
-            _logger.Log(logLevel, () => messagePrefix + " log message");
+            _sut.Log(logLevel, () => messagePrefix + " log message");
         }
 
         [Theory]
@@ -47,7 +45,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Should_be_able_to_log_message_and_exception(LogLevel logLevel, string messagePrefix)
         {
-            _logger.Log(logLevel, () => messagePrefix + " log message with exception", new Exception("e"));
+            _sut.Log(logLevel, () => messagePrefix + " log message with exception", new Exception("e"));
         }
 
         [Theory]
@@ -60,7 +58,7 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Should_be_able_to_log_message_with_params(LogLevel logLevel, string messagePrefix)
         {
-            _logger.Log(logLevel, () => messagePrefix + " log message {0}", null, "replaced");
+            _sut.Log(logLevel, () => messagePrefix + " log message {0}", null, "replaced");
         }
 
         [Theory]
@@ -73,13 +71,13 @@
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Should_be_able_to_log_message_and_exception_with_formatparams(LogLevel logLevel, string messagePrefix)
         {
-            _logger.Log(logLevel, () => messagePrefix + " log message {abc} with exception", new Exception("e"), "replaced");
+            _sut.Log(logLevel, () => messagePrefix + " log message {abc} with exception", new Exception("e"), "replaced");
         }
 
         [Fact]
         public void Can_check_is_log_level_enabled()
         {
-            _logger.AssertCanCheckLogLevelsEnabled();
+            _sut.AssertCanCheckLogLevelsEnabled();
         }
     }
 }

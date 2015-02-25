@@ -11,7 +11,7 @@
         public LoggerExecutionWrapperTests()
         {
             _fakeLogger = new FakeLogger();
-            _sut = new LoggerExecutionWrapper(_fakeLogger);
+            _sut = new LoggerExecutionWrapper(_fakeLogger.Log);
         }
 
         [Fact]
