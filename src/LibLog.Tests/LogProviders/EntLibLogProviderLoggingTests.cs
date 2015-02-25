@@ -23,7 +23,7 @@
             var container = new ServiceLocatorStub();
             container.Register<LogWriter>(Target);
             EnterpriseLibraryContainer.Current = container;
-            Sut = new EntLibLogProvider().GetLogger("Test");
+            Sut = new LoggerExecutionWrapper(new EntLibLogProvider().GetLogger("Test"));
         }
 
         public void Dispose()

@@ -39,7 +39,7 @@
 
             Log.Logger = logger;
             _logProvider = new SerilogLogProvider();
-            _sut = _logProvider.GetLogger("Test");
+            _sut = new LoggerExecutionWrapper(_logProvider.GetLogger("Test"));
         }
 
         [Theory]
@@ -173,7 +173,7 @@
                     .MinimumLevel.Is(minimumLevel)
                     .CreateLogger();
 
-                @do(new SerilogLogProvider().GetLogger("Test"));
+                @do(new LoggerExecutionWrapper(new SerilogLogProvider().GetLogger("Test")));
             }
             finally
             {

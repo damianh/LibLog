@@ -37,6 +37,8 @@ namespace LibLog.Logging
     using System;
     using System.Diagnostics;
 
+    public delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters);
+
     /// <summary>
     /// Simple interface that represent a logger.
     /// </summary>
@@ -45,7 +47,7 @@ namespace LibLog.Logging
 #else
     internal
 #endif
-     interface ILog
+    interface ILog
     {
         /// <summary>
         /// Log a message the specified log level.
@@ -82,7 +84,7 @@ namespace LibLog.Logging
 #else
     internal
 #endif
-        static class LogExtensions
+    static class LogExtensions
     {
         public static bool IsDebugEnabled(this ILog logger)
         {
@@ -149,7 +151,6 @@ namespace LibLog.Logging
                 logger.Log(LogLevel.Debug, message.AsFunc(), exception);
             }
         }
-
 
         public static void DebugException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
@@ -332,24 +333,17 @@ namespace LibLog.Logging
         }
     }
 
-    
-
     /// <summary>
     /// Represents a way to get a <see cref="ILog"/>
     /// </summary>
-#if LIBLOG_PUBLIC
-    public
-#else
-    internal
-#endif
-    interface ILogProvider
+    public interface ILogProvider
     {
         /// <summary>
         /// Gets the specified named logger.
         /// </summary>
         /// <param name="name">Name of the logger.</param>
         /// <returns>The logger reference.</returns>
-        ILog GetLogger(string name);
+        Logger GetLogger(string name);
 
         /// <summary>
         /// Opens a nested diagnostics context. Not supported in EntLib logging.
@@ -368,53 +362,43 @@ namespace LibLog.Logging
     }
 
     /// <summary>
-    /// Static class that allows you to change the log provider used by LibLog. This class
-    /// is public static on purpose, because it's meant to be used by client applications. 
-    /// HOwever, the day to day methods called by consumers of liblog (such as LogProvider.GetLogger())
-    /// are by default ONLY accessable to the component itself. 
+    /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
-    public static class LogProviderConfiguration
+    public static class LogProvider
     {
+        
+        private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
+                                               "with a non-null value first.";
         private static dynamic _currentLogProvider;
+
         /// <summary>
         /// Sets the current log provider.
         /// </summary>
         /// <param name="logProvider">The log provider.</param>
-        public static void SetCurrentLogProvider(dynamic logProvider)
+        public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
             _currentLogProvider = logProvider;
         }
 
-        internal static dynamic CurrentLogProvider
+        internal static ILogProvider CurrentLogProvider
         {
             get
             {
                 return _currentLogProvider;
             }
         }
-    }
-
-    /// <summary>
-    /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
-    /// </summary>
-    
-    #if LIBLOG_PUBLIC
-    public
-#else
-    internal
-#endif
-        static class LogProvider
-    {
-        
-        private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
-                                               "with a non-null value first.";
 
         /// <summary>
         /// Gets a logger for the specified type.
         /// </summary>
         /// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
         /// <returns>An instance of <see cref="ILog"/></returns>
-        public static ILog For<T>()
+#if LIBLOG_PUBLIC
+        public
+#else
+        internal
+#endif
+        static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
@@ -424,7 +408,12 @@ namespace LibLog.Logging
         /// Gets a logger for the current class.
         /// </summary>
         /// <returns>An instance of <see cref="ILog"/></returns>
-        public static ILog GetCurrentClassLogger()
+#if LIBLOG_PUBLIC
+        public
+#else
+        internal
+#endif
+        static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
@@ -436,7 +425,12 @@ namespace LibLog.Logging
         /// </summary>
         /// <param name="type">The type whose name will be used for the logger.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
-        public static ILog GetLogger(Type type)
+#if LIBLOG_PUBLIC
+        public
+#else
+        internal
+#endif
+        static ILog GetLogger(Type type)
         {
             return GetLogger(type.FullName);
         }
@@ -446,28 +440,33 @@ namespace LibLog.Logging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
-        public static ILog GetLogger(string name)
+#if LIBLOG_PUBLIC
+        public
+#else
+        internal
+#endif
+        static ILog GetLogger(string name)
         {
-            ILogProvider logProvider = LogProviderConfiguration.CurrentLogProvider ?? ResolveLogProvider();
+            ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
             return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
         public static IDisposable OpenNestedConext(string message)
         {
-            if(LogProviderConfiguration.CurrentLogProvider == null)
+            if(CurrentLogProvider == null)
             {
                 throw new InvalidOperationException(NullLogProvider);
             }
-            return LogProviderConfiguration.CurrentLogProvider.OpenNestedContext(message);
+            return CurrentLogProvider.OpenNestedContext(message);
         }
 
         public static IDisposable OpenMappedContext(string key, string value)
         {
-            if (LogProviderConfiguration.CurrentLogProvider == null)
+            if (CurrentLogProvider == null)
             {
                 throw new InvalidOperationException(NullLogProvider);
             }
-            return LogProviderConfiguration.CurrentLogProvider.OpenMappedContext(key, value);
+            return CurrentLogProvider.OpenMappedContext(key, value);
         }
 
         public delegate bool IsLoggerAvailable();
@@ -485,7 +484,7 @@ namespace LibLog.Logging
             new Tuple<IsLoggerAvailable, CreateLogProvider>(ColouredConsoleLogProvider.IsLoggerAvailable, () => new ColouredConsoleLogProvider()),
         };
 
-        private static ILogProvider ResolveLogProvider()
+        internal static ILogProvider ResolveLogProvider()
         {
             try
             {
@@ -522,15 +521,15 @@ namespace LibLog.Logging
 
     internal class LoggerExecutionWrapper : ILog
     {
-        private readonly ILog _logger;
+        private readonly Logger _logger;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
 
-        internal LoggerExecutionWrapper(ILog logger)
+        internal LoggerExecutionWrapper(Logger logger)
         {
             _logger = logger;
         }
 
-        public ILog WrappedLogger
+        internal Logger WrappedLogger
         {
             get { return _logger; }
         }
@@ -539,7 +538,7 @@ namespace LibLog.Logging
         {
             if (messageFunc == null)
             {
-                return _logger.Log(logLevel, null);
+                return _logger(logLevel, null);
             }
 
             Func<string> wrappedMessageFunc = () =>
@@ -554,7 +553,7 @@ namespace LibLog.Logging
                 }
                 return null;
             };
-            return _logger.Log(logLevel, wrappedMessageFunc, exception, formatParameters);
+            return _logger(logLevel, wrappedMessageFunc, exception, formatParameters);
         }
     }
 }
@@ -586,8 +585,8 @@ namespace LibLog.Logging.LogProviders
                = new Lazy<OpenMdc>(GetOpenMdcMethod);
         }
 
-        public abstract ILog GetLogger(string name);
-        
+        public abstract Logger GetLogger(string name);
+
         public IDisposable OpenNestedContext(string message)
         {
             return _lazyOpenNdcMethod.Value(message);
@@ -629,9 +628,9 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new NLogLogger(_getLoggerByNameDelegate(name));
+            return new NLogLogger(_getLoggerByNameDelegate(name)).Log;
         }
 
         public static bool IsLoggerAvailable()
@@ -688,7 +687,7 @@ namespace LibLog.Logging.LogProviders
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
-        public class NLogLogger : ILog
+        internal class NLogLogger
         {
             private readonly dynamic _logger;
 
@@ -848,9 +847,9 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new Log4NetLogger(_getLoggerByNameDelegate(name));
+            return new Log4NetLogger(_getLoggerByNameDelegate(name)).Log;
         }
 
         internal static bool IsLoggerAvailable()
@@ -907,7 +906,7 @@ namespace LibLog.Logging.LogProviders
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
-        public class Log4NetLogger : ILog
+        internal class Log4NetLogger
         {
             private readonly dynamic _logger;
 
@@ -1073,9 +1072,9 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry);
+            return new EntLibLogger(name, WriteLogEntry, ShouldLogEntry).Log;
         }
 
         internal static bool IsLoggerAvailable()
@@ -1148,7 +1147,7 @@ namespace LibLog.Logging.LogProviders
             return memberInit;
         }
 
-        public class EntLibLogger : ILog
+        internal class EntLibLogger
         {
             private readonly string _loggerName;
             private readonly Action<string, string, int> _writeLog;
@@ -1226,9 +1225,9 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new SerilogLogger(_getLoggerByNameDelegate(name));
+            return new SerilogLogger(_getLoggerByNameDelegate(name)).Log;
         }
 
         internal static bool IsLoggerAvailable()
@@ -1300,7 +1299,7 @@ namespace LibLog.Logging.LogProviders
             return name => func("Name", name, false);
         }
 
-        public class SerilogLogger : ILog
+        internal class SerilogLogger
         {
             private readonly object _logger;
             private static readonly object DebugLevel;
@@ -1534,9 +1533,9 @@ namespace LibLog.Logging.LogProviders
             set { _providerIsAvailableOverride = value; }
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new LoupeLogger(name, _logWriteDelegate);
+            return new LoupeLogger(name, _logWriteDelegate).Log;
         }
 
         public static bool IsLoggerAvailable()
@@ -1557,17 +1556,14 @@ namespace LibLog.Logging.LogProviders
 
             MethodInfo method = logManagerType.GetMethodPortable(
                 "Write",
-                new[]
-                {
-                    logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool), 
-                    logWriteModeType, typeof(string), typeof(string), typeof(string), typeof(string), typeof(object[])
-                });
+                logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool), 
+                logWriteModeType, typeof(string), typeof(string), typeof(string), typeof(string), typeof(object[]));
 
             var callDelegate = (WriteDelegate)method.CreateDelegate(typeof(WriteDelegate));
             return callDelegate;
         }
 
-        public class LoupeLogger : ILog
+        internal class LoupeLogger
         {
             private const string LogSystem = "LibLog";
 
@@ -1687,9 +1683,9 @@ namespace LibLog.Logging.LogProviders
             return ProviderIsAvailableOverride && ConsoleType != null && ConsoleColorType != null;
         }
 
-        public override ILog GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
-            return new ColouredConsoleLogger(name, ConsoleWriteLine, GetConsoleForeground, SetConsoleForeground);
+            return new ColouredConsoleLogger(name, ConsoleWriteLine, GetConsoleForeground, SetConsoleForeground).Log;
         }
 
         /// <summary>

@@ -22,7 +22,7 @@
             _memoryAppender = new MemoryAppender();
             BasicConfigurator.Configure(_memoryAppender);
             _logProvider = new Log4NetLogProvider();
-            _sut = new Log4NetLogProvider().GetLogger("Test");
+            _sut = new LoggerExecutionWrapper(new Log4NetLogProvider().GetLogger("Test"));
         }
 
         public void Dispose()

@@ -11,7 +11,7 @@
         public LoggerExecutionWrapperTests()
         {
             _fakeLogger = new FakeLogger();
-            _sut = new LoggerExecutionWrapper(_fakeLogger);
+            _sut = new LoggerExecutionWrapper(_fakeLogger.Log);
         }
 
         [Fact]
@@ -40,7 +40,7 @@
             Assert.NotEqual(LoggerExecutionWrapper.FailedToGenerateLogMessage, _fakeLogger.Message);
         }
 
-        internal class FakeLogger : ILog
+        public class FakeLogger : ILog
         {
             private LogLevel _logLevel;
 
