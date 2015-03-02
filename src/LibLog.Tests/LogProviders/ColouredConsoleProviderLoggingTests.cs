@@ -83,6 +83,28 @@
             _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m replaced|e");
         }
 
+        [Theory]
+        [InlineData(LogLevel.Debug)]
+        [InlineData(LogLevel.Error)]
+        [InlineData(LogLevel.Fatal)]
+        [InlineData(LogLevel.Info)]
+        [InlineData(LogLevel.Trace)]
+        [InlineData(LogLevel.Warn)]
+        public void Should_be_able_to_log_message_if_contains_brackets(LogLevel logLevel)
+        {
+            _sut.Log(logLevel, () => "m {ab c}", new Exception("e"));
+
+            _target.ToString().Trim().Should().Be(logLevel.ToString() + "|m {ab c}|e");
+        }
+
+        [Fact]
+        public void Should_log_message_with_curly_brackets()
+        {
+            _sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+
+            _target.ToString().Should().Be("Debug|Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}|\r\n");
+        }
+
         [Fact]
         public void Can_check_is_log_level_enabled()
         {

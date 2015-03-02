@@ -523,6 +523,7 @@ namespace LibLog.Logging.LogProviders
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
@@ -1823,7 +1824,7 @@ namespace LibLog.Logging.LogProviders
         /// <returns></returns>
         public static Func<string> SimulateStructuredLogging(Func<string> messageBuilder, object[] formatParameters)
         {
-            if(formatParameters == null)
+            if(formatParameters == null || !formatParameters.Any())
             {
                 return messageBuilder;
             }
