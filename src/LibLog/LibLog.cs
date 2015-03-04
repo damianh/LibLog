@@ -1824,7 +1824,7 @@ namespace LibLog.Logging.LogProviders
         /// <returns></returns>
         public static Func<string> SimulateStructuredLogging(Func<string> messageBuilder, object[] formatParameters)
         {
-            if(formatParameters == null || !formatParameters.Any())
+            if(formatParameters == null || !formatParameters.Length == 0)
             {
                 return messageBuilder;
             }
