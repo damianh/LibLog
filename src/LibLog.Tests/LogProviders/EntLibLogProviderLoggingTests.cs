@@ -78,6 +78,14 @@
             Target.Logs[0].Severity.Should().Be(severity);
         }
 
+        [Fact]
+        public void Should_log_message_with_curly_brackets()
+        {
+            Sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+
+            Target.Logs[0].Message.Should().Contain("Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+        }
+
         [Theory]
         [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
         [InlineData(LogLevel.Error, TraceEventType.Error)]
