@@ -1598,7 +1598,11 @@ namespace LibLog.Logging.LogProviders
             {
                 _category = category;
                 _logWriteDelegate = logWriteDelegate;
+#if DEBUG
+                _skipLevel = 2;
+#else
                 _skipLevel = 1;
+#endif
             }
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
