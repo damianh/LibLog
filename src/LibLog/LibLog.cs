@@ -1820,7 +1820,7 @@ namespace LibLog.Logging.LogProviders
 
             protected void Write(LogLevel logLevel, string message, Exception e = null)
             {
-                var formattedMessage = MessageFormatter(this._name, logLevel, message, e);
+                var formattedMessage = MessageFormatter(_name, logLevel, message, e);
                 int color;
 
                 if (Colors.TryGetValue(logLevel, out color))
