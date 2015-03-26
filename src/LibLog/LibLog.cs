@@ -384,9 +384,14 @@ namespace LibLog.Logging
             RaiseOnCurrentLogProviderSet();
         }
 
+        /// <summary>
+        /// Sets an action that is invoked when a consumer of your library has called SetCurrentLogProvider. It is 
+        /// important that hook into this if you are using child libraries (especially ilmerged ones) that are using
+        /// LibLog (or other logging abstraction) so you adapt and delegate to them.
+        /// <see cref="SetCurrentLogProvider"/> 
+        /// </summary>
         internal static Action<ILogProvider> OnCurrentLogProviderSet
         {
-            get { return _onCurrentLogProviderSet; }
             set
             {
                 _onCurrentLogProviderSet = value;
