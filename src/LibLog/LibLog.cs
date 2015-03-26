@@ -308,6 +308,7 @@ namespace LibLog.Logging
             }
         }
 
+        // ReSharper disable once UnusedParameter.Local
         private static void GuardAgainstNullLogger(ILog logger)
         {
             if (logger == null)
@@ -590,7 +591,6 @@ namespace LibLog.Logging.LogProviders
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
@@ -669,7 +669,7 @@ namespace LibLog.Logging.LogProviders
         protected override OpenNdc GetOpenNdcMethod()
         {
             Type ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
-            MethodInfo pushMethod = ndcContextType.GetMethodPortable("Push", new[] { typeof(string) });
+            MethodInfo pushMethod = ndcContextType.GetMethodPortable("Push", typeof(string));
             ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
             MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
             return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
@@ -679,8 +679,8 @@ namespace LibLog.Logging.LogProviders
         {
             Type mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
 
-            MethodInfo setMethod = mdcContextType.GetMethodPortable("Set", new[] { typeof(string), typeof(string) });
-            MethodInfo removeMethod = mdcContextType.GetMethodPortable("Remove", new[] { typeof(string) });
+            MethodInfo setMethod = mdcContextType.GetMethodPortable("Set", typeof(string), typeof(string));
+            MethodInfo removeMethod = mdcContextType.GetMethodPortable("Remove", typeof(string));
             ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
             ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
 
@@ -709,7 +709,7 @@ namespace LibLog.Logging.LogProviders
         private static Func<string, object> GetGetLoggerMethodCall()
         {
             Type logManagerType = GetLogManagerType();
-            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", new[] { typeof(string) });
+            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", typeof(string));
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
             MethodCallExpression methodCall = Expression.Call(null, method, nameParam);
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
@@ -888,7 +888,7 @@ namespace LibLog.Logging.LogProviders
         protected override OpenNdc GetOpenNdcMethod()
         {
             Type ndcContextType = Type.GetType("log4net.NDC, log4net");
-            MethodInfo pushMethod = ndcContextType.GetMethodPortable("Push", new[] { typeof(string) });
+            MethodInfo pushMethod = ndcContextType.GetMethodPortable("Push", typeof(string));
             ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
             MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
             return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
@@ -898,8 +898,8 @@ namespace LibLog.Logging.LogProviders
         {
             Type mdcContextType = Type.GetType("log4net.MDC, log4net");
 
-            MethodInfo setMethod = mdcContextType.GetMethodPortable("Set", new[] { typeof(string), typeof(string) });
-            MethodInfo removeMethod = mdcContextType.GetMethodPortable("Remove", new[] { typeof(string) });
+            MethodInfo setMethod = mdcContextType.GetMethodPortable("Set", typeof(string), typeof(string));
+            MethodInfo removeMethod = mdcContextType.GetMethodPortable("Remove", typeof(string));
             ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
             ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
 
@@ -928,7 +928,7 @@ namespace LibLog.Logging.LogProviders
         private static Func<string, object> GetGetLoggerMethodCall()
         {
             Type logManagerType = GetLogManagerType();
-            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", new[] { typeof(string) });
+            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", typeof(string));
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
             MethodCallExpression methodCall = Expression.Call(null, method, nameParam);
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
@@ -1125,7 +1125,7 @@ namespace LibLog.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", new[] { LogEntryType });
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Action<string, string, int>>(
@@ -1147,7 +1147,7 @@ namespace LibLog.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", new[] { LogEntryType });
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Func<string, int, bool>>(
@@ -1160,18 +1160,18 @@ namespace LibLog.Logging.LogProviders
             Expression severityParameter, ParameterExpression logNameParameter)
         {
             var entryType = LogEntryType;
-            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), new []
-            {
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), 
                 Expression.Bind(entryType.GetPropertyPortable("Message"), message),
                 Expression.Bind(entryType.GetPropertyPortable("Severity"), severityParameter),
-                Expression.Bind(entryType.GetPropertyPortable("TimeStamp"),
+                Expression.Bind(
+                    entryType.GetPropertyPortable("TimeStamp"),
                     Expression.Property(null, typeof (DateTime).GetPropertyPortable("UtcNow"))),
-                Expression.Bind(entryType.GetPropertyPortable("Categories"),
+                Expression.Bind(
+                    entryType.GetPropertyPortable("Categories"),
                     Expression.ListInit(
                         Expression.New(typeof (List<string>)),
-                        typeof (List<string>).GetMethodPortable("Add", new[] {typeof (string)}),
-                        logNameParameter))
-            });
+                        typeof (List<string>).GetMethodPortable("Add", typeof (string)),
+                        logNameParameter)));
             return memberInit;
         }
 
@@ -1277,13 +1277,10 @@ namespace LibLog.Logging.LogProviders
         {
             Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
             MethodInfo pushPropertyMethod = ndcContextType.GetMethodPortable(
-                "PushProperty",
-                new[]
-                {
-                    typeof(string),
-                    typeof(object),
-                    typeof(bool)
-                });
+                "PushProperty", 
+                typeof(string),
+                typeof(object),
+                typeof(bool));
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
             ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
             ParameterExpression destructureObjectParam = Expression.Parameter(typeof(bool), "destructureObjects");
@@ -1308,7 +1305,7 @@ namespace LibLog.Logging.LogProviders
         private static Func<string, object> GetForContextMethodCall()
         {
             Type logManagerType = GetLogManagerType();
-            MethodInfo method = logManagerType.GetMethodPortable("ForContext", new[] { typeof(string), typeof(object), typeof(bool) });
+            MethodInfo method = logManagerType.GetMethodPortable("ForContext", typeof(string), typeof(object), typeof(bool));
             ParameterExpression propertyNameParam = Expression.Parameter(typeof(string), "propertyName");
             ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
             ParameterExpression destructureObjectsParam = Expression.Parameter(typeof(bool), "destructureObjects");
@@ -1342,31 +1339,43 @@ namespace LibLog.Logging.LogProviders
 
             static SerilogLogger()
             {
-                var logEventTypeType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
-                DebugLevel = Enum.Parse(logEventTypeType, "Debug", false);
-                ErrorLevel = Enum.Parse(logEventTypeType, "Error", false);
-                FatalLevel = Enum.Parse(logEventTypeType, "Fatal", false);
-                InformationLevel = Enum.Parse(logEventTypeType, "Information", false);
-                VerboseLevel = Enum.Parse(logEventTypeType, "Verbose", false);
-                WarningLevel = Enum.Parse(logEventTypeType, "Warning", false);
+                var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                if (logEventLevelType == null)
+                {
+                    throw new InvalidOperationException("Type Serilog.Events.LogEventLevel was not found.");
+                }
+                DebugLevel = Enum.Parse(logEventLevelType, "Debug", false);
+                ErrorLevel = Enum.Parse(logEventLevelType, "Error", false);
+                FatalLevel = Enum.Parse(logEventLevelType, "Fatal", false);
+                InformationLevel = Enum.Parse(logEventLevelType, "Information", false);
+                VerboseLevel = Enum.Parse(logEventLevelType, "Verbose", false);
+                WarningLevel = Enum.Parse(logEventLevelType, "Warning", false);
 
                 // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
                 var loggerType = Type.GetType("Serilog.ILogger, Serilog");
-                var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                if (loggerType == null)
+                {
+                    throw new InvalidOperationException("Type Serilog.ILogger was not found.");
+                }
                 MethodInfo isEnabledMethodInfo = loggerType.GetMethodPortable("IsEnabled", logEventLevelType);
                 ParameterExpression instanceParam = Expression.Parameter(typeof(object));
                 UnaryExpression instanceCast = Expression.Convert(instanceParam, loggerType);
                 ParameterExpression levelParam = Expression.Parameter(typeof(object));
-                UnaryExpression levelCast = Expression.Convert(levelParam, logEventTypeType);
+                UnaryExpression levelCast = Expression.Convert(levelParam, logEventLevelType);
                 MethodCallExpression isEnabledMethodCall = Expression.Call(instanceCast, isEnabledMethodInfo, levelCast);
                 IsEnabled = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, instanceParam, levelParam).Compile();
 
                 // Action<object, object, string> Write =
                 // (logger, level, message, params) => { ((SeriLog.ILoggerILogger)logger).Write(level, message, params); }
-                MethodInfo writeMethodInfo = loggerType.GetMethodPortable("Write", new[] { logEventTypeType, typeof(string), typeof(object[]) });
+                MethodInfo writeMethodInfo = loggerType.GetMethodPortable("Write", logEventLevelType, typeof(string), typeof(object[]));
                 ParameterExpression messageParam = Expression.Parameter(typeof(string));
                 ParameterExpression propertyValuesParam = Expression.Parameter(typeof(object[]));
-                MethodCallExpression writeMethodExp = Expression.Call(instanceCast, writeMethodInfo, levelCast, messageParam, propertyValuesParam);
+                MethodCallExpression writeMethodExp = Expression.Call(
+                    instanceCast,
+                    writeMethodInfo,
+                    levelCast,
+                    messageParam,
+                    propertyValuesParam);
                 var expression = Expression.Lambda<Action<object, object, string, object[]>>(
                     writeMethodExp, 
                     instanceParam,
@@ -1377,13 +1386,11 @@ namespace LibLog.Logging.LogProviders
 
                 // Action<object, object, string, Exception> WriteException =
                 // (logger, level, exception, message) => { ((ILogger)logger).Write(level, exception, message, new object[]); }
-                MethodInfo writeExceptionMethodInfo = loggerType.GetMethodPortable("Write", new[]
-                {
-                    logEventTypeType,
-                    typeof(Exception), 
+                MethodInfo writeExceptionMethodInfo = loggerType.GetMethodPortable("Write", 
+                    logEventLevelType,
+                    typeof(Exception),
                     typeof(string),
-                    typeof(object[])
-                });
+                    typeof(object[]));
                 ParameterExpression exceptionParam = Expression.Parameter(typeof(Exception));
                 writeMethodExp = Expression.Call(
                     instanceCast,
@@ -1693,14 +1700,14 @@ namespace LibLog.Logging.LogProviders
 
             MessageFormatter = DefaultMessageFormatter;
             Colors = new Dictionary<LogLevel, int>
-                {
-                    {LogLevel.Fatal, ConsoleColorValues.Red},
-                    {LogLevel.Error, ConsoleColorValues.Yellow},
-                    {LogLevel.Warn, ConsoleColorValues.Magenta},
-                    {LogLevel.Info, ConsoleColorValues.White},
-                    {LogLevel.Debug, ConsoleColorValues.Gray},
-                    {LogLevel.Trace, ConsoleColorValues.DarkGray},
-                };
+            {
+                {LogLevel.Fatal, ConsoleColorValues.Red},
+                {LogLevel.Error, ConsoleColorValues.Yellow},
+                {LogLevel.Warn, ConsoleColorValues.Magenta},
+                {LogLevel.Info, ConsoleColorValues.White},
+                {LogLevel.Debug, ConsoleColorValues.Gray},
+                {LogLevel.Trace, ConsoleColorValues.DarkGray},
+            };
             ConsoleWriteLine = GetConsoleWrite();
             GetConsoleForeground = GetGetConsoleForeground();
             SetConsoleForeground = GetSetConsoleForeground();
@@ -1766,7 +1773,7 @@ namespace LibLog.Logging.LogProviders
         {
             var messageParameter = Expression.Parameter(typeof(string), "message");
 
-            MethodInfo writeMethod = ConsoleType.GetMethodPortable("WriteLine", new[] { typeof(string) });
+            MethodInfo writeMethod = ConsoleType.GetMethodPortable("WriteLine", typeof(string));
             var writeExpression = Expression.Call(writeMethod, messageParameter);
 
             return Expression.Lambda<Action<string>>(
