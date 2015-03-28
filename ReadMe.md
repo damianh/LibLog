@@ -55,6 +55,7 @@ YourComponent.Logging.LogProvider.SetCurrentLogProvider(new CustomLogProvider())
 ### Example usages
  - [RavenDB][7]
  - [Thinktecture.IdentityServer.v3][8]
+ - [Fody Anotar][11]
 
 ### License
 
@@ -79,3 +80,4 @@ Feedback, compliments or criticism: [@randompunter][6]
 [8]: https://github.com/IdentityServer/Thinktecture.IdentityServer3/tree/master/source/Core/Logging
 [9]: http://serilog.net/
 [10]: http://www.gibraltarsoftware.com/Loupe
+[11]: https://github.com/Fody/Anotar
