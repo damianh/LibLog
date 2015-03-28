@@ -1,5 +1,7 @@
 # LibLog [![Build status](https://ci.appveyor.com/api/projects/status/4v136j3od783udpa?svg=true)](https://ci.appveyor.com/project/damianh/liblog) [![NuGet Status](http://img.shields.io/nuget/v/LibLog.svg?style=flat)](https://www.nuget.org/packages/LibLog/)
 
+[![Join the chat at https://gitter.im/damianh/LibLog](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/damianh/LibLog?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to enable dependency free logging. It contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10] or allows the user to define a custom provider. 
 
 When the DLL is added, It Just Works. i.e., all that's needed is to reference NLog / Log4Net in your app root so it ends up in the output directory and your component will automatically log without the user having to do any wireup or configuration. Loggers are either invoked dynamically (which is optimized) or via compiled expressions (also optimized).
