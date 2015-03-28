@@ -27,6 +27,7 @@
 // ReSharper disable PossibleNullReferenceException
 
 // Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
+// Define LIBLOG_INTERNAL to make ALL otherwise public types internal
 
 #pragma warning disable 1591
 
@@ -42,10 +43,10 @@ namespace LibLog.Logging
     /// <summary>
     /// Simple interface that represent a logger.
     /// </summary>
-#if LIBLOG_PUBLIC
-    public
-#else
+#if LIBLOG_INTERNAL
     internal
+#else
+    public
 #endif
     interface ILog
     {
@@ -69,7 +70,12 @@ namespace LibLog.Logging
     /// <summary>
     /// The log level.
     /// </summary>
-    public enum LogLevel
+#if LIBLOG_INTERNAL
+    internal
+#else
+    public
+#endif
+    enum LogLevel
     {
         Trace,
         Debug,
@@ -79,12 +85,7 @@ namespace LibLog.Logging
         Fatal
     }
 
-#if LIBLOG_PUBLIC
-    public
-#else
-    internal
-#endif
-    static class LogExtensions
+    internal static class LogExtensions
     {
         public static bool IsDebugEnabled(this ILog logger)
         {
@@ -337,7 +338,12 @@ namespace LibLog.Logging
     /// <summary>
     /// Represents a way to get a <see cref="ILog"/>
     /// </summary>
-    public interface ILogProvider
+#if LIBLOG_INTERNAL
+    internal
+#else
+    public
+#endif
+    interface ILogProvider
     {
         /// <summary>
         /// Gets the specified named logger.
@@ -365,7 +371,12 @@ namespace LibLog.Logging
     /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
-    public static class LogProvider
+#if LIBLOG_INTERNAL
+    internal
+#else
+    public
+#endif
+    static class LogProvider
     {
         
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
@@ -413,12 +424,7 @@ namespace LibLog.Logging
         /// </summary>
         /// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
         /// <returns>An instance of <see cref="ILog"/></returns>
-#if LIBLOG_PUBLIC
-        public
-#else
-        internal
-#endif
-        static ILog For<T>()
+        internal static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
@@ -428,12 +434,7 @@ namespace LibLog.Logging
         /// Gets a logger for the current class.
         /// </summary>
         /// <returns>An instance of <see cref="ILog"/></returns>
-#if LIBLOG_PUBLIC
-        public
-#else
-        internal
-#endif
-        static ILog GetCurrentClassLogger()
+        internal static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
@@ -445,12 +446,7 @@ namespace LibLog.Logging
         /// </summary>
         /// <param name="type">The type whose name will be used for the logger.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
-#if LIBLOG_PUBLIC
-        public
-#else
-        internal
-#endif
-        static ILog GetLogger(Type type)
+        internal static ILog GetLogger(Type type)
         {
             return GetLogger(type.FullName);
         }
@@ -460,18 +456,13 @@ namespace LibLog.Logging
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
-#if LIBLOG_PUBLIC
-        public
-#else
-        internal
-#endif
-        static ILog GetLogger(string name)
+        internal static ILog GetLogger(string name)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
             return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
-        public static IDisposable OpenNestedConext(string message)
+        internal static IDisposable OpenNestedConext(string message)
         {
             if(CurrentLogProvider == null)
             {
@@ -480,7 +471,7 @@ namespace LibLog.Logging
             return CurrentLogProvider.OpenNestedContext(message);
         }
 
-        public static IDisposable OpenMappedContext(string key, string value)
+        internal static IDisposable OpenMappedContext(string key, string value)
         {
             if (CurrentLogProvider == null)
             {
@@ -489,11 +480,11 @@ namespace LibLog.Logging
             return CurrentLogProvider.OpenMappedContext(key, value);
         }
 
-        public delegate bool IsLoggerAvailable();
+        internal delegate bool IsLoggerAvailable();
 
-        public delegate ILogProvider CreateLogProvider();
+        internal delegate ILogProvider CreateLogProvider();
 
-        public static readonly List<Tuple<IsLoggerAvailable, CreateLogProvider>> LogProviderResolvers =
+        internal static readonly List<Tuple<IsLoggerAvailable, CreateLogProvider>> LogProviderResolvers =
             new List<Tuple<IsLoggerAvailable, CreateLogProvider>>
         {
             new Tuple<IsLoggerAvailable, CreateLogProvider>(SerilogLogProvider.IsLoggerAvailable, () => new SerilogLogProvider()),
