@@ -412,9 +412,9 @@ namespace LibLog.Logging
         /// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
         /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static ILog For<T>()
         {
@@ -427,9 +427,9 @@ namespace LibLog.Logging
         /// </summary>
         /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static ILog GetCurrentClassLogger()
         {
@@ -444,9 +444,9 @@ namespace LibLog.Logging
         /// <param name="type">The type whose name will be used for the logger.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static ILog GetLogger(Type type)
         {
@@ -459,9 +459,9 @@ namespace LibLog.Logging
         /// <param name="name">The name.</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static ILog GetLogger(string name)
         {
@@ -475,9 +475,9 @@ namespace LibLog.Logging
         /// <param name="message">A message.</param>
         /// <returns>An <see cref="IDisposable"/> that closes context when disposed.</returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static IDisposable OpenNestedConext(string message)
         {
@@ -495,9 +495,9 @@ namespace LibLog.Logging
         /// <param name="value">A value.</param>
         /// <returns>An <see cref="IDisposable"/> that closes context when disposed.</returns>
 #if LIBLOG_PUBLIC
-        internal
-#else
         public
+#else
+        internal
 #endif
         static IDisposable OpenMappedContext(string key, string value)
         {
