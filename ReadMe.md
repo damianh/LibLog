@@ -20,15 +20,14 @@ What about a shared `Common.Logging` you ask? No, you're still introducing a dep
 
 The file provides:
 
-* an `ILog` interface in your library that your code consumes.
-* An `ILogProvider` your framework / library / application uses to get a logger.
-* A static location where the application developer can set the `ILogProvider` and where you can retrieve it.
-
-The included providers, `NLogProvider`, `Log4NetProvider`, `SerilogProvider`, `EntLibLogProvider`, `LoupeLogProvider` serve as templates for an application developer can follow to define their own custom provider.
+* A static `LogProvider` your library uses to get a logger, or consumers of your library use to set a custom `ILogProvider`.
+* An `ILog` interface and a set of extension methods that your library consumes.
+* A suite of included providers, `NLogProvider`, `Log4NetProvider`, `SerilogProvider`, `EntLibLogProvider`, `LoupeLogProvider`.
 
 ### Using
-* Copy [LibLog.cs][1] into your library and manually change the namespace OR [install the nuget package][0] which contains the source and which will automatically set the namespace to your project's root namespace.
-* To get a current class logger:
+Copy [LibLog.cs][1] into your library and manually change the namespace OR [install the nuget package][0] which contains the source and which will automatically set the namespace to your project's root namespace.
+
+To get a current class logger:
 
 ```csharp
 public class MyClass
