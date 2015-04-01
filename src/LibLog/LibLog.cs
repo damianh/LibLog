@@ -35,6 +35,8 @@
 
 #pragma warning disable 1591
 
+// If you copied this file manually, you need to change this namespace so not to clash with other libraries
+// that use LibLog
 namespace LibLog.Logging
 {
     using System.Collections.Generic;
