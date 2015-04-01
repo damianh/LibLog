@@ -2,59 +2,9 @@
 
 [![Join the chat at https://gitter.im/damianh/LibLog](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/damianh/LibLog?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-A single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to enable dependency free logging. It contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10] or allows the user to define a custom provider. 
+Designed for specifically for library developers, `LibLog` is a single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to provide a logging abstraction. It also contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10], and allows your users to define a custom provider if necessary.
 
-When the DLL is added, It Just Works. i.e., all that's needed is to reference NLog / Log4Net in your app root so it ends up in the output directory and your component will automatically log without the user having to do any wireup or configuration. Loggers are either invoked dynamically (which is optimized) or via compiled expressions (also optimized).
-
-The `ILog` interface consists of just 2 methods, which contrasts with the large interface (~65 members) in `Log4Net` and `Common.Logging`.
-
-Nested Diagnostic Contexts(NDC) and Mapped Diagnostic Contexts (MDC) are available via `LogProvider.OpenNestedContext()` and `LogProvider.OpenMappedContext()`. Support has been implemented for NLog, Log4Net and Serilog. As fair as I know, EntLib Logging doesn't supported it (contact me if I'm wrong). Loupe support will come with next major version of Loupe.
-
-### Why?
-
-A logging _implementation_ is an application level concern. Your library / framework should not have any dependencies on any specific logging library, but may still need to support logging.
-
-What about a shared `Common.Logging` you ask? No, you're still introducing a dependency that has the usual versioning concerns and adds yet another item to the consumers projects' references as well as a package reference.
-
-### How?
-
-The file provides:
-
-* A static `LogProvider` your library uses to get a logger, or consumers of your library use to set a custom `ILogProvider`.
-* An `ILog` interface and a set of extension methods that your library consumes.
-* A suite of included providers, `NLogProvider`, `Log4NetProvider`, `SerilogProvider`, `EntLibLogProvider`, `LoupeLogProvider`.
-
-### Using
-Copy [LibLog.cs][1] into your library and manually change the namespace OR [install the nuget package][0] which contains the source and which will automatically set the namespace to your project's root namespace.
-
-To get a current class logger:
-
-```csharp
-public class MyClass
-{
-    private static readonly ILog Logger = LogProvider.For<MyClass>(); 
-    
-    public MyClass()
-    {
-        using(LogProvider.OpenNestedContext("message"))
-        using(LogProvider.OpenMappedContext("key", "value"))
-        {
-            Logger.Info(....);
-        }
-    }
-}
-```
-
-Consumers can define their own provider in their application code to support custom loggers, decorate, etc:
-
-```csharp
-YourComponent.Logging.LogProvider.SetCurrentLogProvider(new CustomLogProvider())
-```
-
-### Example usages
- - [RavenDB][7]
- - [Thinktecture.IdentityServer.v3][8]
- - [Fody Anotar][11]
+See [Wiki](https://github.com/damianh/LibLog/wiki) for more informantion.
 
 ### License
 
@@ -75,8 +25,5 @@ Feedback, compliments or criticism: [@randompunter][6]
 [4]: https://logging.apache.org/log4net/
 [5]: http://msdn.microsoft.com/en-us/library/ff647183.aspx
 [6]: https://twitter.com/randompunter
-[7]: https://github.com/ayende/ravendb/tree/master/Raven.Abstractions/Logging
-[8]: https://github.com/IdentityServer/Thinktecture.IdentityServer3/tree/master/source/Core/Logging
 [9]: http://serilog.net/
 [10]: http://www.gibraltarsoftware.com/Loupe
-[11]: https://github.com/Fody/Anotar
