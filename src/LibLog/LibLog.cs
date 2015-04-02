@@ -82,9 +82,9 @@ namespace LibLog.Logging
     }
 
 #if LIBLOG_PUBLIC
-    internal
-#else
     public
+#else
+    internal
 #endif
     static class LogExtensions
     {
