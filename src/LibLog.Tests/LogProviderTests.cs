@@ -3,6 +3,9 @@
     using FluentAssertions;
     using LibLog.Logging.LogProviders;
     using System;
+    using NLog;
+    using NLog.Config;
+    using NLog.Targets;
     using Xunit;
 
     public class LogProviderTests : IDisposable
@@ -117,6 +120,47 @@
             LogProvider.SetCurrentLogProvider(new ColouredConsoleLogProvider());
 
             provider.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void Can_disable_logging()
+        {
+            var config = new LoggingConfiguration();
+            var target = new MemoryTarget
+            {
+                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
+            };
+            config.AddTarget("memory", target);
+            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, target));
+            LogManager.Configuration = config;
+            LogProvider.SetCurrentLogProvider(new NLogLogProvider());
+
+            LogProvider.IsLoggingEnabled = false;
+            var logger = LogProvider.GetLogger("DisableLogging");
+            logger.Info("test");
+
+            target.Logs.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void Can_enable_logging()
+        {
+            LogProvider.IsLoggingEnabled = false;
+            var config = new LoggingConfiguration();
+            var target = new MemoryTarget
+            {
+                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
+            };
+            config.AddTarget("memory", target);
+            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, target));
+            LogManager.Configuration = config;
+            LogProvider.SetCurrentLogProvider(new NLogLogProvider());
+
+            LogProvider.IsLoggingEnabled = true;
+            var logger = LogProvider.GetLogger("DisableLogging");
+            logger.Info("test");
+
+            target.Logs.Should().NotBeEmpty();
         }
 
         public void Dispose()

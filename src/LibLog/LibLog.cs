@@ -375,6 +375,11 @@ namespace LibLog.Logging
         private static dynamic _currentLogProvider;
         private static Action<ILogProvider> _onCurrentLogProviderSet;
 
+        static LogProvider()
+        {
+            IsLoggingEnabled = true;
+        }
+
         /// <summary>
         /// Sets the current log provider.
         /// </summary>
@@ -385,6 +390,14 @@ namespace LibLog.Logging
 
             RaiseOnCurrentLogProviderSet();
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this is logging enabled.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is logging enabled; otherwise, <c>false</c>.
+        /// </value>
+        public static bool IsLoggingEnabled { get; set; }
 
         /// <summary>
         /// Sets an action that is invoked when a consumer of your library has called SetCurrentLogProvider. It is 
@@ -469,8 +482,12 @@ namespace LibLog.Logging
 #endif
         static ILog GetLogger(string name)
         {
+            if(!IsLoggingEnabled)
+            {
+                return NoOpLogger.Instance;
+            }
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
-            return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
+            return logProvider == null ? NoOpLogger.Instance : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
         }
 
         /// <summary>
@@ -563,6 +580,8 @@ namespace LibLog.Logging
 
         internal class NoOpLogger : ILog
         {
+            internal static readonly NoOpLogger Instance = new NoOpLogger();
+
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
                 return false;
