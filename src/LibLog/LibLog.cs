@@ -43,6 +43,7 @@ namespace LibLog.Logging
     using LibLog.Logging.LogProviders;
     using System;
     using System.Diagnostics;
+    using System.Runtime.CompilerServices;
 
     public delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters);
 
@@ -428,6 +429,7 @@ namespace LibLog.Logging
         /// Gets a logger for the current class.
         /// </summary>
         /// <returns>An instance of <see cref="ILog"/></returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
 #if LIBLOG_PUBLIC
         public
 #else
