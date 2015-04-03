@@ -428,6 +428,7 @@ namespace LibLog.Logging
         /// Gets a logger for the current class.
         /// </summary>
         /// <returns>An instance of <see cref="ILog"/></returns>
+        [MethodImpl(MethodImplOptions.NoInlining)]
 #if LIBLOG_PUBLIC
         public
 #else
