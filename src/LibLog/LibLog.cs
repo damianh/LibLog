@@ -370,6 +370,11 @@ namespace LibLog.Logging
     /// </summary>
     public static class LogProvider
     {
+        /// <summary>
+        /// The disable logging environment variable. If the environment variable is set to 'true', then logging
+        /// will be disabled.
+        /// </summary>
+        public const string DisableLoggingEnvironmentVariable = "$rootnamespace$_LIBLOG_DISABLE";
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
         private static dynamic _currentLogProvider;
@@ -592,7 +597,6 @@ namespace LibLog.Logging
         private readonly Logger _logger;
         private readonly Func<bool> _getIsDisabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
-        private const string EnvironmentVar = "$rootnamespace$_LIBLOG_DISABLE";
 
         internal LoggerExecutionWrapper(Logger logger, Func<bool> getIsDisabled = null)
         {
@@ -613,7 +617,7 @@ namespace LibLog.Logging
                 return false;
             }
 #else
-            var envVar = Environment.GetEnvironmentVariable(EnvironmentVar);
+            var envVar = Environment.GetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable);
 
             if (_getIsDisabled() || (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase)))
             {

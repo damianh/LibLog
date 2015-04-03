@@ -177,7 +177,7 @@
             LogManager.Configuration = config;
             LogProvider.SetCurrentLogProvider(new NLogLogProvider());
 
-            Environment.SetEnvironmentVariable("$rootnamespace$_LIBLOG_DISABLE", "true");
+            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "true");
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
@@ -187,7 +187,7 @@
         [Fact]
         public void When_enable_logging_via_env_var_then_should_log()
         {
-            Environment.SetEnvironmentVariable("$rootnamespace$_LIBLOG_DISABLE", "true");
+            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "true");
             var config = new LoggingConfiguration();
             var target = new MemoryTarget
             {
@@ -198,7 +198,7 @@
             LogManager.Configuration = config;
             LogProvider.SetCurrentLogProvider(new NLogLogProvider());
 
-            Environment.SetEnvironmentVariable("$rootnamespace$_LIBLOG_DISABLE", "false");
+            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "false");
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
@@ -214,6 +214,9 @@
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
             ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
+#if !LIBLOG_PORTABLE
+            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "false");
+#endif
         }
     }
 }
