@@ -377,7 +377,7 @@ namespace LibLog.Logging
 
         static LogProvider()
         {
-            IsLoggingEnabled = true;
+            IsDisabled = false;
         }
 
         /// <summary>
@@ -392,12 +392,12 @@ namespace LibLog.Logging
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether this is logging enabled.
+        /// Gets or sets a value indicating whether this is logging is disabled.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance is logging enabled; otherwise, <c>false</c>.
+        /// <c>true</c> if logging is disabled; otherwise, <c>false</c>.
         /// </value>
-        public static bool IsLoggingEnabled { get; set; }
+        public static bool IsDisabled { get; set; }
 
         /// <summary>
         /// Sets an action that is invoked when a consumer of your library has called SetCurrentLogProvider. It is 
@@ -485,7 +485,7 @@ namespace LibLog.Logging
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
             return logProvider == null 
                 ? NoOpLogger.Instance
-                : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsLoggingEnabled);
+                : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsDisabled);
         }
 
         /// <summary>
@@ -590,13 +590,14 @@ namespace LibLog.Logging
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
-        private readonly Func<bool> _isEnabled;
+        private readonly Func<bool> _getIsDisabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
+        private const string EnvironmentVar = "$rootnamespace$_LIBLOG_DISABLE";
 
-        internal LoggerExecutionWrapper(Logger logger, Func<bool> isLoggingEnabled = null)
+        internal LoggerExecutionWrapper(Logger logger, Func<bool> getIsDisabled = null)
         {
             _logger = logger;
-            _isEnabled = isLoggingEnabled ?? (() => true);
+            _getIsDisabled = getIsDisabled ?? (() => false);
         }
 
         internal Logger WrappedLogger
@@ -606,10 +607,19 @@ namespace LibLog.Logging
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
         {
-            if(!_isLoggingEnabled())
+#if LIBLOG_PORTABLE
+            if (_getIsDisabled())
             {
                 return false;
             }
+#else
+            var envVar = Environment.GetEnvironmentVariable(EnvironmentVar);
+
+            if (_getIsDisabled() || (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+#endif
 
             if (messageFunc == null)
             {
