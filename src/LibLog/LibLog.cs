@@ -482,12 +482,10 @@ namespace LibLog.Logging
 #endif
         static ILog GetLogger(string name)
         {
-            if(!IsLoggingEnabled)
-            {
-                return NoOpLogger.Instance;
-            }
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
-            return logProvider == null ? NoOpLogger.Instance : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
+            return logProvider == null 
+                ? NoOpLogger.Instance
+                : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsLoggingEnabled);
         }
 
         /// <summary>
@@ -592,11 +590,13 @@ namespace LibLog.Logging
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
+        private readonly Func<bool> _isEnabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
 
-        internal LoggerExecutionWrapper(Logger logger)
+        internal LoggerExecutionWrapper(Logger logger, Func<bool> isLoggingEnabled = null)
         {
             _logger = logger;
+            _isEnabled = isLoggingEnabled ?? (() => true);
         }
 
         internal Logger WrappedLogger
