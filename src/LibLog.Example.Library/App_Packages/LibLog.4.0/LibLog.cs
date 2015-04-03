@@ -35,6 +35,8 @@
 
 #pragma warning disable 1591
 
+// If you copied this file manually, you need to change this namespace so not to clash with other libraries
+// that use LibLog
 namespace LibLog.Example.Library.Logging
 {
     using System.Collections.Generic;
@@ -80,9 +82,9 @@ namespace LibLog.Example.Library.Logging
     }
 
 #if LIBLOG_PUBLIC
-    internal
-#else
     public
+#else
+    internal
 #endif
     static class LogExtensions
     {
