@@ -370,10 +370,20 @@ namespace LibLog.Logging
     /// </summary>
     public static class LogProvider
     {
+        /// <summary>
+        /// The disable logging environment variable. If the environment variable is set to 'true', then logging
+        /// will be disabled.
+        /// </summary>
+        public const string DisableLoggingEnvironmentVariable = "$rootnamespace$_LIBLOG_DISABLE";
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
         private static dynamic _currentLogProvider;
         private static Action<ILogProvider> _onCurrentLogProviderSet;
+
+        static LogProvider()
+        {
+            IsDisabled = false;
+        }
 
         /// <summary>
         /// Sets the current log provider.
@@ -385,6 +395,14 @@ namespace LibLog.Logging
 
             RaiseOnCurrentLogProviderSet();
         }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this is logging is disabled.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if logging is disabled; otherwise, <c>false</c>.
+        /// </value>
+        public static bool IsDisabled { get; set; }
 
         /// <summary>
         /// Sets an action that is invoked when a consumer of your library has called SetCurrentLogProvider. It is 
@@ -470,7 +488,9 @@ namespace LibLog.Logging
         static ILog GetLogger(string name)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
-            return logProvider == null ? new NoOpLogger() : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name));
+            return logProvider == null 
+                ? NoOpLogger.Instance
+                : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsDisabled);
         }
 
         /// <summary>
@@ -563,6 +583,8 @@ namespace LibLog.Logging
 
         internal class NoOpLogger : ILog
         {
+            internal static readonly NoOpLogger Instance = new NoOpLogger();
+
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
                 return false;
@@ -573,11 +595,13 @@ namespace LibLog.Logging
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
+        private readonly Func<bool> _getIsDisabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
 
-        internal LoggerExecutionWrapper(Logger logger)
+        internal LoggerExecutionWrapper(Logger logger, Func<bool> getIsDisabled = null)
         {
             _logger = logger;
+            _getIsDisabled = getIsDisabled ?? (() => false);
         }
 
         internal Logger WrappedLogger
@@ -587,6 +611,20 @@ namespace LibLog.Logging
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
         {
+#if LIBLOG_PORTABLE
+            if (_getIsDisabled())
+            {
+                return false;
+            }
+#else
+            var envVar = Environment.GetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable);
+
+            if (_getIsDisabled() || (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            {
+                return false;
+            }
+#endif
+
             if (messageFunc == null)
             {
                 return _logger(logLevel, null);
