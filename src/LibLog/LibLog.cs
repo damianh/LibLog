@@ -606,6 +606,11 @@ namespace LibLog.Logging
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
         {
+            if(!_isLoggingEnabled())
+            {
+                return false;
+            }
+
             if (messageFunc == null)
             {
                 return _logger(logLevel, null);

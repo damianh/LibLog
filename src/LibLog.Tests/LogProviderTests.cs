@@ -139,7 +139,7 @@
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
-            target.Logs.Should().NotBeEmpty();
+            target.Logs.Should().BeEmpty();
         }
 
         [Fact]
