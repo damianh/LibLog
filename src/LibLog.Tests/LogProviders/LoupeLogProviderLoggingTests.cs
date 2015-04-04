@@ -1,10 +1,12 @@
-﻿namespace YourRootNamespace.Logging.LogProviders
+﻿namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.Runtime.CompilerServices;
     using Gibraltar.Agent;
     using Xunit;
     using Xunit.Extensions;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
     using ILog = YourRootNamespace.Logging.ILog;
 
     public class LoupeProviderLoggingTests : IDisposable

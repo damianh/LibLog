@@ -1,4 +1,4 @@
-﻿namespace YourRootNamespace.Logging.LogProviders
+﻿namespace LibLog.Logging.LogProviders
 {
     using System;
     using FluentAssertions;
@@ -7,6 +7,8 @@
     using NLog.Targets;
     using Xunit;
     using Xunit.Extensions;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
     using LogLevel = YourRootNamespace.Logging.LogLevel;
 
     public class NLogLogProviderLoggingTests : IDisposable

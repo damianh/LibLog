@@ -1,7 +1,8 @@
-﻿namespace YourRootNamespace.Logging
+﻿namespace LibLog.Logging
 {
     using System;
     using Xunit;
+    using YourRootNamespace.Logging;
 
     public class LoggerExecutionWrapperTests
     {

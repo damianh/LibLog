@@ -1,10 +1,12 @@
-﻿namespace YourRootNamespace.Logging.LogProviders
+﻿namespace LibLog.Logging.LogProviders
 {
     using System;
     using System.IO;
     using FluentAssertions;
     using Xunit;
     using Xunit.Extensions;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
 
     public class ColouredConsoleProviderLoggingTests : IDisposable
     {

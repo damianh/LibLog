@@ -8,7 +8,7 @@
     <ProjectGuid>{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>YourRootNamespace.LibLog</RootNamespace>
+    <RootNamespace>YourRootNamespace.Logging</RootNamespace>
     <AssemblyName>LibLogPCL</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
