@@ -2,6 +2,7 @@
 {
     using System;
     using Xunit;
+    using YourRootNamespace.Logging;
 
     public class LoggerExecutionWrapperTests
     {

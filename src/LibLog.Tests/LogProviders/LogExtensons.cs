@@ -2,6 +2,7 @@ namespace LibLog.Logging.LogProviders
 {
     using System;
     using FluentAssertions;
+    using YourRootNamespace.Logging;
 
     internal static class LogExtensons
     {

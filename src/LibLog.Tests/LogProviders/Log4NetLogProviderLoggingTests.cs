@@ -9,7 +9,9 @@
     using log4net.Core;
     using Xunit;
     using Xunit.Extensions;
-    using ILog = LibLog.Logging.ILog;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
+    using ILog = YourRootNamespace.Logging.ILog;
 
     public class Log4NetLogProviderLoggingTests : IDisposable
     {

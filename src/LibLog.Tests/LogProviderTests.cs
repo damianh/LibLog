@@ -1,12 +1,13 @@
 ﻿namespace LibLog.Logging
 {
     using FluentAssertions;
-    using LibLog.Logging.LogProviders;
     using System;
     using NLog;
     using NLog.Config;
     using NLog.Targets;
     using Xunit;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
 
     public class LogProviderTests : IDisposable
     {

@@ -5,6 +5,8 @@
     using FluentAssertions;
     using Xunit;
     using Xunit.Extensions;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
 
     public class ColouredConsoleProviderLoggingTests : IDisposable
     {

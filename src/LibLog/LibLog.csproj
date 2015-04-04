@@ -8,7 +8,7 @@
     <ProjectGuid>{B94A94E1-3C80-40CC-A79A-244446B3F75A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LibLog.Logging</RootNamespace>
+    <RootNamespace>YourRootNamespace.Logging</RootNamespace>
     <AssemblyName>LibLog</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

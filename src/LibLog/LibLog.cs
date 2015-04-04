@@ -38,19 +38,19 @@
 
 #pragma warning disable 1591
 
-// If you copied this file manually, you need to change this namespace so not to clash with other libraries
+// If you copied this file manually, you need to change all "YourRootNameSpace" so not to clash with other libraries
 // that use LibLog
 #if LIBLOG_PROVIDERS_ONLY
-namespace LibLog.LibLog
+namespace YourRootNamespace.LibLog
 #else
-namespace LibLog.Logging
+namespace YourRootNamespace.Logging
 #endif
 {
     using System.Collections.Generic;
 #if LIBLOG_PROVIDERS_ONLY
-    using global::LibLog.LibLog.LogProviders;
+    using YourRootNamespace.LibLog.LogProviders;
 #else
-    using global::LibLog.Logging.LogProviders;
+    using YourRootNamespace.Logging.LogProviders;
 #endif
     using System;
 #if !LIBLOG_PROVIDERS_ONLY
@@ -708,9 +708,9 @@ namespace LibLog.Logging
 }
 
 #if LIBLOG_PROVIDERS_ONLY
-namespace LibLog.LibLog.LogProviders
+namespace YourRootNamespace.LibLog.LogProviders
 #else
-namespace LibLog.Logging.LogProviders
+namespace YourRootNamespace.Logging.LogProviders
 #endif
 {
     using System;
@@ -1930,9 +1930,6 @@ namespace LibLog.Logging.LogProviders
         }
 
         public class ColouredConsoleLogger
-#if !LIBLOG_PROVIDERS_ONLY
-            : ILog
-#endif
         {
             private readonly string _name;
             private readonly Action<string> _write;

@@ -10,7 +10,9 @@
     using Serilog.Events;
     using Xunit;
     using Xunit.Extensions;
-    using LogLevel = LibLog.Logging.LogLevel;
+    using YourRootNamespace.Logging;
+    using YourRootNamespace.Logging.LogProviders;
+    using LogLevel = YourRootNamespace.Logging.LogLevel;
 
     public class SerilogLogProviderLoggingTests : IDisposable
     {
