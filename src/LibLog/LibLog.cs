@@ -41,14 +41,14 @@
 // If you copied this file manually, you need to change this namespace so not to clash with other libraries
 // that use LibLog
 #if LIBLOG_PROVIDERS_ONLY
-namespace LibLog.Logging.LibLog
+namespace LibLog.LibLog
 #else
 namespace LibLog.Logging
 #endif
 {
     using System.Collections.Generic;
 #if LIBLOG_PROVIDERS_ONLY
-    using global::LibLog.Logging.LibLog.LogProviders;
+    using global::LibLog.LibLog.LogProviders;
 #else
     using global::LibLog.Logging.LogProviders;
 #endif
@@ -708,7 +708,7 @@ namespace LibLog.Logging
 }
 
 #if LIBLOG_PROVIDERS_ONLY
-namespace LibLog.Logging.LibLog.LogProviders
+namespace LibLog.LibLog.LogProviders
 #else
 namespace LibLog.Logging.LogProviders
 #endif
