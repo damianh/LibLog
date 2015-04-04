@@ -1930,9 +1930,6 @@ namespace LibLog.Logging.LogProviders
         }
 
         public class ColouredConsoleLogger
-#if !LIBLOG_PROVIDERS_ONLY
-            : ILog
-#endif
         {
             private readonly string _name;
             private readonly Action<string> _write;
