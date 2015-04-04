@@ -21,10 +21,10 @@ This package is a variation of option 3 but will automatically wire things up to
 - Using optimized reflection, it transparently supports NLog, Log4Net, EntLib Logging, Serilog and Loupe without any wiring up required by an end user, if the end user simply has a reference to any of these logging frameworks.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and portable-net45+win+wpa81+MonoAndroid10+MonoTouch10 and higher.</summary>
         <copyright>Damian Hickey and Contributors 2014-2015</copyright>
-        <releaseNotes>- Tighted up the public API to just being ILog, LogLevel, and LogProvider.SetCurrentLogProvider()
+        <releaseNotes>- Tightened up the public API to just being ILog, LogLevel, and LogProvider.SetCurrentLogProvider()
 - Getting a logger (LogProvider.For(), LogProvider.GetLogger() etc) is now internal by default to prevent unintended coupling with consumers of your library. These can be made public again with a LIBLOG_PUBLIC conditional compilation symbol.
-- Can make entire code internal with a LIBLOG_INTERNAL conditional compilation symbol
-- Can hook into when a consumer of your lib sets the current log provider allowing you to forward the configuration to other, possibly internalized, libs that use LibLog.</releaseNotes>
+- Can hook into when a consumer of your lib sets the current log provider allowing you to forward the configuration to other, possibly internalized, libs that use LibLog.
+- Can just leverage the providers by using LIBLOG_PROVIDERS_ONLY allowing you to define your own logging interfaces or leverage existing ones.</releaseNotes>
         <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe, pcl</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
