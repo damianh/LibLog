@@ -33,7 +33,7 @@ task RunTests -depends Compile {
 task CreatePP {
 	(Get-Content $srcDir\$projectName\$projectName.cs) | Foreach-Object {
 		$_ -replace 'namespace LibLog', 'namespace $rootnamespace$' `
-		-replace 'using LibLog', 'using $rootnamespace$'
+		-replace 'using global::LibLog', 'using $rootnamespace$'
 		} | Set-Content $buildOutputDir\$projectName.cs.pp -Encoding UTF8
 }
 
