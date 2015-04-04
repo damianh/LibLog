@@ -1,4 +1,4 @@
-namespace LibLog.Logging.LogProviders
+namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
     using FluentAssertions;

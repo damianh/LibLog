@@ -1,4 +1,4 @@
-﻿namespace LibLog.Logging
+﻿namespace YourRootNamespace.Logging
 {
     using System;
     using Xunit;

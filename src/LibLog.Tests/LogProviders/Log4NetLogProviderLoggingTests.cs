@@ -1,4 +1,4 @@
-﻿namespace LibLog.Logging.LogProviders
+﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
     using System.Linq;
@@ -9,7 +9,7 @@
     using log4net.Core;
     using Xunit;
     using Xunit.Extensions;
-    using ILog = LibLog.Logging.ILog;
+    using ILog = YourRootNamespace.Logging.ILog;
 
     public class Log4NetLogProviderLoggingTests : IDisposable
     {

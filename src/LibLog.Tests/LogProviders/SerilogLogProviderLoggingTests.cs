@@ -1,4 +1,4 @@
-﻿namespace LibLog.Logging.LogProviders
+﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     using Serilog.Events;
     using Xunit;
     using Xunit.Extensions;
-    using LogLevel = LibLog.Logging.LogLevel;
+    using LogLevel = YourRootNamespace.Logging.LogLevel;
 
     public class SerilogLogProviderLoggingTests : IDisposable
     {

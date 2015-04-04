@@ -1,7 +1,7 @@
-﻿namespace LibLog.Logging
+﻿namespace YourRootNamespace.Logging
 {
     using FluentAssertions;
-    using LibLog.Logging.LogProviders;
+    using YourRootNamespace.Logging.LogProviders;
     using System;
     using NLog;
     using NLog.Config;
