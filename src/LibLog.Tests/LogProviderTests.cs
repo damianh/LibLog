@@ -82,21 +82,6 @@
         }
 
         [Fact]
-        public void When_ColourConsoleLoger_is_available_Then_should_get_ColourConsoleLoger()
-        {
-            LogProvider.SetCurrentLogProvider(null);
-            NLogLogProvider.ProviderIsAvailableOverride = false;
-            Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
-            SerilogLogProvider.ProviderIsAvailableOverride = false;
-            LoupeLogProvider.ProviderIsAvailableOverride = false;
-            ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
-
-            var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<ColouredConsoleLogProvider>();
-        }
-
-        [Fact]
         public void When_no_logger_is_available_Then_should_get_NoOpLogger()
         {
             LogProvider.SetCurrentLogProvider(null);
@@ -105,7 +90,6 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
-            ColouredConsoleLogProvider.ProviderIsAvailableOverride = false;
 
             ILog logger = LogProvider.For<LogProviderTests>();
 
@@ -118,7 +102,7 @@
             ILogProvider provider = null;
             LogProvider.OnCurrentLogProviderSet = p => provider = p;
 
-            LogProvider.SetCurrentLogProvider(new ColouredConsoleLogProvider());
+            LogProvider.SetCurrentLogProvider(new NLogLogProvider());
 
             provider.Should().NotBeNull();
         }
@@ -214,7 +198,6 @@
             EntLibLogProvider.ProviderIsAvailableOverride = true;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
-            ColouredConsoleLogProvider.ProviderIsAvailableOverride = true;
 #if !LIBLOG_PORTABLE
             Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "false");
 #endif
