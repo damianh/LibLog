@@ -121,7 +121,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="LoggerExecutionWrapperTests.cs" />
-    <Compile Include="LogProviders\ColouredConsoleProviderLoggingTests.cs" />
     <Compile Include="LogProviders\LoupeLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />
