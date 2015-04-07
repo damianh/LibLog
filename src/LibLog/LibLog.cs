@@ -69,7 +69,12 @@ namespace YourRootNamespace.Logging
     /// <summary>
     /// Simple interface that represent a logger.
     /// </summary>
-    public interface ILog
+#if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+    interface ILog
     {
         /// <summary>
         /// Log a message the specified log level.
