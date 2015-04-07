@@ -35,7 +35,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App_Packages\LibLog.4.1\LibLog.cs" />
+    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
     <Compile Include="Foo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
