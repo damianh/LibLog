@@ -113,7 +113,7 @@ namespace YourRootNamespace.Logging
 #else
     internal
 #endif
-    static class LogExtensions
+    static partial class LogExtensions
     {
         public static bool IsDebugEnabled(this ILog logger)
         {
