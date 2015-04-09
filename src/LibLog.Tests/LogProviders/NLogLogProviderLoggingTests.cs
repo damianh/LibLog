@@ -91,7 +91,19 @@
 
             _target.Logs[0].Should().Be(messagePrefix + "|||m replaced|e");
         }
+        [Theory]
+        [InlineData(LogLevel.Debug, "DEBUG")]
+        [InlineData(LogLevel.Error, "ERROR")]
+        [InlineData(LogLevel.Fatal, "FATAL")]
+        [InlineData(LogLevel.Info, "INFO")]
+        [InlineData(LogLevel.Trace, "TRACE")]
+        [InlineData(LogLevel.Warn, "WARN")]
+        public void Should_be_able_to_log_message_and_exception_with_format_parameters_modifiers(LogLevel logLevel, string messagePrefix)
+        {
+            _sut.Log(logLevel, () => "m {@abc}", new Exception("e"), new[] { "replaced" });
 
+            _target.Logs[0].Should().Be(messagePrefix + "|||m replaced|e");
+        }
         [Fact]
         public void Can_check_is_log_level_enabled()
         {

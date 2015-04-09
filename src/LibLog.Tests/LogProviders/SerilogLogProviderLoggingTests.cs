@@ -158,6 +158,15 @@
             _logEvent.Properties.Keys.Should().Contain("data");
             _logEvent.Properties["data"].ToString().Should().Be("\"log\"");
         }
+        [Fact]
+        public void Can_log_structured_serialized_message()
+        {
+            _sut.InfoFormat("Structured {@data} message", new{ Log="log",Count="1"});
+            _logEvent.RenderMessage().Should().Be("Structured { Log: \"log\", Count: \"1\" } message");
+            _logEvent.Properties.Keys.Should().Contain("data");
+            
+            
+        }
 
         public void Dispose()
         {
