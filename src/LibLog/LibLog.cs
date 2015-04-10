@@ -546,7 +546,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenNestedConext(string message)
+        static IDisposable OpenNestedContext(string message)
         {
             if(CurrentLogProvider == null)
             {
