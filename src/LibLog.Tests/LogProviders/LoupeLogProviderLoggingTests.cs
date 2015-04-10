@@ -75,6 +75,18 @@
         {
             _sut.Log(logLevel, () => messagePrefix + " log message {abc} with exception", new Exception("e"), "replaced");
         }
+        [Theory]
+        [InlineData(LogLevel.Debug, "DEBUG")]
+        [InlineData(LogLevel.Error, "ERROR")]
+        [InlineData(LogLevel.Fatal, "CRITICAL")] //Fatal messages in Loupe are rendered as Critical
+        [InlineData(LogLevel.Info, "INFO")]
+        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in Loupe are rendered as Debug
+        [InlineData(LogLevel.Warn, "WARN")]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void Should_be_able_to_log_message_and_exception_with_formatparams_modifiers(LogLevel logLevel, string messagePrefix)
+        {
+            _sut.Log(logLevel, () => messagePrefix + " log message {@abc} with exception", new Exception("e"), "replaced");
+        }
 
         [Fact]
         public void Can_check_is_log_level_enabled()

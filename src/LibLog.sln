@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.NLog", "LibL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Serilog", "LibLog.Example.Serilog\LibLog.Example.Serilog.csproj", "{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.ColoredConsoleLogProvider", "LibLog.Example.ColoredConsoleLogProvider\LibLog.Example.ColoredConsoleLogProvider.csproj", "{AE63060E-10DB-497E-B161-3C13FF865C7B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,6 +79,7 @@ Global
 		{E7F9CE74-9F02-4DDF-822F-FA9B9F4FA139} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 		{454FADA3-7AB4-4FBE-945A-80C6C55DA8D2} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 		{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
+		{AE63060E-10DB-497E-B161-3C13FF865C7B} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.0\lib\NET35

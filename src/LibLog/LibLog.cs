@@ -546,7 +546,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenNestedConext(string message)
+        static IDisposable OpenNestedContext(string message)
         {
             if(CurrentLogProvider == null)
             {
@@ -1841,7 +1841,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
     internal static class LogMessageFormatter
     {
-        private static readonly Regex Pattern = new Regex(@"\{\w{1,}\}");
+        private static readonly Regex Pattern = new Regex(@"\{@?\w{1,}\}");
 
         /// <summary>
         /// Some logging frameworks support structured logging, such as serilog. This will allow you to add names to structured data in a format string:
@@ -1875,7 +1875,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 }
                 try
                 {
-                    return String.Format(CultureInfo.InvariantCulture, targetMessage, formatParameters);
+                    return string.Format(CultureInfo.InvariantCulture, targetMessage, formatParameters);
                 }
                 catch (FormatException ex)
                 {
