@@ -2,11 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>4.2.1</version>
+        <version>4.2.2</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
         <projectUrl>https://github.com/damianh/LibLog</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/damianh/LibLog/dev/docs/liblog_icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <developmentDependency>true</developmentDependency>
         <description>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.
