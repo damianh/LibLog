@@ -90,6 +90,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
+            CatelLogProvider.ProviderIsAvailableOverride = false;
 
             ILog logger = LogProvider.For<LogProviderTests>();
 
