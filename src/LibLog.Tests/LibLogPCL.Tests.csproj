@@ -36,6 +36,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Catel.Core, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Catel.Core.4.1.0\lib\net45\Catel.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentAssertions, Version=3.3.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\FluentAssertions.3.3.0\lib\net45\FluentAssertions.dll</HintPath>
@@ -121,6 +125,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="LoggerExecutionWrapperTests.cs" />
+    <Compile Include="LogProviders\CatelLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\LoupeLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />

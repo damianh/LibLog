@@ -63,7 +63,7 @@ namespace YourRootNamespace.Logging
 #else
     public
 #endif
-    delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters);
+ delegate bool Logger(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters);
 
 #if !LIBLOG_PROVIDERS_ONLY
     /// <summary>
@@ -74,7 +74,7 @@ namespace YourRootNamespace.Logging
 #else
     internal
 #endif
-    interface ILog
+ interface ILog
     {
         /// <summary>
         /// Log a message the specified log level.
@@ -90,7 +90,7 @@ namespace YourRootNamespace.Logging
         /// 
         /// To check IsEnabled call Log with only LogLevel and check the return value, no event will be written.
         /// </remarks>
-        bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters );
+        bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters);
     }
 #endif
 
@@ -102,7 +102,7 @@ namespace YourRootNamespace.Logging
 #else
     public
 #endif
-    enum LogLevel
+ enum LogLevel
     {
         Trace,
         Debug,
@@ -118,7 +118,7 @@ namespace YourRootNamespace.Logging
 #else
     internal
 #endif
-    static partial class LogExtensions
+ static partial class LogExtensions
     {
         public static bool IsDebugEnabled(this ILog logger)
         {
@@ -377,7 +377,7 @@ namespace YourRootNamespace.Logging
 #else
     public
 #endif
-    interface ILogProvider
+ interface ILogProvider
     {
         /// <summary>
         /// Gets the specified named logger.
@@ -410,7 +410,7 @@ namespace YourRootNamespace.Logging
 #else
     public
 #endif
-    static class LogProvider
+ static class LogProvider
     {
 #if !LIBLOG_PROVIDERS_ONLY
         /// <summary>
@@ -480,7 +480,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog For<T>()
+ static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
@@ -496,7 +496,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog GetCurrentClassLogger()
+ static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
@@ -513,7 +513,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog GetLogger(Type type)
+ static ILog GetLogger(Type type)
         {
             return GetLogger(type.FullName);
         }
@@ -528,10 +528,10 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog GetLogger(string name)
+ static ILog GetLogger(string name)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
-            return logProvider == null 
+            return logProvider == null
                 ? NoOpLogger.Instance
                 : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsDisabled);
         }
@@ -546,9 +546,9 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenNestedContext(string message)
+ static IDisposable OpenNestedContext(string message)
         {
-            if(CurrentLogProvider == null)
+            if (CurrentLogProvider == null)
             {
                 throw new InvalidOperationException(NullLogProvider);
             }
@@ -566,7 +566,7 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenMappedContext(string key, string value)
+ static IDisposable OpenMappedContext(string key, string value)
         {
             if (CurrentLogProvider == null)
             {
@@ -579,30 +579,31 @@ namespace YourRootNamespace.Logging
 #if LIBLOG_PROVIDERS_ONLY
     private
 #else
-    internal
+        internal
 #endif
-    delegate bool IsLoggerAvailable();
+ delegate bool IsLoggerAvailable();
 
 #if LIBLOG_PROVIDERS_ONLY
     private
 #else
-    internal
+        internal
 #endif
-    delegate ILogProvider CreateLogProvider();
+ delegate ILogProvider CreateLogProvider();
 
 #if LIBLOG_PROVIDERS_ONLY
     private
 #else
-    internal
+        internal
 #endif
-    static readonly List<Tuple<IsLoggerAvailable, CreateLogProvider>> LogProviderResolvers =
-            new List<Tuple<IsLoggerAvailable, CreateLogProvider>>
+ static readonly List<Tuple<IsLoggerAvailable, CreateLogProvider>> LogProviderResolvers =
+                new List<Tuple<IsLoggerAvailable, CreateLogProvider>>
         {
             new Tuple<IsLoggerAvailable, CreateLogProvider>(SerilogLogProvider.IsLoggerAvailable, () => new SerilogLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(NLogLogProvider.IsLoggerAvailable, () => new NLogLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(Log4NetLogProvider.IsLoggerAvailable, () => new Log4NetLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(EntLibLogProvider.IsLoggerAvailable, () => new EntLibLogProvider()),
             new Tuple<IsLoggerAvailable, CreateLogProvider>(LoupeLogProvider.IsLoggerAvailable, () => new LoupeLogProvider()),
+            new Tuple<IsLoggerAvailable, CreateLogProvider>(CatelLogProvider.IsLoggerAvailable, () => new CatelLogProvider()),
         };
 
 #if !LIBLOG_PROVIDERS_ONLY
@@ -634,7 +635,7 @@ namespace YourRootNamespace.Logging
 #else
                 Console.WriteLine(
 #endif
-                    "Exception occured resolving a log provider. Logging for this assembly {0} is disabled. {1}",
+"Exception occured resolving a log provider. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).GetAssemblyPortable().FullName,
                     ex);
             }
@@ -738,7 +739,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
         protected LogProviderBase()
         {
-            _lazyOpenNdcMethod 
+            _lazyOpenNdcMethod
                 = new Lazy<OpenNdc>(GetOpenNdcMethod);
             _lazyOpenMdcMethod
                = new Lazy<OpenMdc>(GetOpenMdcMethod);
@@ -863,7 +864,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 }
                 messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
-                if(exception != null)
+                if (exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
                 }
@@ -1317,17 +1318,17 @@ namespace YourRootNamespace.Logging.LogProviders
             Expression severityParameter, ParameterExpression logNameParameter)
         {
             var entryType = LogEntryType;
-            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), 
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType),
                 Expression.Bind(entryType.GetPropertyPortable("Message"), message),
                 Expression.Bind(entryType.GetPropertyPortable("Severity"), severityParameter),
                 Expression.Bind(
                     entryType.GetPropertyPortable("TimeStamp"),
-                    Expression.Property(null, typeof (DateTime).GetPropertyPortable("UtcNow"))),
+                    Expression.Property(null, typeof(DateTime).GetPropertyPortable("UtcNow"))),
                 Expression.Bind(
                     entryType.GetPropertyPortable("Categories"),
                     Expression.ListInit(
-                        Expression.New(typeof (List<string>)),
-                        typeof (List<string>).GetMethodPortable("Add", typeof (string)),
+                        Expression.New(typeof(List<string>)),
+                        typeof(List<string>).GetMethodPortable("Add", typeof(string)),
                         logNameParameter)));
             return memberInit;
         }
@@ -1434,7 +1435,7 @@ namespace YourRootNamespace.Logging.LogProviders
         {
             Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
             MethodInfo pushPropertyMethod = ndcContextType.GetMethodPortable(
-                "PushProperty", 
+                "PushProperty",
                 typeof(string),
                 typeof(object),
                 typeof(bool));
@@ -1450,7 +1451,7 @@ namespace YourRootNamespace.Logging.LogProviders
                     valueParam,
                     destructureObjectParam)
                 .Compile();
-            
+
             return (key, value) => pushProperty(key, value, false);
         }
 
@@ -1534,7 +1535,7 @@ namespace YourRootNamespace.Logging.LogProviders
                     messageParam,
                     propertyValuesParam);
                 var expression = Expression.Lambda<Action<object, object, string, object[]>>(
-                    writeMethodExp, 
+                    writeMethodExp,
                     instanceParam,
                     levelParam,
                     messageParam,
@@ -1543,7 +1544,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
                 // Action<object, object, string, Exception> WriteException =
                 // (logger, level, exception, message) => { ((ILogger)logger).Write(level, exception, message, new object[]); }
-                MethodInfo writeExceptionMethodInfo = loggerType.GetMethodPortable("Write", 
+                MethodInfo writeExceptionMethodInfo = loggerType.GetMethodPortable("Write",
                     logEventLevelType,
                     typeof(Exception),
                     typeof(string),
@@ -1557,7 +1558,7 @@ namespace YourRootNamespace.Logging.LogProviders
                     messageParam,
                     propertyValuesParam);
                 WriteException = Expression.Lambda<Action<object, object, Exception, string, object[]>>(
-                    writeMethodExp, 
+                    writeMethodExp,
                     instanceParam,
                     levelParam,
                     exceptionParam,
@@ -1748,7 +1749,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
             MethodInfo method = logManagerType.GetMethodPortable(
                 "Write",
-                logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool), 
+                logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool),
                 logWriteModeType, typeof(string), typeof(string), typeof(string), typeof(string), typeof(object[]));
 
             var callDelegate = (WriteDelegate)method.CreateDelegate(typeof(WriteDelegate));
@@ -1813,6 +1814,171 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    internal class CatelLogProvider : LogProviderBase
+    {
+        private readonly Func<Type, object> _getLoggerByNameDelegate;
+        private static bool _providerIsAvailableOverride = true;
+
+        public CatelLogProvider()
+        {
+            if (!IsLoggerAvailable())
+            {
+                throw new InvalidOperationException("Catel.Logging.LogManager not found");
+            }
+
+            _getLoggerByNameDelegate = GetGetLoggerMethodCall();
+        }
+
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return _providerIsAvailableOverride; }
+            set { _providerIsAvailableOverride = value; }
+        }
+
+        public override Logger GetLogger(string name)
+        {
+            var type = Type.GetType(name, false);
+            if (type == null)
+            {
+                type = typeof(object);
+            }
+
+            var logger = _getLoggerByNameDelegate(type);
+            return new CatelLogger(logger).Log;
+        }
+
+        public static bool IsLoggerAvailable()
+        {
+            return ProviderIsAvailableOverride && GetLogManagerType() != null;
+        }
+
+        //protected override OpenNdc GetOpenNdcMethod()
+        //{
+        //    Type ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
+        //    MethodInfo pushMethod = ndcContextType.GetMethodPortable("Push", typeof(string));
+        //    ParameterExpression messageParam = Expression.Parameter(typeof(string), "message");
+        //    MethodCallExpression pushMethodCall = Expression.Call(null, pushMethod, messageParam);
+        //    return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
+        //}
+
+        //protected override OpenMdc GetOpenMdcMethod()
+        //{
+        //    Type mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
+
+        //    MethodInfo setMethod = mdcContextType.GetMethodPortable("Set", typeof(string), typeof(string));
+        //    MethodInfo removeMethod = mdcContextType.GetMethodPortable("Remove", typeof(string));
+        //    ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
+        //    ParameterExpression valueParam = Expression.Parameter(typeof(string), "value");
+
+        //    MethodCallExpression setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+        //    MethodCallExpression removeMethodCall = Expression.Call(null, removeMethod, keyParam);
+
+        //    Action<string, string> set = Expression
+        //        .Lambda<Action<string, string>>(setMethodCall, keyParam, valueParam)
+        //        .Compile();
+        //    Action<string> remove = Expression
+        //        .Lambda<Action<string>>(removeMethodCall, keyParam)
+        //        .Compile();
+
+        //    return (key, value) =>
+        //    {
+        //        set(key, value);
+        //        return new DisposableAction(() => remove(key));
+        //    };
+        //}
+
+        private static Type GetLogManagerType()
+        {
+            return Type.GetType("Catel.Logging.LogManager, Catel.Core");
+        }
+
+        private static Func<Type, object> GetGetLoggerMethodCall()
+        {
+            Type logManagerType = GetLogManagerType();
+            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", typeof(Type));
+            ParameterExpression typeParam = Expression.Parameter(typeof(Type), "type");
+            MethodCallExpression methodCall = Expression.Call(null, method, typeParam);
+            return Expression.Lambda<Func<Type, object>>(methodCall, typeParam).Compile();
+        }
+
+        // Note: Catel 5.0 will use extension methods for most calls
+        internal class CatelLogger
+        {
+            private readonly dynamic _logger;
+
+            internal CatelLogger(dynamic logger)
+            {
+                _logger = logger;
+            }
+
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
+            {
+                if (messageFunc == null)
+                {
+                    return true;
+                }
+
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
+
+                if (exception != null)
+                {
+                    return LogException(logLevel, messageFunc, exception);
+                }
+
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        _logger.DebugWithData(messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Info:
+                        _logger.InfoWithData(messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Warn:
+                        _logger.WarningWithData(messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Error:
+                    case LogLevel.Fatal:
+                        _logger.ErrorWithData(messageFunc(), null);
+                        return true;
+
+                    default:
+                        _logger.DebugWithData(messageFunc(), null);
+                        return true;
+                }
+            }
+
+            private bool LogException(LogLevel logLevel, Func<string> messageFunc, Exception exception)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        _logger.DebugWithData(exception, messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Info:
+                        _logger.InfoWithData(exception, messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Warn:
+                        _logger.WarningWithData(exception, messageFunc(), null);
+                        return true;
+
+                    case LogLevel.Error:
+                    case LogLevel.Fatal:
+                        _logger.ErrorWithData(exception, messageFunc(), null);
+                        return true;
+
+                    default:
+                        _logger.DebugWithData(exception, messageFunc(), null);
+                        return true;
+                }
+            }
+        }
+    }
+
     internal static class TraceEventTypeValues
     {
         internal static readonly Type Type;
@@ -1867,7 +2033,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 foreach (Match match in Pattern.Matches(targetMessage))
                 {
                     int notUsed;
-                    if (!int.TryParse(match.Value.Substring(1, match.Value.Length -2), out notUsed))
+                    if (!int.TryParse(match.Value.Substring(1, match.Value.Length - 2), out notUsed))
                     {
                         targetMessage = ReplaceFirst(targetMessage, match.Value,
                             "{" + argumentIndex++ + "}");
@@ -1982,7 +2148,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
         public void Dispose()
         {
-            if(_onDispose != null)
+            if (_onDispose != null)
             {
                 _onDispose();
             }
