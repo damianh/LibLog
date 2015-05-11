@@ -29,7 +29,7 @@
 // Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
 //
 // Define LIBLOG_PUBLIC to enable ability to GET a logger (LogProvider.For<>() etc) from outside this library. NOTE:
-// this can have unintendend consequences of consumers of your library using your library to resolve a logger. If the
+// this can have unintended consequences of consumers of your library using your library to resolve a logger. If the
 // reason is because you want to open this functionality to other projects within your solution,
 // consider [InternalVisibleTo] instead.
 // 
@@ -196,6 +196,7 @@ namespace YourRootNamespace.Logging
 
         public static void Error(this ILog logger, Func<string> messageFunc)
         {
+            GuardAgainstNullLogger(logger);
             logger.Log(LogLevel.Error, messageFunc);
         }
 
@@ -634,7 +635,7 @@ namespace YourRootNamespace.Logging
 #else
                 Console.WriteLine(
 #endif
-                    "Exception occured resolving a log provider. Logging for this assembly {0} is disabled. {1}",
+                    "Exception occurred resolving a log provider. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).GetAssemblyPortable().FullName,
                     ex);
             }
@@ -1846,7 +1847,7 @@ namespace YourRootNamespace.Logging.LogProviders
         /// <summary>
         /// Some logging frameworks support structured logging, such as serilog. This will allow you to add names to structured data in a format string:
         /// For example: Log("Log message to {user}", user). This only works with serilog, but as the user of LibLog, you don't know if serilog is actually 
-        /// used. So, this class simulates that. it will replace any text in {curlybraces} with an index number. 
+        /// used. So, this class simulates that. it will replace any text in {curly braces} with an index number. 
         /// 
         /// "Log {message} to {user}" would turn into => "Log {0} to {1}". Then the format parameters are handled using regular .net string.Format.
         /// </summary>
