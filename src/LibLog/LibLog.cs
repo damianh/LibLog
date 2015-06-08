@@ -1081,8 +1081,8 @@ namespace YourRootNamespace.Logging.LogProviders
             private readonly object _levelWarn;
             private readonly object _levelError;
             private readonly object _levelFatal;
-            private readonly Func<object, object, bool> isEnabledForDelegate;
-            private Action<object, Type, object, string, Exception> logDelegate;
+            private readonly Func<object, object, bool> _isEnabledForDelegate;
+            private readonly Action<object, Type, object, string, Exception> _logDelegate;
 
             internal Log4NetLogger(dynamic logger)
             {
@@ -1115,7 +1115,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 ParameterExpression messageParam = Expression.Parameter(typeof(string));
                 UnaryExpression levelCast = Expression.Convert(levelParam, logEventLevelType);
                 MethodCallExpression isEnabledMethodCall = Expression.Call(instanceCast, isEnabledMethodInfo, levelCast);
-                isEnabledForDelegate = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, instanceParam, levelParam).Compile();
+                _isEnabledForDelegate = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, instanceParam, levelParam).Compile();
 
                 // Action<object, object, string, Exception> Log =
                 // (logger, callerStackBoundaryDeclaringType, level, message, exception) => { ((ILogger)logger).Write(callerStackBoundaryDeclaringType, level, message, exception); }
@@ -1132,7 +1132,7 @@ namespace YourRootNamespace.Logging.LogProviders
                     levelCast,
                     messageParam,
                     exceptionParam);
-                logDelegate = Expression.Lambda<Action<object, Type, object, string, Exception>>(
+                _logDelegate = Expression.Lambda<Action<object, Type, object, string, Exception>>(
                     writeMethodExp,
                     instanceParam,
                     callerStackBoundaryDeclaringTypeParam,
@@ -1179,7 +1179,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 }
 
                 var translatedLevel = TranslateLevel(logLevel);
-                logDelegate(_logger, _callerStackBoundaryType, translatedLevel, messageFunc(), exception);
+                _logDelegate(_logger, _callerStackBoundaryType, translatedLevel, messageFunc(), exception);
                 return true;
             }
 
@@ -1199,7 +1199,7 @@ namespace YourRootNamespace.Logging.LogProviders
             private bool IsLogLevelEnable(LogLevel logLevel)
             {
                 var level = TranslateLevel(logLevel);
-                return isEnabledForDelegate(_logger, level);
+                return _isEnabledForDelegate(_logger, level);
             }
 
             private object TranslateLevel(LogLevel logLevel)
