@@ -675,15 +675,14 @@ namespace YourRootNamespace.Logging
 
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null, params object[] formatParameters)
         {
-#if LIBLOG_PORTABLE
             if (_getIsDisabled())
             {
                 return false;
             }
-#else
+#if !LIBLOG_PORTABLE
             var envVar = Environment.GetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable);
 
-            if (_getIsDisabled() || (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase)))
+            if (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
