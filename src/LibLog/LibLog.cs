@@ -1,4 +1,4 @@
-﻿//===============================================================================
+//===============================================================================
 // LibLog
 //
 // https://github.com/damianh/LibLog
@@ -1075,6 +1075,7 @@ namespace YourRootNamespace.Logging.LogProviders
         {
             private readonly dynamic _logger;
             private static Type s_callerStackBoundaryType;
+            private static readonly object CallerStackBoundaryTypeSync = new object();
 
             private readonly object _levelDebug;
             private readonly object _levelInfo;
@@ -1158,13 +1159,13 @@ namespace YourRootNamespace.Logging.LogProviders
                 // determine correct caller - this might change due to jit optimizations with method inlining
                 if (s_callerStackBoundaryType == null)
                 {
-                    lock (GetType())
+                    lock (CallerStackBoundaryTypeSync)
                     {
 #if !LIBLOG_PORTABLE
                         StackTrace stack = new StackTrace();
                         Type thisType = GetType();
                         s_callerStackBoundaryType = Type.GetType("LoggerExecutionWrapper");
-                        for (int i = 1; i < stack.FrameCount; i++)
+                        for (var i = 1; i < stack.FrameCount; i++)
                         {
                             if (!IsInTypeHierarchy(thisType, stack.GetFrame(i).GetMethod().DeclaringType))
                             {
@@ -1228,7 +1229,7 @@ namespace YourRootNamespace.Logging.LogProviders
     {
         private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
         private static bool s_providerIsAvailableOverride = true;
-        private static readonly Type s_LogEntryType;
+        private static readonly Type LogEntryType;
         private static readonly Type LoggerType;
         private static readonly Type TraceEventTypeType;
         private static readonly Action<string, string, int> WriteLogEntry;
@@ -1236,10 +1237,10 @@ namespace YourRootNamespace.Logging.LogProviders
 
         static EntLibLogProvider()
         {
-            s_LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
+            LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
             LoggerType = Type.GetType(string.Format(TypeTemplate, "Logger"));
             TraceEventTypeType = TraceEventTypeValues.Type;
-            if (s_LogEntryType == null
+            if (LogEntryType == null
                  || TraceEventTypeType == null
                  || LoggerType == null)
             {
@@ -1272,7 +1273,7 @@ namespace YourRootNamespace.Logging.LogProviders
         {
             return ProviderIsAvailableOverride
                  && TraceEventTypeType != null
-                 && s_LogEntryType != null;
+                 && LogEntryType != null;
         }
 
         private static Action<string, string, int> GetWriteLogEntry()
@@ -1288,7 +1289,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", s_LogEntryType);
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Action<string, string, int>>(
@@ -1310,7 +1311,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", s_LogEntryType);
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Func<string, int, bool>>(
@@ -1322,7 +1323,7 @@ namespace YourRootNamespace.Logging.LogProviders
         private static MemberInitExpression GetWriteLogExpression(Expression message,
             Expression severityParameter, ParameterExpression logNameParameter)
         {
-            var entryType = s_LogEntryType;
+            var entryType = LogEntryType;
             MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), 
                 Expression.Bind(entryType.GetPropertyPortable("Message"), message),
                 Expression.Bind(entryType.GetPropertyPortable("Severity"), severityParameter),
