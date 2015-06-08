@@ -1148,12 +1148,12 @@ namespace YourRootNamespace.Logging.LogProviders
                     return IsLogLevelEnable(logLevel);
                 }
 
-                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
-
                 if (!IsLogLevelEnable(logLevel))
                 {
                     return false;
                 }
+
+                messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 // determine correct caller - this might change due to jit optimizations with method inlining
                 if (_callerStackBoundaryType == null)
