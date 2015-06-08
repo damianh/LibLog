@@ -1,4 +1,4 @@
-//===============================================================================
+﻿//===============================================================================
 // LibLog
 //
 // https://github.com/damianh/LibLog
@@ -423,8 +423,8 @@ namespace YourRootNamespace.Logging
         public const string DisableLoggingEnvironmentVariable = "$rootnamespace$_LIBLOG_DISABLE";
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
-        private static dynamic _currentLogProvider;
-        private static Action<ILogProvider> _onCurrentLogProviderSet;
+        private static dynamic s_currentLogProvider;
+        private static Action<ILogProvider> s_onCurrentLogProviderSet;
 
         static LogProvider()
         {
@@ -437,7 +437,7 @@ namespace YourRootNamespace.Logging
         /// <param name="logProvider">The log provider.</param>
         public static void SetCurrentLogProvider(ILogProvider logProvider)
         {
-            _currentLogProvider = logProvider;
+            s_currentLogProvider = logProvider;
 
             RaiseOnCurrentLogProviderSet();
         }
@@ -460,7 +460,7 @@ namespace YourRootNamespace.Logging
         {
             set
             {
-                _onCurrentLogProviderSet = value;
+                s_onCurrentLogProviderSet = value;
                 RaiseOnCurrentLogProviderSet();
             }
         }
@@ -469,7 +469,7 @@ namespace YourRootNamespace.Logging
         {
             get
             {
-                return _currentLogProvider;
+                return s_currentLogProvider;
             }
         }
 
@@ -611,9 +611,9 @@ namespace YourRootNamespace.Logging
 #if !LIBLOG_PROVIDERS_ONLY
         private static void RaiseOnCurrentLogProviderSet()
         {
-            if (_onCurrentLogProviderSet != null)
+            if (s_onCurrentLogProviderSet != null)
             {
-                _onCurrentLogProviderSet(_currentLogProvider);
+                s_onCurrentLogProviderSet(s_currentLogProvider);
             }
         }
 #endif
@@ -776,7 +776,7 @@ namespace YourRootNamespace.Logging.LogProviders
     internal class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
-        private static bool _providerIsAvailableOverride = true;
+        private static bool s_providerIsAvailableOverride = true;
 
         public NLogLogProvider()
         {
@@ -789,8 +789,8 @@ namespace YourRootNamespace.Logging.LogProviders
 
         public static bool ProviderIsAvailableOverride
         {
-            get { return _providerIsAvailableOverride; }
-            set { _providerIsAvailableOverride = value; }
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
         }
 
         public override Logger GetLogger(string name)
@@ -995,7 +995,7 @@ namespace YourRootNamespace.Logging.LogProviders
     internal class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
-        private static bool _providerIsAvailableOverride = true;
+        private static bool s_providerIsAvailableOverride = true;
 
         public Log4NetLogProvider()
         {
@@ -1008,8 +1008,8 @@ namespace YourRootNamespace.Logging.LogProviders
 
         public static bool ProviderIsAvailableOverride
         {
-            get { return _providerIsAvailableOverride; }
-            set { _providerIsAvailableOverride = value; }
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
         }
 
         public override Logger GetLogger(string name)
@@ -1074,7 +1074,7 @@ namespace YourRootNamespace.Logging.LogProviders
         internal class Log4NetLogger
         {
             private readonly dynamic _logger;
-            private static Type _callerStackBoundaryType;
+            private static Type s_callerStackBoundaryType;
 
             private readonly object _levelDebug;
             private readonly object _levelInfo;
@@ -1156,30 +1156,30 @@ namespace YourRootNamespace.Logging.LogProviders
                 messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 // determine correct caller - this might change due to jit optimizations with method inlining
-                if (_callerStackBoundaryType == null)
+                if (s_callerStackBoundaryType == null)
                 {
                     lock (GetType())
                     {
 #if !LIBLOG_PORTABLE
                         StackTrace stack = new StackTrace();
                         Type thisType = GetType();
-                        _callerStackBoundaryType = Type.GetType("LoggerExecutionWrapper");
+                        s_callerStackBoundaryType = Type.GetType("LoggerExecutionWrapper");
                         for (int i = 1; i < stack.FrameCount; i++)
                         {
                             if (!IsInTypeHierarchy(thisType, stack.GetFrame(i).GetMethod().DeclaringType))
                             {
-                                _callerStackBoundaryType = stack.GetFrame(i - 1).GetMethod().DeclaringType;
+                                s_callerStackBoundaryType = stack.GetFrame(i - 1).GetMethod().DeclaringType;
                                 break;
                             }
                         }
 #else
-                        _callerStackBoundaryType = typeof (LoggerExecutionWrapper);
+                        s_callerStackBoundaryType = typeof (LoggerExecutionWrapper);
 #endif
                     }
                 }
 
                 var translatedLevel = TranslateLevel(logLevel);
-                _logDelegate(_logger, _callerStackBoundaryType, translatedLevel, messageFunc(), exception);
+                _logDelegate(_logger, s_callerStackBoundaryType, translatedLevel, messageFunc(), exception);
                 return true;
             }
 
@@ -1227,8 +1227,8 @@ namespace YourRootNamespace.Logging.LogProviders
     internal class EntLibLogProvider : LogProviderBase
     {
         private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
-        private static bool _providerIsAvailableOverride = true;
-        private static readonly Type LogEntryType;
+        private static bool s_providerIsAvailableOverride = true;
+        private static readonly Type s_LogEntryType;
         private static readonly Type LoggerType;
         private static readonly Type TraceEventTypeType;
         private static readonly Action<string, string, int> WriteLogEntry;
@@ -1236,10 +1236,10 @@ namespace YourRootNamespace.Logging.LogProviders
 
         static EntLibLogProvider()
         {
-            LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
+            s_LogEntryType = Type.GetType(string.Format(TypeTemplate, "LogEntry"));
             LoggerType = Type.GetType(string.Format(TypeTemplate, "Logger"));
             TraceEventTypeType = TraceEventTypeValues.Type;
-            if (LogEntryType == null
+            if (s_LogEntryType == null
                  || TraceEventTypeType == null
                  || LoggerType == null)
             {
@@ -1259,8 +1259,8 @@ namespace YourRootNamespace.Logging.LogProviders
 
         public static bool ProviderIsAvailableOverride
         {
-            get { return _providerIsAvailableOverride; }
-            set { _providerIsAvailableOverride = value; }
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
         }
 
         public override Logger GetLogger(string name)
@@ -1272,7 +1272,7 @@ namespace YourRootNamespace.Logging.LogProviders
         {
             return ProviderIsAvailableOverride
                  && TraceEventTypeType != null
-                 && LogEntryType != null;
+                 && s_LogEntryType != null;
         }
 
         private static Action<string, string, int> GetWriteLogEntry()
@@ -1288,7 +1288,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", LogEntryType);
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("Write", s_LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Action<string, string, int>>(
@@ -1310,7 +1310,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 logNameParameter);
 
             //Logger.Write(new LogEntry(....));
-            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", LogEntryType);
+            MethodInfo writeLogEntryMethod = LoggerType.GetMethodPortable("ShouldLog", s_LogEntryType);
             var writeLogEntryExpression = Expression.Call(writeLogEntryMethod, memberInit);
 
             return Expression.Lambda<Func<string, int, bool>>(
@@ -1322,7 +1322,7 @@ namespace YourRootNamespace.Logging.LogProviders
         private static MemberInitExpression GetWriteLogExpression(Expression message,
             Expression severityParameter, ParameterExpression logNameParameter)
         {
-            var entryType = LogEntryType;
+            var entryType = s_LogEntryType;
             MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), 
                 Expression.Bind(entryType.GetPropertyPortable("Message"), message),
                 Expression.Bind(entryType.GetPropertyPortable("Severity"), severityParameter),
@@ -1399,7 +1399,7 @@ namespace YourRootNamespace.Logging.LogProviders
     internal class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
-        private static bool _providerIsAvailableOverride = true;
+        private static bool s_providerIsAvailableOverride = true;
 
         public SerilogLogProvider()
         {
@@ -1412,8 +1412,8 @@ namespace YourRootNamespace.Logging.LogProviders
 
         public static bool ProviderIsAvailableOverride
         {
-            get { return _providerIsAvailableOverride; }
-            set { _providerIsAvailableOverride = value; }
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
         }
 
         public override Logger GetLogger(string name)
@@ -1706,7 +1706,7 @@ namespace YourRootNamespace.Logging.LogProviders
             params object[] args
             );
 
-        private static bool _providerIsAvailableOverride = true;
+        private static bool s_providerIsAvailableOverride = true;
         private readonly WriteDelegate _logWriteDelegate;
 
         public LoupeLogProvider()
@@ -1727,8 +1727,8 @@ namespace YourRootNamespace.Logging.LogProviders
         /// </value>
         public static bool ProviderIsAvailableOverride
         {
-            get { return _providerIsAvailableOverride; }
-            set { _providerIsAvailableOverride = value; }
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
         }
 
         public override Logger GetLogger(string name)
