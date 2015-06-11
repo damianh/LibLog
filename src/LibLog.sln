@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Serilog", "L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.ColoredConsoleLogProvider", "LibLog.Example.ColoredConsoleLogProvider\LibLog.Example.ColoredConsoleLogProvider.csproj", "{AE63060E-10DB-497E-B161-3C13FF865C7B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.NLog4", "LibLog.Tests.NLog4\LibLog.Tests.NLog4.csproj", "{C51AC88E-BF39-4CF6-8461-9FD9E5492950}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,10 @@ Global
 		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AE63060E-10DB-497E-B161-3C13FF865C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C51AC88E-BF39-4CF6-8461-9FD9E5492950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C51AC88E-BF39-4CF6-8461-9FD9E5492950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C51AC88E-BF39-4CF6-8461-9FD9E5492950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C51AC88E-BF39-4CF6-8461-9FD9E5492950}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
