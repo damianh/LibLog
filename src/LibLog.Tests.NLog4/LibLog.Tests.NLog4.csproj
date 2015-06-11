@@ -52,8 +52,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LogExtensons.cs" />
-    <Compile Include="NLogLogProviderLoggingTests.cs" />
+    <Compile Include="..\LibLog.Tests\LogProviders\LogExtensons.cs">
+      <Link>LogExtensons.cs</Link>
+    </Compile>
+    <Compile Include="..\LibLog.Tests\LogProviders\NLogLogProviderLoggingTests.cs">
+      <Link>NLogLogProviderLoggingTests.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
