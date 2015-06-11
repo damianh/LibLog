@@ -1,0 +1,27 @@
+namespace LibLog.Logging.NLog4
+{
+    using System;
+    using FluentAssertions;
+    using YourRootNamespace.Logging;
+
+    internal static class LogExtensons
+    {
+        public static void AssertCanCheckLogLevelsEnabled(this ILog logger)
+        {
+            var loglevelEnabledActions = new Action[]
+            {
+                () => logger.IsTraceEnabled(),
+                () => logger.IsDebugEnabled(),
+                () => logger.IsInfoEnabled(),
+                () => logger.IsWarnEnabled(),
+                () => logger.IsErrorEnabled(),
+                () => logger.IsFatalEnabled(),
+            };
+
+            foreach (var isLogLevelEnabled in loglevelEnabledActions)
+            {
+                isLogLevelEnabled.ShouldNotThrow();
+            }
+        }
+    }
+}
