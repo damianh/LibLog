@@ -9,7 +9,7 @@
         private static void Main(string[] args)
         {
             var log = new LoggerConfiguration()
-                .WriteTo.ColoredConsole()
+                .WriteTo.ColoredConsole(outputTemplate: "{Timestamp:HH:mm} [{Level}] ({Name:l}) {Message}{NewLine}{Exception}")
                 .CreateLogger();
             Log.Logger = log;
 
