@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLogPCL.Tests", "LibLog.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Log4Net", "LibLog.Example.Log4Net\LibLog.Example.Log4Net.csproj", "{48E74C66-66A7-4DD7-9762-D90F1E20B00F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Eamples", "Eamples", "{C63C1E27-7A81-450C-90A6-62E91C389AC2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{C63C1E27-7A81-450C-90A6-62E91C389AC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Library", "LibLog.Example.Library\LibLog.Example.Library.csproj", "{E7F9CE74-9F02-4DDF-822F-FA9B9F4FA139}"
 EndProject
