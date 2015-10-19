@@ -35,7 +35,8 @@ task RunTests -depends Compile {
 task CreatePP {
     (Get-Content $srcDir\$projectName\$projectName.cs) | Foreach-Object {
         $_ -replace 'namespace YourRootNamespace', 'namespace $rootnamespace$' `
-        -replace 'using YourRootNamespace', 'using $rootnamespace$'
+        -replace 'using YourRootNamespace', 'using $rootnamespace$' `
+        -replace 'Target = "YourRootNamespace.', 'Target = "$rootnamespace$.'
         } | Set-Content $buildOutputDir\$projectName.cs.pp -Encoding UTF8
 }
 
