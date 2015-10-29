@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/damianh/LibLog](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/damianh/LibLog?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Designed for specifically for library developers, `LibLog` is a single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to provide a logging abstraction. It also contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10], and allows your users to define a custom provider if necessary.
+Designed specifically for library developers, `LibLog` is a single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to provide a logging abstraction. It also contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10], and allows your users to define a custom provider if necessary.
 
 Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more informantion.
 
