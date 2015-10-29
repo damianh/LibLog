@@ -559,11 +559,9 @@ namespace YourRootNamespace.Logging
 #endif
         static IDisposable OpenNestedContext(string message)
         {
-            if(CurrentLogProvider == null)
-            {
-                throw new InvalidOperationException(NullLogProvider);
-            }
-            return CurrentLogProvider.OpenNestedContext(message);
+            return CurrentLogProvider == null 
+                ? new DisposableAction(() => {}) 
+                : CurrentLogProvider.OpenNestedContext(message);
         }
 
         /// <summary>
@@ -580,11 +578,9 @@ namespace YourRootNamespace.Logging
 #endif
         static IDisposable OpenMappedContext(string key, string value)
         {
-            if (CurrentLogProvider == null)
-            {
-                throw new InvalidOperationException(NullLogProvider);
-            }
-            return CurrentLogProvider.OpenMappedContext(key, value);
+            return CurrentLogProvider == null 
+                ? new DisposableAction(() => { }) 
+                : CurrentLogProvider.OpenMappedContext(key, value);
         }
 #endif
 
