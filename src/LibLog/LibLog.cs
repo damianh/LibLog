@@ -1531,7 +1531,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 valueParam,
                 destructureObjectsParam)
                 .Compile();
-            return name => func("Name", name, false);
+            return name => func("SourceContext", name, false);
         }
 
         internal class SerilogLogger
