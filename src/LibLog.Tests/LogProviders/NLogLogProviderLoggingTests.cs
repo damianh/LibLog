@@ -1,12 +1,11 @@
 ﻿namespace LibLog.Logging.LogProviders
 {
     using System;
-    using FluentAssertions;
     using NLog;
     using NLog.Config;
     using NLog.Targets;
+    using Shouldly;
     using Xunit;
-    using Xunit.Extensions;
     using YourRootNamespace.Logging;
     using YourRootNamespace.Logging.LogProviders;
     using LogLevel = YourRootNamespace.Logging.LogLevel;
@@ -47,7 +46,7 @@
         {
             _sut.Log(logLevel, () => "m");
 
-            _target.Logs[0].Should().Be(messagePrefix + "|||m|");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m|");
         }
 
         [Theory]
@@ -61,7 +60,7 @@
         {
             _sut.Log(logLevel, () => "m {0}", null, "formatParam");
 
-            _target.Logs[0].Should().Be(messagePrefix + "|||m formatParam|");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m formatParam|");
         }
 
         [Theory]
@@ -75,7 +74,7 @@
         {
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
-            _target.Logs[0].Should().Be(messagePrefix + "|||m|e");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m|e");
         }
 
         [Theory]
@@ -89,7 +88,7 @@
         {
             _sut.Log(logLevel, () => "m {abc}", new Exception("e"), new []{"replaced"});
 
-            _target.Logs[0].Should().Be(messagePrefix + "|||m replaced|e");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m replaced|e");
         }
         [Theory]
         [InlineData(LogLevel.Debug, "DEBUG")]
@@ -102,7 +101,7 @@
         {
             _sut.Log(logLevel, () => "m {@abc}", new Exception("e"), new[] { "replaced" });
 
-            _target.Logs[0].Should().Be(messagePrefix + "|||m replaced|e");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m replaced|e");
         }
         [Fact]
         public void Can_check_is_log_level_enabled()
@@ -116,7 +115,7 @@
             using (_logProvider.OpenNestedContext("context"))
             {
                 _sut.Info("m");
-                _target.Logs[0].Should().Be("INFO|context||m|");
+                _target.Logs[0].ShouldBe("INFO|context||m|");
             }
         }
 
@@ -125,7 +124,7 @@
         {
             _sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
 
-            _target.Logs[0].Should().Contain("DEBUG|||Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+            _target.Logs[0].ShouldContain("DEBUG|||Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
         }
 
         [Fact]
@@ -134,7 +133,7 @@
             using (_logProvider.OpenMappedContext("key", "value"))
             {
                 _sut.Info("m");
-                _target.Logs[0].Should().Be("INFO||value|m|");
+                _target.Logs[0].ShouldBe("INFO||value|m|");
             }
         }
     }

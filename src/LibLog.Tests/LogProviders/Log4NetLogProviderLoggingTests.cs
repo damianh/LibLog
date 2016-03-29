@@ -2,13 +2,12 @@
 {
     using System;
     using System.Linq;
-    using FluentAssertions;
     using log4net;
     using log4net.Appender;
     using log4net.Config;
     using log4net.Core;
+    using Shouldly;
     using Xunit;
-    using Xunit.Extensions;
     using YourRootNamespace.Logging;
     using YourRootNamespace.Logging.LogProviders;
     using ILog = YourRootNamespace.Logging.ILog;
@@ -43,7 +42,7 @@
         {
             _sut.Log(logLevel, () => "m");
 
-            GetSingleMessage().Should().Be(messagePrefix + "|m|");
+            GetSingleMessage().ShouldBe(messagePrefix + "|m|");
         }
 
         [Theory]
@@ -57,7 +56,7 @@
         {
             _sut.Log(logLevel, () => "m", new Exception("e"));
 
-            GetSingleMessage().Should().Be(messagePrefix + "|m|e");
+            GetSingleMessage().ShouldBe(messagePrefix + "|m|e");
         }
 
         [Theory]
@@ -71,7 +70,7 @@
         {
             _sut.Log(logLevel, () => "m {0}", null, "replaced");
 
-            GetSingleMessage().Should().Be(messagePrefix + "|m replaced|");
+            GetSingleMessage().ShouldBe(messagePrefix + "|m replaced|");
         }
 
         [Theory]
@@ -85,7 +84,7 @@
         {
             _sut.Log(logLevel, () => "m {abc}", new Exception("e"), "replaced");
 
-            GetSingleMessage().Should().Be(messagePrefix + "|m replaced|e");
+            GetSingleMessage().ShouldBe(messagePrefix + "|m replaced|e");
         }
         [Theory]
         [InlineData(LogLevel.Debug, "DEBUG")]
@@ -98,7 +97,7 @@
         {
             _sut.Log(logLevel, () => "m {@abc}", new Exception("e"), "replaced");
 
-            GetSingleMessage().Should().Be(messagePrefix + "|m replaced|e");
+            GetSingleMessage().ShouldBe(messagePrefix + "|m replaced|e");
         }
 
         [Fact]
@@ -115,8 +114,8 @@
                 _sut.Info("m");
                 var loggingEvent = _memoryAppender.GetEvents().Single();
 
-                loggingEvent.Properties.GetKeys().Should().Contain("NDC");
-                loggingEvent.Properties["NDC"].Should().Be("context");
+                loggingEvent.Properties.GetKeys().ShouldContain("NDC");
+                loggingEvent.Properties["NDC"].ShouldBe("context");
             }
         }
 
@@ -128,8 +127,8 @@
                 _sut.Info("m");
                 var loggingEvent = _memoryAppender.GetEvents().Single();
 
-                loggingEvent.Properties.GetKeys().Should().Contain("key");
-                loggingEvent.Properties["key"].Should().Be("value");
+                loggingEvent.Properties.GetKeys().ShouldContain("key");
+                loggingEvent.Properties["key"].ShouldBe("value");
             }
         }
 
@@ -138,17 +137,13 @@
         {
             _sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
 
-            GetSingleMessage().Should().Contain("DEBUG|Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+            GetSingleMessage().ShouldContain("DEBUG|Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
         }
 
         private string GetSingleMessage()
         {
             LoggingEvent loggingEvent = _memoryAppender.GetEvents().Single();
-            return string.Format(
-                "{0}|{1}|{2}",
-                loggingEvent.Level,
-                loggingEvent.MessageObject,
-                loggingEvent.ExceptionObject != null ? loggingEvent.ExceptionObject.Message : string.Empty);
+            return $"{loggingEvent.Level}|{loggingEvent.MessageObject}|{loggingEvent.ExceptionObject?.Message ?? string.Empty}";
         }
     }
 }

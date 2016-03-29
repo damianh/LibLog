@@ -4,12 +4,11 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.Remoting.Messaging;
-    using FluentAssertions;
     using Serilog;
     using Serilog.Context;
     using Serilog.Events;
+    using Shouldly;
     using Xunit;
-    using Xunit.Extensions;
     using YourRootNamespace.Logging;
     using YourRootNamespace.Logging.LogProviders;
     using LogLevel = YourRootNamespace.Logging.LogLevel;
@@ -55,8 +54,8 @@
         {
             _sut.Log(logLevel, () => "m");
 
-            _logEvent.Level.Should().Be(logEventLevel);
-            _logEvent.RenderMessage().Should().Be("m");
+            _logEvent.Level.ShouldBe(logEventLevel);
+            _logEvent.RenderMessage().ShouldBe("m");
         }
 
         [Theory]
@@ -70,8 +69,8 @@
         {
             _sut.Log(logLevel, () => "m {0}", null, "param");
 
-            _logEvent.Level.Should().Be(logEventLevel);
-            _logEvent.RenderMessage().Should().Be("m \"param\"");
+            _logEvent.Level.ShouldBe(logEventLevel);
+            _logEvent.RenderMessage().ShouldBe("m \"param\"");
         }
 
         [Theory]
@@ -86,9 +85,9 @@
             var exception = new Exception("e");
             _sut.Log(logLevel, () => "m", exception);
 
-            _logEvent.Level.Should().Be(logEventLevel);
-            _logEvent.RenderMessage().Should().Be("m");
-            _logEvent.Exception.Should().Be(exception);
+            _logEvent.Level.ShouldBe(logEventLevel);
+            _logEvent.RenderMessage().ShouldBe("m");
+            _logEvent.Exception.ShouldBe(exception);
         }
 
         [Fact]
@@ -104,8 +103,8 @@
             {
                 _sut.Info("m");
 
-                _logEvent.Properties.Keys.Should().Contain("NDC");
-                _logEvent.Properties["NDC"].ToString().Should().Be("\"context\"");
+                _logEvent.Properties.Keys.ShouldContain("NDC");
+                _logEvent.Properties["NDC"].ToString().ShouldBe("\"context\"");
             }
         }
 
@@ -116,8 +115,8 @@
             {
                 _sut.Info("m");
 
-                _logEvent.Properties.Keys.Should().Contain("key");
-                _logEvent.Properties["key"].ToString().Should().Be("\"value\"");
+                _logEvent.Properties.Keys.ShouldContain("key");
+                _logEvent.Properties["key"].ToString().ShouldBe("\"value\"");
             }
         }
 
@@ -136,15 +135,15 @@
                     foreach (var expectedEnabled in expectedEnabledLevels)
                     {
                         _checkIsEnabledFor[expectedEnabled](log)
-                            .Should()
-                            .BeTrue("loglevel: '{0}' should be enabled when minimum (serilog) level is '{1}'", expectedEnabled, minimum);
+                            .ShouldBeTrue();
+                           // "loglevel: '{0}' should be enabled when minimum (serilog) level is '{1}'", expectedEnabled, minimum);
                     }
 
                     foreach (var expectedDisabled in _allLevels.Except(expectedEnabledLevels))
                     {
                         _checkIsEnabledFor[expectedDisabled](log)
-                            .Should()
-                            .BeFalse("loglevel '{0}' should be diabled when minimum (serilog) level is '{1}'", expectedDisabled, minimum);
+                            .ShouldBeFalse();
+                        //"loglevel '{0}' should be diabled when minimum (serilog) level is '{1}'", expectedDisabled, minimum);
                     }
                 });
         }
@@ -154,18 +153,16 @@
         {
             _sut.InfoFormat("Structured {data} message", "log");
 
-            _logEvent.RenderMessage().Should().Be("Structured \"log\" message");
-            _logEvent.Properties.Keys.Should().Contain("data");
-            _logEvent.Properties["data"].ToString().Should().Be("\"log\"");
+            _logEvent.RenderMessage().ShouldBe("Structured \"log\" message");
+            _logEvent.Properties.Keys.ShouldContain("data");
+            _logEvent.Properties["data"].ToString().ShouldBe("\"log\"");
         }
         [Fact]
         public void Can_log_structured_serialized_message()
         {
             _sut.InfoFormat("Structured {@data} message", new{ Log="log",Count="1"});
-            _logEvent.RenderMessage().Should().Be("Structured { Log: \"log\", Count: \"1\" } message");
-            _logEvent.Properties.Keys.Should().Contain("data");
-            
-            
+            _logEvent.RenderMessage().ShouldBe("Structured { Log: \"log\", Count: \"1\" } message");
+            _logEvent.Properties.Keys.ShouldContain("data");
         }
 
         public void Dispose()

@@ -4,13 +4,12 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using FluentAssertions;
     using Microsoft.Practices.EnterpriseLibrary.Common.Configuration;
     using Microsoft.Practices.EnterpriseLibrary.Logging;
     using Microsoft.Practices.EnterpriseLibrary.Logging.Filters;
     using Microsoft.Practices.ServiceLocation;
+    using Shouldly;
     using Xunit;
-    using Xunit.Extensions;
     using YourRootNamespace.Logging;
     using YourRootNamespace.Logging.LogProviders;
     using LogLevel = YourRootNamespace.Logging.LogLevel;
@@ -44,8 +43,8 @@
         {
             Sut.Log(logLevel, () => "m");
 
-            Target.Logs[0].Message.Should().Be("m");
-            Target.Logs[0].Severity.Should().Be(severity);
+            Target.Logs[0].Message.ShouldBe("m");
+            Target.Logs[0].Severity.ShouldBe(severity);
         }
 
         [Theory]
@@ -61,8 +60,8 @@
 
             Sut.Log(logLevel, () => "m", exception);
 
-            Target.Logs[0].Message.Should().Be("m" + Environment.NewLine + exception);
-            Target.Logs[0].Severity.Should().Be(severity);
+            Target.Logs[0].Message.ShouldBe("m" + Environment.NewLine + exception);
+            Target.Logs[0].Severity.ShouldBe(severity);
         }
 
         [Theory]
@@ -76,8 +75,8 @@
         {
             Sut.Log(logLevel, () => "m {0}", null, "replaced");
 
-            Target.Logs[0].Message.Should().Be("m replaced");
-            Target.Logs[0].Severity.Should().Be(severity);
+            Target.Logs[0].Message.ShouldBe("m replaced");
+            Target.Logs[0].Severity.ShouldBe(severity);
         }
 
         [Fact]
@@ -85,7 +84,7 @@
         {
             Sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
 
-            Target.Logs[0].Message.Should().Contain("Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
+            Target.Logs[0].Message.ShouldContain("Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");
         }
 
         [Theory]
@@ -101,8 +100,8 @@
 
             Sut.Log(logLevel, () => "m {abc}", exception, "replaced");
 
-            Target.Logs[0].Message.Should().Be("m replaced" + Environment.NewLine + exception);
-            Target.Logs[0].Severity.Should().Be(severity);
+            Target.Logs[0].Message.ShouldBe("m replaced" + Environment.NewLine + exception);
+            Target.Logs[0].Severity.ShouldBe(severity);
         }
         [Theory]
         [InlineData(LogLevel.Debug, TraceEventType.Verbose)]
@@ -117,8 +116,8 @@
 
             Sut.Log(logLevel, () => "m {@abc}", exception, "replaced");
 
-            Target.Logs[0].Message.Should().Be("m replaced" + Environment.NewLine + exception);
-            Target.Logs[0].Severity.Should().Be(severity);
+            Target.Logs[0].Message.ShouldBe("m replaced" + Environment.NewLine + exception);
+            Target.Logs[0].Severity.ShouldBe(severity);
         }
         [Fact]
         public void Can_check_is_log_level_enabled()

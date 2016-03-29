@@ -1,7 +1,7 @@
 namespace LibLog.Logging.LogProviders
 {
     using System;
-    using FluentAssertions;
+    using Shouldly;
     using YourRootNamespace.Logging;
 
     internal static class LogExtensons

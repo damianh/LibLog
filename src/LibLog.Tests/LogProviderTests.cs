@@ -1,10 +1,10 @@
 ﻿namespace LibLog.Logging
 {
-    using FluentAssertions;
     using System;
     using NLog;
     using NLog.Config;
     using NLog.Targets;
+    using Shouldly;
     using Xunit;
     using YourRootNamespace.Logging;
     using YourRootNamespace.Logging.LogProviders;
@@ -22,7 +22,7 @@
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
             var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<NLogLogProvider>();
+            logProvider.ShouldBeOfType<NLogLogProvider>();
         }
 
         [Fact]
@@ -36,7 +36,7 @@
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
             var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<Log4NetLogProvider>();
+            logProvider.ShouldBeOfType<Log4NetLogProvider>();
         }
 
         [Fact]
@@ -50,7 +50,7 @@
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
             var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<EntLibLogProvider>();
+            logProvider.ShouldBeOfType<EntLibLogProvider>();
         }
 
         [Fact]
@@ -64,7 +64,7 @@
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
             var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<SerilogLogProvider>();
+            logProvider.ShouldBeOfType<SerilogLogProvider>();
         }
 
         [Fact]
@@ -78,7 +78,7 @@
             LoupeLogProvider.ProviderIsAvailableOverride = true;
 
             var logProvider = LogProvider.ResolveLogProvider();
-            logProvider.Should().BeOfType<LoupeLogProvider>();
+            logProvider.ShouldBeOfType<LoupeLogProvider>();
         }
 
         [Fact]
@@ -93,7 +93,7 @@
 
             ILog logger = LogProvider.For<LogProviderTests>();
 
-            logger.Should().BeOfType<LogProvider.NoOpLogger>();
+            logger.ShouldBeOfType<LogProvider.NoOpLogger>();
         }
 
         [Fact]
@@ -104,7 +104,7 @@
 
             LogProvider.SetCurrentLogProvider(new NLogLogProvider());
 
-            provider.Should().NotBeNull();
+            provider.ShouldNotBeNull();
         }
 
         [Fact]
@@ -124,7 +124,7 @@
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
-            target.Logs.Should().BeEmpty();
+            target.Logs.ShouldBeEmpty();
         }
 
         [Fact]
@@ -145,7 +145,7 @@
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
-            target.Logs.Should().NotBeEmpty();
+            target.Logs.ShouldNotBeEmpty();
         }
 
 #if  !LIBLOG_PORTABLE
@@ -166,7 +166,7 @@
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
-            target.Logs.Should().BeEmpty();
+            target.Logs.ShouldBeEmpty();
         }
 
         [Fact]
@@ -187,7 +187,7 @@
             var logger = LogProvider.GetLogger("DisableLogging");
             logger.Info("test");
 
-            target.Logs.Should().NotBeEmpty();
+            target.Logs.ShouldNotBeEmpty();
         }
 #endif
 
