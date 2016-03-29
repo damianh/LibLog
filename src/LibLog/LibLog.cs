@@ -559,9 +559,11 @@ namespace YourRootNamespace.Logging
 #endif
         static IDisposable OpenNestedContext(string message)
         {
-            return CurrentLogProvider == null 
-                ? new DisposableAction(() => {}) 
-                : CurrentLogProvider.OpenNestedContext(message);
+            ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
+
+            return logProvider == null
+                ? new DisposableAction(() => { })
+                : logProvider.OpenNestedContext(message);
         }
 
         /// <summary>
@@ -578,9 +580,11 @@ namespace YourRootNamespace.Logging
 #endif
         static IDisposable OpenMappedContext(string key, string value)
         {
-            return CurrentLogProvider == null 
-                ? new DisposableAction(() => { }) 
-                : CurrentLogProvider.OpenMappedContext(key, value);
+            ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
+
+            return logProvider == null
+                ? new DisposableAction(() => { })
+                : logProvider.OpenMappedContext(key, value);
         }
 #endif
 
