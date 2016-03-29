@@ -172,6 +172,7 @@
         [Fact]
         public void When_enable_logging_via_env_var_then_should_log()
         {
+            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "true");
             var config = new LoggingConfiguration();
             var target = new MemoryTarget
             {
