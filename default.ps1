@@ -20,16 +20,16 @@ task Compile {
 }
 
 task RunTests -depends Compile {
-    $xunitRunner = "$srcDir\packages\xunit.runners.1.9.2\tools\xunit.console.clr4.exe"
+    $xunitRunner = "$srcDir\packages\xunit.runner.console.2.1.0\tools\xunit.console.exe"
 
     New-Item $reportsDir\xUnit\LibLog.Tests -Type Directory -ErrorAction SilentlyContinue
-    .$xunitRunner "$srcDir\LibLog.Tests\bin\LibLog\Release\LibLog.Tests.dll" /html "$reportsDir\xUnit\LibLog.Tests\index.html"
+    .$xunitRunner "$srcDir\LibLog.Tests\bin\LibLog\Release\LibLog.Tests.dll" -html "$reportsDir\xUnit\LibLog.Tests\index.html"
 
     New-Item $reportsDir\xUnit\LibLogPCL.Tests -Type Directory  -ErrorAction SilentlyContinue
-    .$xunitRunner "$srcDir\LibLog.Tests\bin\LibLogPCL\Release\LibLogPCL.Tests.dll" /html "$reportsDir\xUnit\LibLogPCL.Tests\index.html"
+    .$xunitRunner "$srcDir\LibLog.Tests\bin\LibLogPCL\Release\LibLogPCL.Tests.dll" -html "$reportsDir\xUnit\LibLogPCL.Tests\index.html"
 
     New-Item $reportsDir\xUnit\LibLog.Tests.NLog4 -Type Directory  -ErrorAction SilentlyContinue
-    .$xunitRunner "$srcDir\LibLog.Tests.NLog4\bin\Release\LibLog.Tests.NLog4.dll" /html "$reportsDir\xUnit\LibLog.Tests.NLog4\index.html"
+    .$xunitRunner "$srcDir\LibLog.Tests.NLog4\bin\Release\LibLog.Tests.NLog4.dll" -html "$reportsDir\xUnit\LibLog.Tests.NLog4\index.html"
 }
 
 task CreatePP {
