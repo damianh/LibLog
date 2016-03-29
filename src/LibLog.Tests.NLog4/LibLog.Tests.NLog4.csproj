@@ -65,6 +65,9 @@
     <Compile Include="..\LibLog.Tests\LogProviders\NLogLogProviderLoggingTests.cs">
       <Link>NLogLogProviderLoggingTests.cs</Link>
     </Compile>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
