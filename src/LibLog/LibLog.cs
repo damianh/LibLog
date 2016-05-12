@@ -1853,7 +1853,7 @@ namespace YourRootNamespace.Logging.LogProviders
 #if LIBLOG_PORTABLE
         private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^\d{][^ }]*)}");
 #else
-        private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^ {}]+)}", RegexOptions.Compiled);
+        private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^ :{}]+)(?<format>:[^}]+)?}", RegexOptions.Compiled);
 #endif
 
         /// <summary>
@@ -1879,11 +1879,13 @@ namespace YourRootNamespace.Logging.LogProviders
                 int argumentIndex = 0;
                 foreach (Match match in Pattern.Matches(targetMessage))
                 {
+                    var arg = match.Groups["arg"].Value;
+
                     int notUsed;
-                    if (!int.TryParse(match.Value.Substring(1, match.Value.Length -2), out notUsed))
+                    if (!int.TryParse(arg, out notUsed))
                     {
                         targetMessage = ReplaceFirst(targetMessage, match.Value,
-                            "{" + argumentIndex++ + "}");
+                            "{" + argumentIndex++ + match.Groups["format"].Value + "}");
                     }
                 }
                 try
