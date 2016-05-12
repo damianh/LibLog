@@ -40,5 +40,17 @@
             formattedMessage.ShouldBe(
                 string.Format(CultureInfo.InvariantCulture, "Formatted {0:yyyy-MM-dd} and not formatted {1}.", date, date));
         }
+
+        [Fact]
+        public void When_argument_is_multiple_time_Then_should_be_replaced_with_same_value()
+        {
+            var date = DateTime.Today;
+            Func<string> messageBuilder = () => "{date:yyyy-MM-dd} {argument1} {date:yyyy}";
+
+            var formattedMessage = LogMessageFormatter.SimulateStructuredLogging(messageBuilder, new object[] { date, "arg0" })();
+
+            formattedMessage.ShouldBe(
+                string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd} {1} {0:yyyy}", date, "arg0"));
+        }
     }
 }

@@ -1876,7 +1876,8 @@ namespace YourRootNamespace.Logging.LogProviders
             return () =>
             {
                 string targetMessage = messageBuilder();
-                int argumentIndex = 0;
+                List<string> processedArguments = new List<string>();
+
                 foreach (Match match in Pattern.Matches(targetMessage))
                 {
                     var arg = match.Groups["arg"].Value;
@@ -1884,8 +1885,15 @@ namespace YourRootNamespace.Logging.LogProviders
                     int notUsed;
                     if (!int.TryParse(arg, out notUsed))
                     {
+                        int argumentIndex = processedArguments.IndexOf(arg);
+                        if (argumentIndex == -1)
+                        {
+                            argumentIndex = processedArguments.Count;
+                            processedArguments.Add(arg);
+                        }
+
                         targetMessage = ReplaceFirst(targetMessage, match.Value,
-                            "{" + argumentIndex++ + match.Groups["format"].Value + "}");
+                            "{" + argumentIndex + match.Groups["format"].Value + "}");
                     }
                 }
                 try
