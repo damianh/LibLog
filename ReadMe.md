@@ -2,7 +2,7 @@
 
 Designed specifically for library developers, `LibLog` is a single file for you to either copy/paste or [install via nuget][0], into your library/framework/application to provide a logging abstraction. It also contains transparent built-in support for [NLog][3], [Log4Net][4], [EntLib Logging][5], [Serilog][9] and [Loupe][10], and allows your users to define a custom provider if necessary.
 
-Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more informantion.
+Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more information.
 
 ### License
 
