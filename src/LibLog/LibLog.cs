@@ -1489,7 +1489,8 @@ namespace YourRootNamespace.Logging.LogProviders
 
         private static Func<string, string, IDisposable> GetPushProperty()
         {
-            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
+            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx") ??
+                                  Type.GetType("Serilog.Context.LogContext, Serilog");
             MethodInfo pushPropertyMethod = ndcContextType.GetMethodPortable(
                 "PushProperty", 
                 typeof(string),
