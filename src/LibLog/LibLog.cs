@@ -871,6 +871,55 @@ namespace YourRootNamespace.Logging.LogProviders
         {
             private readonly dynamic _logger;
 
+            private static Func<string, object, string, Exception, object> _logEventInfoFact;
+
+            private static readonly object _levelTrace;
+            private static readonly object _levelDebug;
+            private static readonly object _levelInfo;
+            private static readonly object _levelWarn;
+            private static readonly object _levelError;
+            private static readonly object _levelFatal;
+
+            static NLogLogger()
+            {
+                try
+                {
+                    var logEventLevelType = Type.GetType("NLog.LogLevel, NLog");
+                    if (logEventLevelType == null)
+                    {
+                        throw new InvalidOperationException("Type NLog.LogLevel was not found.");
+                    }
+
+                    var levelFields = logEventLevelType.GetFieldsPortable().ToList();
+                    _levelTrace = levelFields.First(x => x.Name == "Trace").GetValue(null);
+                    _levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
+                    _levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
+                    _levelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
+                    _levelError = levelFields.First(x => x.Name == "Error").GetValue(null);
+                    _levelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
+
+                    var logEventInfoType = Type.GetType("NLog.LogEventInfo, NLog");
+                    if (logEventInfoType == null)
+                    {
+                        throw new InvalidOperationException("Type NLog.LogEventInfo was not found.");
+                    }
+                    MethodInfo createLogEventInfoMethodInfo = logEventInfoType.GetMethodPortable("Create",
+                        logEventLevelType, typeof(string), typeof(Exception), typeof(IFormatProvider), typeof(string), typeof(object[]));
+                    ParameterExpression loggerNameParam = Expression.Parameter(typeof(string));
+                    ParameterExpression levelParam = Expression.Parameter(typeof(object));
+                    ParameterExpression messageParam = Expression.Parameter(typeof(string));
+                    ParameterExpression exceptionParam = Expression.Parameter(typeof(Exception));
+                    UnaryExpression levelCast = Expression.Convert(levelParam, logEventLevelType);
+                    MethodCallExpression createLogEventInfoMethodCall = Expression.Call(null,
+                        createLogEventInfoMethodInfo,
+                        levelCast, loggerNameParam, exceptionParam,
+                        Expression.Constant(null, typeof(IFormatProvider)), messageParam, Expression.Constant(null, typeof(object[])));
+                    _logEventInfoFact = Expression.Lambda<Func<string, object, string, Exception, object>>(createLogEventInfoMethodCall,
+                        loggerNameParam, levelParam, messageParam, exceptionParam).Compile();
+                }
+                catch { }
+            }
+
             internal NLogLogger(dynamic logger)
             {
                 _logger = logger;
@@ -884,6 +933,17 @@ namespace YourRootNamespace.Logging.LogProviders
                     return IsLogLevelEnable(logLevel);
                 }
                 messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
+
+                if (_logEventInfoFact != null)
+                {
+                    if (IsLogLevelEnable(logLevel))
+                    {
+                        var nlogLevel = this.TranslateLevel(logLevel);
+                        _logger.Log(typeof(LoggerExecutionWrapper), _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                        return true;
+                    }
+                    return false;
+                }
 
                 if(exception != null)
                 {
@@ -1004,6 +1064,27 @@ namespace YourRootNamespace.Logging.LogProviders
                         return _logger.IsFatalEnabled;
                     default:
                         return _logger.IsTraceEnabled;
+                }
+            }
+
+            private object TranslateLevel(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Trace:
+                        return _levelTrace;
+                    case LogLevel.Debug:
+                        return _levelDebug;
+                    case LogLevel.Info:
+                        return _levelInfo;
+                    case LogLevel.Warn:
+                        return _levelWarn;
+                    case LogLevel.Error:
+                        return _levelError;
+                    case LogLevel.Fatal:
+                        return _levelFatal;
+                    default:
+                        throw new ArgumentOutOfRangeException("logLevel", logLevel, null);
                 }
             }
         }
