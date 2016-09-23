@@ -4,7 +4,7 @@ namespace LibLog.Logging.LogProviders
     using Shouldly;
     using YourRootNamespace.Logging;
 
-    internal static class LogExtensons
+    internal static class LogExtensions
     {
         public static void AssertCanCheckLogLevelsEnabled(this ILog logger)
         {

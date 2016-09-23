@@ -543,7 +543,7 @@ namespace YourRootNamespace.Logging
         static ILog GetLogger(string name)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
-            return logProvider == null 
+            return logProvider == null
                 ? NoOpLogger.Instance
                 : (ILog)new LoggerExecutionWrapper(logProvider.GetLogger(name), () => IsDisabled);
         }
@@ -759,7 +759,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
         protected LogProviderBase()
         {
-            _lazyOpenNdcMethod 
+            _lazyOpenNdcMethod
                 = new Lazy<OpenNdc>(GetOpenNdcMethod);
             _lazyOpenMdcMethod
                = new Lazy<OpenMdc>(GetOpenMdcMethod);
@@ -1607,7 +1607,7 @@ namespace YourRootNamespace.Logging.LogProviders
             Expression severityParameter, ParameterExpression logNameParameter)
         {
             var entryType = LogEntryType;
-            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType), 
+            MemberInitExpression memberInit = Expression.MemberInit(Expression.New(entryType),
                 Expression.Bind(entryType.GetPropertyPortable("Message"), message),
                 Expression.Bind(entryType.GetPropertyPortable("Severity"), severityParameter),
                 Expression.Bind(
@@ -1723,13 +1723,15 @@ namespace YourRootNamespace.Logging.LogProviders
 
         private static Func<string, string, IDisposable> GetPushProperty()
         {
-            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx") ??
-                                  Type.GetType("Serilog.Context.LogContext, Serilog");
+            Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog") ?? 
+                                  Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
+
             MethodInfo pushPropertyMethod = ndcContextType.GetMethodPortable(
                 "PushProperty", 
                 typeof(string),
                 typeof(object),
                 typeof(bool));
+
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
             ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
             ParameterExpression destructureObjectParam = Expression.Parameter(typeof(bool), "destructureObjects");
