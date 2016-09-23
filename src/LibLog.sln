@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog", "LibLog\LibLog.csproj", "{B94A94E1-3C80-40CC-A79A-244446B3F75A}"
 EndProject
@@ -31,6 +31,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.NLog4", "LibLog.Tests.NLog4\LibLog.Tests.NLog4.csproj", "{C51AC88E-BF39-4CF6-8461-9FD9E5492950}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.NoLogFwkReferences", "LibLog.Tests.NoLogFwkReferences\LibLog.Tests.NoLogFwkReferences.csproj", "{71AF4769-AF1A-4913-A79D-08314EC06A63}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.Serilog2", "LibLog.Tests.Serilog2\LibLog.Tests.Serilog2.csproj", "{6729DACD-2C0E-4A80-8C9B-51E3E811CFE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,6 +84,10 @@ Global
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6729DACD-2C0E-4A80-8C9B-51E3E811CFE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6729DACD-2C0E-4A80-8C9B-51E3E811CFE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6729DACD-2C0E-4A80-8C9B-51E3E811CFE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6729DACD-2C0E-4A80-8C9B-51E3E811CFE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
