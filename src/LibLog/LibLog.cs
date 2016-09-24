@@ -939,7 +939,33 @@ namespace YourRootNamespace.Logging.LogProviders
                     if (IsLogLevelEnable(logLevel))
                     {
                         var nlogLevel = this.TranslateLevel(logLevel);
-                        _logger.Log(typeof(LoggerExecutionWrapper), _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                        Type s_callerStackBoundaryType;
+#if !LIBLOG_PORTABLE
+                        StackTrace stack = new StackTrace();
+                        Type thisType = GetType();
+                        Type knownType0 = typeof(LoggerExecutionWrapper);
+                        Type knownType1 = typeof(LogExtensions);
+                        //Maybe inline, so we may can't found any LibLog classes in stack
+                        s_callerStackBoundaryType = null;
+                        for (var i = 0; i < stack.FrameCount; i++)
+                        {
+                            var declaringType = stack.GetFrame(i).GetMethod().DeclaringType;
+                            if (!IsInTypeHierarchy(thisType, declaringType) &&
+                                !IsInTypeHierarchy(knownType0, declaringType) &&
+                                !IsInTypeHierarchy(knownType1, declaringType))
+                            {
+                                if (i > 1)
+                                    s_callerStackBoundaryType = stack.GetFrame(i - 1).GetMethod().DeclaringType;
+                                break;
+                            }
+                        }
+#else
+                        s_callerStackBoundaryType = null;
+#endif
+                        if (s_callerStackBoundaryType != null)
+                            _logger.Log(s_callerStackBoundaryType, _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                        else
+                            _logger.Log(_logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
                         return true;
                     }
                     return false;
@@ -993,6 +1019,19 @@ namespace YourRootNamespace.Logging.LogProviders
                             return true;
                         }
                         break;
+                }
+                return false;
+            }
+
+            private static bool IsInTypeHierarchy(Type currentType, Type checkType)
+            {
+                while (currentType != null && currentType != typeof(object))
+                {
+                    if (currentType == checkType)
+                    {
+                        return true;
+                    }
+                    currentType = currentType.GetBaseTypePortable();
                 }
                 return false;
             }
