@@ -517,15 +517,17 @@ namespace YourRootNamespace.Logging
         /// Gets a logger for the specified type.
         /// </summary>
         /// <param name="type">The type whose name will be used for the logger.</param>
+        /// <param name="fallbackTypeName">If the type is null then this name will be used as the log name instead</param>
         /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
         public
 #else
         internal
 #endif
-        static ILog GetLogger(Type type)
+        static ILog GetLogger(Type type, string fallbackTypeName = "System.Object")
         {
-            return GetLogger(type.FullName);
+            // If the type passed in is null then fallback to the type name specified
+            return GetLogger(type != null ? type.FullName : fallbackTypeName);
         }
 
         /// <summary>
