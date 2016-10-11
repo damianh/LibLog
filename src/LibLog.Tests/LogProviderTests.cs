@@ -148,49 +148,6 @@
             target.Logs.ShouldNotBeEmpty();
         }
 
-#if  !LIBLOG_PORTABLE
-        [Fact]
-        public void When_disable_logging_via_env_var_then_should_not_log()
-        {
-            var config = new LoggingConfiguration();
-            var target = new MemoryTarget
-            {
-                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
-            };
-            config.AddTarget("memory", target);
-            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, target));
-            LogManager.Configuration = config;
-            LogProvider.SetCurrentLogProvider(new NLogLogProvider());
-
-            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "true");
-            var logger = LogProvider.GetLogger("DisableLogging");
-            logger.Info("test");
-
-            target.Logs.ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void When_enable_logging_via_env_var_then_should_log()
-        {
-            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "true");
-            var config = new LoggingConfiguration();
-            var target = new MemoryTarget
-            {
-                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
-            };
-            config.AddTarget("memory", target);
-            config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, target));
-            LogManager.Configuration = config;
-            LogProvider.SetCurrentLogProvider(new NLogLogProvider());
-
-            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "false");
-            var logger = LogProvider.GetLogger("EnableLogging");
-            logger.Info("test");
-
-            target.Logs.ShouldNotBeEmpty();
-        }
-#endif
-
         public void Dispose()
         {
             NLogLogProvider.ProviderIsAvailableOverride = true;
@@ -199,9 +156,6 @@
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
             LogProvider.IsDisabled = false;
-#if !LIBLOG_PORTABLE
-            Environment.SetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable, "false");
-#endif
         }
     }
 }

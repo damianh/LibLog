@@ -178,6 +178,7 @@
             try
             {
                 Log.Logger = new LoggerConfiguration()
+                    .WriteTo.Console()
                     .MinimumLevel.Is(minimumLevel)
                     .CreateLogger();
 
