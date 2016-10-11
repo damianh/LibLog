@@ -422,11 +422,6 @@ namespace YourRootNamespace.Logging
     static class LogProvider
     {
 #if !LIBLOG_PROVIDERS_ONLY
-        /// <summary>
-        /// The disable logging environment variable. If the environment variable is set to 'true', then logging
-        /// will be disabled.
-        /// </summary>
-        public const string DisableLoggingEnvironmentVariable = "$rootnamespace$_LIBLOG_DISABLE";
         private const string NullLogProvider = "Current Log Provider is not set. Call SetCurrentLogProvider " +
                                                "with a non-null value first.";
         private static dynamic s_currentLogProvider;
@@ -695,15 +690,6 @@ namespace YourRootNamespace.Logging
             {
                 return false;
             }
-#if !LIBLOG_PORTABLE
-            var envVar = Environment.GetEnvironmentVariable(LogProvider.DisableLoggingEnvironmentVariable);
-
-            if (envVar != null && envVar.Equals("true", StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-#endif
-
             if (messageFunc == null)
             {
                 return _logger(logLevel, null);
