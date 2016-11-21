@@ -121,6 +121,7 @@ namespace YourRootNamespace.Logging
     }
 
 #if !LIBLOG_PROVIDERS_ONLY
+    [ExcludeFromCodeCoverage]
 #if LIBLOG_PUBLIC
     public
 #else
@@ -414,6 +415,7 @@ namespace YourRootNamespace.Logging
     /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
+    [ExcludeFromCodeCoverage]
 #if LIBLOG_PROVIDERS_ONLY
     internal
 #else
@@ -653,6 +655,7 @@ namespace YourRootNamespace.Logging
         }
 
 #if !LIBLOG_PROVIDERS_ONLY
+        [ExcludeFromCodeCoverage]
         internal class NoOpLogger : ILog
         {
             internal static readonly NoOpLogger Instance = new NoOpLogger();
@@ -666,6 +669,7 @@ namespace YourRootNamespace.Logging
     }
 
 #if !LIBLOG_PROVIDERS_ONLY
+    [ExcludeFromCodeCoverage]
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
@@ -734,6 +738,7 @@ namespace YourRootNamespace.Logging.LogProviders
 #endif
     using System.Text.RegularExpressions;
 
+    [ExcludeFromCodeCoverage]
     internal abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
@@ -774,6 +779,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -855,6 +861,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
+        [ExcludeFromCodeCoverage]
         internal class NLogLogger
         {
             private readonly dynamic _logger;
@@ -1117,6 +1124,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -1225,6 +1233,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
+        [ExcludeFromCodeCoverage]
         internal class Log4NetLogger
         {
             private readonly dynamic _logger;
@@ -1492,6 +1501,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class EntLibLogProvider : LogProviderBase
     {
         private const string TypeTemplate = "Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging";
@@ -1608,6 +1618,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return memberInit;
         }
 
+        [ExcludeFromCodeCoverage]
         internal class EntLibLogger
         {
             private readonly string _loggerName;
@@ -1666,6 +1677,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -1761,6 +1773,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return name => func("SourceContext", name, false);
         }
 
+        [ExcludeFromCodeCoverage]
         internal class SerilogLogger
         {
             private readonly object _logger;
@@ -1911,6 +1924,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class LoupeLogProvider : LogProviderBase
     {
         /// <summary>
@@ -1985,6 +1999,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return callDelegate;
         }
 
+        [ExcludeFromCodeCoverage]
         internal class LoupeLogger
         {
             private const string LogSystem = "LibLog";
@@ -2043,6 +2058,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal static class TraceEventTypeValues
     {
         internal static readonly Type Type;
@@ -2070,6 +2086,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal static class LogMessageFormatter
     {
         //private static readonly Regex Pattern = new Regex(@"\{@?\w{1,}\}");
@@ -2154,6 +2171,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal static class TypeExtensions
     {
         internal static ConstructorInfo GetConstructorPortable(this Type type, params Type[] types)
@@ -2243,6 +2261,7 @@ namespace YourRootNamespace.Logging.LogProviders
         }
     }
 
+    [ExcludeFromCodeCoverage]
     internal class DisposableAction : IDisposable
     {
         private readonly Action _onDispose;
