@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-    <metadata>
+    <metadata minClientVersion="3.3.0">
         <id>LibLog</id>
         <version>4.2.6</version>
         <authors>Damian Hickey</authors>
@@ -27,8 +27,13 @@ This package is a variation of option 3 but will automatically wire things up to
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
         </frameworkAssemblies>
+		<contentFiles>
+      <files include="contentFiles\cs\**\*.*" buildAction="Compile" />
+		</contentFiles>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="content\App_Packages\LibLog.4.2\LibLog.cs.pp" />
+      <file src="LibLog.cs.pp" target="content\App_Packages\LibLog.4.2\LibLog.cs.pp" />
+      <file src="LibLog.cs.pp" target="contentFiles\cs\any" />
+      <file src="LibLog.cs.pp" target="contentFiles\cs\netstandard1.1" />
     </files>
 </package>
