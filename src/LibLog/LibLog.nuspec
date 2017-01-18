@@ -26,6 +26,7 @@ This package is a variation of option 3 but will automatically wire things up to
         <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe, pcl</tags>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
+            <frameworkAssembly assemblyName="System.Dynamic.Runtime" />
         </frameworkAssemblies>
 		<contentFiles>
       <files include="contentFiles\cs\**\*.*" buildAction="Compile" />
