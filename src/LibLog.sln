@@ -1,16 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog", "LibLog\LibLog.csproj", "{B94A94E1-3C80-40CC-A79A-244446B3F75A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests", "LibLog.Tests\LibLog.Tests.csproj", "{543C177D-4ED3-45C2-BAC8-6A4E89D802BA}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{13D47FF1-E632-4E5D-8176-FEC02ACB7CF5}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLogPCL", "LibLog\LibLogPCL.csproj", "{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}"
 EndProject
