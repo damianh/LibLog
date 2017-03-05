@@ -15,7 +15,7 @@ Task("Clean")
     CleanDirectory(buildDir);
 });
 
-Task("Restore-NuGet-Packages")
+Task("RestorePackages")
     .IsDependentOn("Clean")
     .Does(() =>
 {
@@ -23,13 +23,13 @@ Task("Restore-NuGet-Packages")
 });
 
 Task("Build")
-    .IsDependentOn("Restore-NuGet-Packages")
+    .IsDependentOn("RestorePackages")
     .Does(() =>
 {
     MSBuild(solution, settings => settings.SetConfiguration(configuration));
 });
 
-Task("Run-Unit-Tests")
+Task("RunTests")
     .IsDependentOn("Build")
     .Does(() =>
 {
@@ -43,7 +43,7 @@ Task("Run-Unit-Tests")
     XUnit($"./src/**/bin/{configuration}/*.Tests*dll", settings);
 });
 
-Task("Create-PP")
+Task("CreatePreProcessedFiles")
     .IsDependentOn("Build")
     .Does(() => {
         TransformTextFile("./src/LibLog/LibLog.cs")
@@ -51,8 +51,8 @@ Task("Create-PP")
         .Save(buildDir.Path + "/LibLog.cs.pp");
 });
 
-Task("Create-Nuget-Package")
-    .IsDependentOn("Create-PP")
+Task("CreateNugetPackages")
+    .IsDependentOn("CreatePreProcessedFiles")
     .Does(() => 
 {
     var nuspecFilePath = buildDir.Path + "/LibLog.nuspec";
@@ -65,7 +65,7 @@ Task("Create-Nuget-Package")
 });
 
 Task("Default")
-    .IsDependentOn("Run-Unit-Tests")
-    .IsDependentOn("Create-Nuget-Package");
+    .IsDependentOn("RunTests")
+    .IsDependentOn("CreateNugetPackages");
 
 RunTarget(target);

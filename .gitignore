@@ -107,3 +107,5 @@ Generated_Code #added for RIA/Silverlight projects
 # Tools Cake
 tools/**
 !tools/packages.config
+
+artifacts
