@@ -180,7 +180,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Debug, message.AsFunc());
             }
         }
-
+        
+        public static void Debug(this ILog logger, string message, params object[] args)
+        {
+            logger.DebugFormat(message, args);
+        }
+        
+        public static void Debug(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.DebugException(message, exception, args);
+        }
+        
         public static void DebugFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsDebugEnabled())
@@ -218,6 +228,16 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Error, message.AsFunc());
             }
         }
+        
+        public static void Error(this ILog logger, string message, params object[] args)
+        {
+            logger.ErrorFormat(message, args);
+        }
+        
+        public static void Error(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.ErrorException(message, exception, args);
+        }
 
         public static void ErrorFormat(this ILog logger, string message, params object[] args)
         {
@@ -247,7 +267,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Fatal, message.AsFunc());
             }
         }
-
+        
+        public static void Fatal(this ILog logger, string message, params object[] args)
+        {
+            logger.FatalFormat(message, args);
+        }
+        
+        public static void Fatal(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.FatalException(message, exception, args);
+        }
+        
         public static void FatalFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsFatalEnabled())
@@ -277,7 +307,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Info, message.AsFunc());
             }
         }
+        
+        public static void Info(this ILog logger, string message, params object[] args)
+        {
+            logger.InfoFormat(message, args);
+        }
 
+        public static void Info(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.InfoException(message, exception, args);
+        }
+        
         public static void InfoFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsInfoEnabled())
@@ -307,7 +347,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Trace, message.AsFunc());
             }
         }
-
+        
+        public static void Trace(this ILog logger, string message, params object[] args)
+        {
+            logger.TraceFormat(message, args);
+        }
+        
+        public static void Trace(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.TraceException(message, exception, args);
+        }
+        
         public static void TraceFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsTraceEnabled())
@@ -337,7 +387,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Warn, message.AsFunc());
             }
         }
-
+        
+        public static void Warn(this ILog logger, string message, params object[] args)
+        {
+            logger.WarnFormat(message, args);
+        }
+        
+        public static void Warn(this ILog logger, Exception exception, string message, params object[] args)
+        {
+            logger.WarnException(message, exception, args);
+        }
+        
         public static void WarnFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsWarnEnabled())
