@@ -5,10 +5,10 @@
     <AssemblyName>LibLog</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG;LIBLOG_PORTABLE;NETSTANDARD1_6</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LIBLOG_PORTABLE;NETSTANDARD1_3</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>TRACE;RELEASE;NETSTANDARD1_6;LIBLOG_PORTABLE</DefineConstants>
+    <DefineConstants>TRACE;RELEASE;NETSTANDARD1_3;LIBLOG_PORTABLE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\LibLog\LibLog.cs" Link="LibLog.cs" />
