@@ -1,4 +1,3 @@
-#addin "Cake.ExtendedNuGet"
 #addin "nuget:?package=NuGet.Core&version=2.8.6"
 #tool "nuget:?package=xunit.runner.console&version=2.1.0"
 
@@ -26,7 +25,11 @@ Task("Build")
     .IsDependentOn("RestorePackages")
     .Does(() =>
 {
-    MSBuild(solution, settings => settings.SetConfiguration(configuration));
+    MSBuild(solution, settings => settings
+        .SetConfiguration(configuration)
+        .SetVerbosity(Verbosity.Minimal)
+        .UseToolVersion(MSBuildToolVersion.VS2017)
+    );
 });
 
 Task("RunTests")
