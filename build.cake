@@ -48,10 +48,17 @@ Task("RunTests")
 
 Task("CreatePreProcessedFiles")
     .IsDependentOn("Build")
-    .Does(() => {
-        TransformTextFile("./src/LibLog/LibLog.cs")
+    .Does(() =>
+{
+    CreateDirectory(buildDir.Path + "/net40");
+    TransformTextFile("./src/LibLog/LibLog.cs")
         .WithToken("YourRootNamespace.", "$rootnamespace$.")
-        .Save(buildDir.Path + "/LibLog.cs.pp");
+        .Save(buildDir.Path + "/net40/LibLog.cs.pp");
+        
+    CreateDirectory(buildDir.Path + "/netstandard1.0");
+    TransformTextFile("./src/LibLog/LibLog.cs")
+        .WithToken("YourRootNamespace.", "$rootnamespace$.")
+        .Save(buildDir.Path + "/netstandard1.0/LibLog.cs.pp");
 });
 
 Task("CreateNugetPackages")
@@ -59,7 +66,7 @@ Task("CreateNugetPackages")
     .Does(() => 
 {
     var nuspecFilePath = buildDir.Path + "/LibLog.nuspec";
-    CopyFile("./src/LibLog/LibLog.nuspec", nuspecFilePath);
+    CopyFile("./src/LibLog.nuspec", nuspecFilePath);
     var settings = new NuGetPackSettings 
     {
         OutputDirectory = buildDir.Path

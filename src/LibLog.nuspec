@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>4.2.6</version>
+        <version>4.3.0</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
         <projectUrl>https://github.com/damianh/LibLog</projectUrl>
-        <iconUrl>https://raw.githubusercontent.com/damianh/LibLog/dev/docs/liblog_icon.png</iconUrl>
+        <iconUrl>https://raw.githubusercontent.com/damianh/LibLog/master/docs/liblog_icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <developmentDependency>true</developmentDependency>
         <description>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and higher.
@@ -21,14 +21,28 @@ This package is a variation of option 3 but will automatically wire things up to
 - ILog is one method to implement
 - Using optimized reflection, it transparently supports NLog, Log4Net, EntLib Logging, Serilog and Loupe without any wiring up required by an end user, if the end user simply has a reference to any of these logging frameworks.</description>
         <summary>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. Works with .NET 4 and portable-net45+win+wpa81+MonoAndroid10+MonoTouch10 and higher.</summary>
-        <copyright>Damian Hickey and Contributors 2014-2015</copyright>
-        <releaseNotes>Serilog 2.x support and bug fixes https://github.com/damianh/LibLog/milestones/v4.2.6</releaseNotes>
-        <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe, pcl</tags>
+        <copyright>Damian Hickey and Contributors 2014-2017</copyright>
+        <releaseNotes>Support for NetStandard 1.0 https://github.com/damianh/LibLog/milestones/v4.3</releaseNotes>
+        <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe, pcl, netstandars, dotnetcore</tags>
         <frameworkAssemblies>
-            <frameworkAssembly assemblyName="Microsoft.CSharp" />
+            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework="net40"/>
         </frameworkAssemblies>
+        <dependencies>
+            <group targetFramework="net40">
+            </group>
+            <group targetFramework="netstandard1.0">
+                <dependency id="Microsoft.CSharp" version="4.0.1" />
+                <dependency id="System.Dynamic.Runtime" version="4.0.11" />
+            </group>
+        </dependencies>
+        <contentFiles>
+            <files include="net40/LibLog.cs.pp" />
+            <files include="netstandard1.0/LibLog.cs.pp" />
+        </contentFiles>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="content\App_Packages\LibLog.4.2\LibLog.cs.pp" />
+        <file src="net40/LibLog.cs.pp" target="content/App_Packages/LibLog.4.3/LibLog.cs.pp" />
+        <file src="net40/LibLog.cs.pp" target="contentFiles/cs/net40/LibLog.cs.pp" />
+        <file src="netstandard1.0/LibLog.cs.pp" target="contentFiles/cs/netstandard1.0/LibLog.cs.pp" />
     </files>
 </package>
