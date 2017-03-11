@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <RootNamespace>LibLog</RootNamespace>
     <AssemblyName>LibLog</AssemblyName>
   </PropertyGroup>

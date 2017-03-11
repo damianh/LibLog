@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.Serilog2", "Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLogPCL", "LibLogPCL\LibLogPCL.csproj", "{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLogNetStandard", "LibLogNetStandard\LibLogNetStandard.csproj", "{D475BB80-2EF4-41F3-91A3-B8013425A0CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -182,6 +184,18 @@ Global
 		{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}.Release|x64.Build.0 = Release|Any CPU
 		{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F9D65C4-E18A-4A20-9A51-AA8EB1822A60}.Release|x86.Build.0 = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|x64.Build.0 = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Debug|x86.Build.0 = Debug|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|x64.ActiveCfg = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|x64.Build.0 = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|x86.ActiveCfg = Release|Any CPU
+		{D475BB80-2EF4-41F3-91A3-B8013425A0CB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
