@@ -35,14 +35,17 @@ This package is a variation of option 3 but will automatically wire things up to
                 <dependency id="System.Dynamic.Runtime" version="4.0.11" />
             </group>
         </dependencies>
-        <contentFiles>
+        <!--<contentFiles>
             <files include="net40/LibLog.cs.pp" />
             <files include="netstandard1.0/LibLog.cs.pp" />
-        </contentFiles>
+        </contentFiles>-->
+        <contentFiles>
+            <files include="contentFiles/cs/**/*.*" buildAction="Compile" />
+		</contentFiles>
     </metadata>
     <files>
-        <file src="net40/LibLog.cs.pp" target="content/App_Packages/LibLog.4.3/LibLog.cs.pp" />
-        <file src="net40/LibLog.cs.pp" target="contentFiles/cs/net40/LibLog.cs.pp" />
-        <file src="netstandard1.0/LibLog.cs.pp" target="contentFiles/cs/netstandard1.0/LibLog.cs.pp" />
+        <file src="net40/LibLog.cs.pp" target="content/LibLog/LibLog.cs.pp" />
+        <file src="net40/LibLog.cs.pp" target="contentFiles/cs/any" />
+        <file src="netstandard1.0/LibLog.cs.pp" target="contentFiles/cs/netstandard1.1" />
     </files>
 </package>

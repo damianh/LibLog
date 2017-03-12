@@ -1,4 +1,5 @@
 #addin "nuget:?package=NuGet.Core&version=2.8.6"
+#addin "Cake.FileHelpers"
 #tool "nuget:?package=xunit.runner.console&version=2.1.0"
 
 var target        = Argument("target", "Default");
@@ -51,14 +52,15 @@ Task("CreatePreProcessedFiles")
     .Does(() =>
 {
     CreateDirectory(buildDir.Path + "/net40");
-    TransformTextFile("./src/LibLog/LibLog.cs")
-        .WithToken("YourRootNamespace.", "$rootnamespace$.")
-        .Save(buildDir.Path + "/net40/LibLog.cs.pp");
-        
+
+    var content = System.IO.File.ReadAllText("./src/LibLog/LibLog.cs")
+        .Replace("YourRootNamespace.", "$rootnamespace$.");
+
+    CreateDirectory(buildDir.Path + "/net40");
+    System.IO.File.WriteAllText(buildDir.Path + "/net40/LibLog.cs.pp", content);
+
     CreateDirectory(buildDir.Path + "/netstandard1.0");
-    TransformTextFile("./src/LibLog/LibLog.cs")
-        .WithToken("YourRootNamespace.", "$rootnamespace$.")
-        .Save(buildDir.Path + "/netstandard1.0/LibLog.cs.pp");
+    System.IO.File.WriteAllText(buildDir.Path + "/netstandard1.0/LibLog.cs.pp", content);
 });
 
 Task("CreateNugetPackages")
@@ -67,9 +69,11 @@ Task("CreateNugetPackages")
 {
     var nuspecFilePath = buildDir.Path + "/LibLog.nuspec";
     CopyFile("./src/LibLog.nuspec", nuspecFilePath);
+    var version = System.IO.File.ReadLines("version.txt").First() + "-build" + buildNumber.PadLeft(5, '0');
     var settings = new NuGetPackSettings 
     {
-        OutputDirectory = buildDir.Path
+        OutputDirectory = buildDir.Path,
+        Version = version
     };
     NuGetPack(nuspecFilePath, settings);
 });
