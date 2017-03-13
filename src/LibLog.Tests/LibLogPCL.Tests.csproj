@@ -147,7 +147,7 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LibLog\LibLogPCL.csproj">
+    <ProjectReference Include="..\LibLogPCL\LibLogPCL.csproj">
       <Project>{9f9d65c4-e18a-4a20-9a51-aa8eb1822a60}</Project>
       <Name>LibLogPCL</Name>
     </ProjectReference>
