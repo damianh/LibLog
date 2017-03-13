@@ -39,7 +39,7 @@ This package is a variation of option 3 but will automatically wire things up to
     </metadata>
     <files>
         <file src="net40\LibLog.cs.pp" target="content\LibLog\LibLog.cs.pp" />
-        <file src="netstandard1.0\LibLog.cs.pp" target="contentFiles\cs\any" />
-        <file src="netstandard1.0\LibLog.cs.pp" target="contentFiles\cs\netstandard1.0" />
+        <file src="netstandard1.1\LibLog.cs.pp" target="contentFiles\cs\any" />
+        <file src="netstandard1.`\LibLog.cs.pp" target="contentFiles\cs\netstandard1.1 />
     </files>
 </package>
