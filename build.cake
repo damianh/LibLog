@@ -59,8 +59,8 @@ Task("CreatePreProcessedFiles")
     CreateDirectory(buildDir.Path + "/net40");
     System.IO.File.WriteAllText(buildDir.Path + "/net40/LibLog.cs.pp", content);
 
-    CreateDirectory(buildDir.Path + "/netstandard1.0");
-    System.IO.File.WriteAllText(buildDir.Path + "/netstandard1.0/LibLog.cs.pp", content);
+    CreateDirectory(buildDir.Path + "/netstandard1.1");
+    System.IO.File.WriteAllText(buildDir.Path + "/netstandard1.1/LibLog.cs.pp", content);
 });
 
 Task("CreateNugetPackages")
