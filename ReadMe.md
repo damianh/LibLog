@@ -4,15 +4,26 @@ Designed specifically for library developers, `LibLog` is a single file for you 
 
 Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more information.
 
-### License
+## Installation
+
+### .NET Classic / Desktop (4.0 to 4.6.2)
+
+[Install via nuget][0]
+
+### .NET Standard / Core (NetStandard 1.1 and later)
+
+Due to changes in how nuget packages are installed in nuget 4.0 / VS2017 / Core
+SDK, namespace transforms are unfortunately no longer supported. This means the
+LibLog nuget package will not work in .NET Standard / Core libraries as previously.
+LibLog still works of course; however you need to install the file your self.
+
+1. [Copy this installation script](download_liblog.ps1) into your project.
+2. Tweak the `$rootNamespace` variable to your desired namespace.
+3. Peridically run to download latest version of LibLog to your project.
+
+## License
 
 LibLog is licensed under [MIT Licence][2].
-
-##### Developed with:
-
-[![Resharper](http://neventstore.org/images/logo_resharper_small.gif)](http://www.jetbrains.com/resharper/)
-[![dotCover](http://neventstore.org/images/logo_dotcover_small.gif)](http://www.jetbrains.com/dotcover/)
-[![dotTrace](http://neventstore.org/images/logo_dottrace_small.gif)](http://www.jetbrains.com/dottrace/)
 
 Feedback, compliments or criticism: [@randompunter][6] 
 
