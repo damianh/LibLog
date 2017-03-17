@@ -5,14 +5,14 @@
 var target        = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var buildNumber   = Argument("buildnumber", "0");
-var buildDir      = Directory("./artifacts");
+var artifactsDir  = Directory("./artifacts");
+var releasesDir   = Directory("./releases");
 var solution      = "./src/LibLog.sln";
-
 
 Task("Clean")
     .Does(() =>
 {
-    CleanDirectory(buildDir);
+    CleanDirectory(artifactsDir);
 });
 
 Task("RestorePackages")
@@ -49,29 +49,43 @@ Task("RunTests")
 
 Task("CreatePreProcessedFiles")
     .IsDependentOn("Build")
-    .Does(() => {
-        TransformTextFile("./src/LibLog/LibLog.cs")
-        .WithToken("YourRootNamespace.", "$rootnamespace$.")
-        .Save(buildDir.Path + "/LibLog.cs.pp");
+    .Does(() => 
+{
+    CreateDirectory(artifactsDir.Path + "/net40");
+    var content = System.IO.File.ReadAllText("./src/LibLog/LibLog.cs")
+        .Replace("YourRootNamespace.", "$rootnamespace$.");
+    System.IO.File.WriteAllText(artifactsDir.Path + "/LibLog.cs.pp", content);
 });
 
-Task("CreateNugetPackages")
+Task("CreateNugetPackage")
     .IsDependentOn("CreatePreProcessedFiles")
     .Does(() => 
 {
-    var nuspecFilePath = buildDir.Path + "/LibLog.nuspec";
+    var nuspecFilePath = artifactsDir.Path + "/LibLog.nuspec";
     CopyFile("./src/LibLog/LibLog.nuspec", nuspecFilePath);
     var version = System.IO.File.ReadLines("version.txt").First() + "-build" + buildNumber.PadLeft(5, '0');
     var settings = new NuGetPackSettings 
     {
-        OutputDirectory = buildDir.Path,
+        OutputDirectory = artifactsDir,
         Version = version
     };
     NuGetPack(nuspecFilePath, settings);
 });
 
+Task("BuildRelease")
+    .IsDependentOn("CreatePreProcessedFiles")
+    .Does(() => 
+{
+    var version = System.IO.File.ReadLines("version.txt").First();
+    CreateDirectory(releasesDir.Path + "/" + version);
+    CopyFile(artifactsDir.Path + "/LibLog.cs.pp", releasesDir.Path + "/" + version + "/LibLog.cs");
+    CreateDirectory(releasesDir.Path + "/latest");
+    CopyFile(artifactsDir.Path + "/LibLog.cs.pp", releasesDir.Path + "/latest/LibLog.cs");
+});
+
 Task("Default")
     .IsDependentOn("RunTests")
-    .IsDependentOn("CreateNugetPackages");
+    .IsDependentOn("CreateNugetPackage")
+    .IsDependentOn("BuildRelease");
 
 RunTarget(target);
