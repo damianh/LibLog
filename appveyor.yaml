@@ -1,0 +1,20 @@
+version: '{build}'
+image: Visual Studio 2017
+build_script:
+- ps: .\build.ps1
+test: off
+artifacts:
+- path: artifacts/*.nupkg
+deploy:
+- provider: NuGet
+  server: https://www.myget.org/F/dh/
+  api_key:
+    secure: OFKHH+6tRCSObkKF0J5XsgygWyP0piFEoCtwQE99iPzMtoum+a6i6LWhdIEe26Q5
+  on:
+    branch: master
+notifications:
+- provider: Webhook
+  url: https://webhooks.gitter.im/e/ae06218d5d57ba81b1f0
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
