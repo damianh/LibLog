@@ -1,4 +1,5 @@
 #addin "nuget:?package=NuGet.Core&version=2.8.6"
+#addin "Cake.FileHelpers"
 #tool "nuget:?package=xunit.runner.console&version=2.1.0"
 
 var target        = Argument("target", "Default");
@@ -60,9 +61,11 @@ Task("CreateNugetPackages")
 {
     var nuspecFilePath = buildDir.Path + "/LibLog.nuspec";
     CopyFile("./src/LibLog/LibLog.nuspec", nuspecFilePath);
+    var version = System.IO.File.ReadLines("version.txt").First() + "-build" + buildNumber.PadLeft(5, '0');
     var settings = new NuGetPackSettings 
     {
-        OutputDirectory = buildDir.Path
+        OutputDirectory = buildDir.Path,
+        Version = version
     };
     NuGetPack(nuspecFilePath, settings);
 });
