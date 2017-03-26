@@ -4,6 +4,14 @@ Designed specifically for library developers, `LibLog` is a single file for you 
 
 Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more information.
 
+## Availability for NetStandard / new `.csproj` format
+
+LibLog uses `.pp` file to do a namespace transform (aka "Source transform") so it fits into your project. However it appears that source transform are [currently broken in RTM](https://github.com/NuGet/Home/issues/4803). For now, the workaround:
+
+ 1. Copy `LibLog.cs` to your netstandard project.
+ 2. Manually rename the namespace `YourRootNamespace` to your project's root namespace.
+ 3. Enable `LIBLOB_PORTABLE` compiler directive.
+
 ### License
 
 LibLog is licensed under [MIT Licence][2].
