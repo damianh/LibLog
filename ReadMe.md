@@ -10,7 +10,7 @@ LibLog uses `.pp` file to do a namespace transform (aka [source transform](https
 
  1. Copy `LibLog.cs` to your netstandard project.
  2. Manually rename the namespace `YourRootNamespace` to your project's root namespace.
- 3. Enable `LIBLOB_PORTABLE` compiler directive.
+ 3. Enable `LIBLOG_PORTABLE` compiler directive.
 
 ### License
 
