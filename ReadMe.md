@@ -8,7 +8,7 @@ Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more information.
 
 LibLog uses `.pp` file to do a namespace transform (aka [source transform](https://docs.microsoft.com/en-us/nuget/create-packages/source-and-config-file-transformations) ) so it fits into your project's namespace. However it appears that source transform are [currently broken in RTM](https://github.com/NuGet/Home/issues/4803). For now, the workaround:
 
- 1. Copy `LibLog.cs` to your netstandard project.
+ 1. Copy [`LibLog.cs`](https://github.com/damianh/LibLog/blob/master/src/LibLog/LibLog.cs) to your netstandard project.
  2. Manually rename the namespace `YourRootNamespace` to your project's root namespace.
  3. Enable `LIBLOG_PORTABLE` compiler directive.
 
