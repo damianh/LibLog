@@ -641,13 +641,13 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenMappedContext(string key, string value)
+        static IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
 
             return logProvider == null
                 ? new DisposableAction(() => { })
-                : logProvider.OpenMappedContext(key, value);
+                : logProvider.OpenMappedContext(key, value, destructure);
         }
 #endif
 
@@ -833,7 +833,7 @@ namespace YourRootNamespace.Logging.LogProviders
             return _lazyOpenNdcMethod.Value(message);
         }
 
-        public IDisposable OpenMappedContext(string key, object value, bool destructure)
+        public IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
             return _lazyOpenMdcMethod.Value(key, value, destructure);
         }

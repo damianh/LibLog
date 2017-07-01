@@ -120,6 +120,56 @@
             }
         }
 
+        internal class MyMappedContext
+        {
+            public int ThirtySeven
+            {
+                get
+                {
+                    return 37;
+                }
+            }
+
+            public string Name { get => name; set => name = value; }
+            public LogLevel Level { get => level; set => level = value; }
+
+            string name = "World";
+            LogLevel level = LogLevel.Trace;
+
+            public override string ToString()
+            {
+                return name;
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, true))
+            {
+                _sut.Info("m");
+
+                _logEvent.Properties.Keys.ShouldContain("key");
+                _logEvent.Properties["key"].ToString().ShouldBe("MyMappedContext { ThirtySeven: 37, Name: \"World\", Level: Trace }");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_not_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, true))
+            {
+                _sut.Info("m");
+
+                _logEvent.Properties.Keys.ShouldContain("key");
+                _logEvent.Properties["key"].ToString().ShouldBe("\"name\"");
+            }
+        }
+
         [Theory]
         [InlineData(LogEventLevel.Verbose, new []{LogLevel.Trace, LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Fatal})]
         [InlineData(LogEventLevel.Debug, new []{LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error, LogLevel.Fatal})]
