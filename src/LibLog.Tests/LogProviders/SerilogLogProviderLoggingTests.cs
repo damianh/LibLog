@@ -120,28 +120,6 @@
             }
         }
 
-        internal class MyMappedContext
-        {
-            public int ThirtySeven
-            {
-                get
-                {
-                    return 37;
-                }
-            }
-
-            public string Name { get => name; set => name = value; }
-            public LogLevel Level { get => level; set => level = value; }
-
-            string name = "World";
-            LogLevel level = LogLevel.Trace;
-
-            public override string ToString()
-            {
-                return name;
-            }
-        }
-
         [Fact]
         public void Can_open_mapped_diagnostics_context_destructured()
         {
@@ -161,12 +139,12 @@
         {
             var context = new MyMappedContext();
 
-            using (_logProvider.OpenMappedContext("key", context, true))
+            using (_logProvider.OpenMappedContext("key", context, false))
             {
                 _sut.Info("m");
 
                 _logEvent.Properties.Keys.ShouldContain("key");
-                _logEvent.Properties["key"].ToString().ShouldBe("\"name\"");
+                _logEvent.Properties["key"].ToString().ShouldBe("\"World\"");
             }
         }
 
