@@ -12,6 +12,12 @@ LibLog uses `.pp` file to do a namespace transform (aka [source transform](https
  2. Manually rename the namespace `YourRootNamespace` to your project's root namespace.
  3. Enable `LIBLOG_PORTABLE` compiler directive.
 
+If you are cross-compiling to net451, net452, etc. then you need to add a conditional reference:
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net451' ">
+      <Reference Include="Microsoft.CSharp" />
+    </ItemGroup>
+
 ### License
 
 LibLog is licensed under [MIT Licence][2].
