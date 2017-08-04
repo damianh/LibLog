@@ -21,7 +21,7 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            var logProvider = LogProvider.ResolveLogProvider();
+            var logProvider = LogProvider.ForceResolveLogProvider();
             logProvider.ShouldBeOfType<NLogLogProvider>();
         }
 
@@ -35,7 +35,7 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            var logProvider = LogProvider.ResolveLogProvider();
+            var logProvider = LogProvider.ForceResolveLogProvider();
             logProvider.ShouldBeOfType<Log4NetLogProvider>();
         }
 
@@ -49,7 +49,7 @@
             EntLibLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            var logProvider = LogProvider.ResolveLogProvider();
+            var logProvider = LogProvider.ForceResolveLogProvider();
             logProvider.ShouldBeOfType<EntLibLogProvider>();
         }
 
@@ -63,7 +63,7 @@
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
-            var logProvider = LogProvider.ResolveLogProvider();
+            var logProvider = LogProvider.ForceResolveLogProvider();
             logProvider.ShouldBeOfType<SerilogLogProvider>();
         }
 
@@ -77,7 +77,7 @@
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
 
-            var logProvider = LogProvider.ResolveLogProvider();
+            var logProvider = LogProvider.ForceResolveLogProvider();
             logProvider.ShouldBeOfType<LoupeLogProvider>();
         }
 
