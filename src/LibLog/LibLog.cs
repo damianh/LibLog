@@ -1,4 +1,4 @@
-//===============================================================================
+﻿//===============================================================================
 // LibLog
 //
 // https://github.com/damianh/LibLog
@@ -170,7 +170,7 @@ namespace YourRootNamespace.Logging
         public static void Debug(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Debug, messageFunc);
+            logger.Log(LogLevel.Debug, WrapLogInternal(messageFunc));
         }
 
         public static void Debug(this ILog logger, string message)
@@ -180,17 +180,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Debug, message.AsFunc());
             }
         }
-        
+
         public static void Debug(this ILog logger, string message, params object[] args)
         {
             logger.DebugFormat(message, args);
         }
-        
+
         public static void Debug(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.DebugException(message, exception, args);
         }
-        
+
         public static void DebugFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsDebugEnabled())
@@ -218,7 +218,7 @@ namespace YourRootNamespace.Logging
         public static void Error(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Error, messageFunc);
+            logger.Log(LogLevel.Error, WrapLogInternal(messageFunc));
         }
 
         public static void Error(this ILog logger, string message)
@@ -228,12 +228,12 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Error, message.AsFunc());
             }
         }
-        
+
         public static void Error(this ILog logger, string message, params object[] args)
         {
             logger.ErrorFormat(message, args);
         }
-        
+
         public static void Error(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.ErrorException(message, exception, args);
@@ -257,7 +257,7 @@ namespace YourRootNamespace.Logging
 
         public static void Fatal(this ILog logger, Func<string> messageFunc)
         {
-            logger.Log(LogLevel.Fatal, messageFunc);
+            logger.Log(LogLevel.Fatal, WrapLogInternal(messageFunc));
         }
 
         public static void Fatal(this ILog logger, string message)
@@ -267,17 +267,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Fatal, message.AsFunc());
             }
         }
-        
+
         public static void Fatal(this ILog logger, string message, params object[] args)
         {
             logger.FatalFormat(message, args);
         }
-        
+
         public static void Fatal(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.FatalException(message, exception, args);
         }
-        
+
         public static void FatalFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsFatalEnabled())
@@ -297,7 +297,7 @@ namespace YourRootNamespace.Logging
         public static void Info(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Info, messageFunc);
+            logger.Log(LogLevel.Info, WrapLogInternal(messageFunc));
         }
 
         public static void Info(this ILog logger, string message)
@@ -307,7 +307,7 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Info, message.AsFunc());
             }
         }
-        
+
         public static void Info(this ILog logger, string message, params object[] args)
         {
             logger.InfoFormat(message, args);
@@ -317,7 +317,7 @@ namespace YourRootNamespace.Logging
         {
             logger.InfoException(message, exception, args);
         }
-        
+
         public static void InfoFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsInfoEnabled())
@@ -337,7 +337,7 @@ namespace YourRootNamespace.Logging
         public static void Trace(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Trace, messageFunc);
+            logger.Log(LogLevel.Trace, WrapLogInternal(messageFunc));
         }
 
         public static void Trace(this ILog logger, string message)
@@ -347,17 +347,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Trace, message.AsFunc());
             }
         }
-        
+
         public static void Trace(this ILog logger, string message, params object[] args)
         {
             logger.TraceFormat(message, args);
         }
-        
+
         public static void Trace(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.TraceException(message, exception, args);
         }
-        
+
         public static void TraceFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsTraceEnabled())
@@ -377,7 +377,7 @@ namespace YourRootNamespace.Logging
         public static void Warn(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Warn, messageFunc);
+            logger.Log(LogLevel.Warn, WrapLogInternal(messageFunc));
         }
 
         public static void Warn(this ILog logger, string message)
@@ -387,17 +387,17 @@ namespace YourRootNamespace.Logging
                 logger.Log(LogLevel.Warn, message.AsFunc());
             }
         }
-        
+
         public static void Warn(this ILog logger, string message, params object[] args)
         {
             logger.WarnFormat(message, args);
         }
-        
+
         public static void Warn(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.WarnException(message, exception, args);
         }
-        
+
         public static void WarnFormat(this ILog logger, string message, params object[] args)
         {
             if (logger.IsWarnEnabled())
@@ -437,6 +437,37 @@ namespace YourRootNamespace.Logging
         private static T Return<T>(this T value)
         {
             return value;
+        }
+
+        // Allow passing callsite-logger-type to LogProviderBase using messageFunc
+        internal static Func<string> WrapLogSafeInternal(LoggerExecutionWrapper logger, Func<string> messageFunc)
+        {
+            Func<string> wrappedMessageFunc = () =>
+            {
+                try
+                {
+                    return messageFunc();
+                }
+                catch (Exception ex)
+                {
+                    logger.Log(LogLevel.Error, () => LoggerExecutionWrapper.FailedToGenerateLogMessage, ex);
+                }
+                return null;
+            };
+            return wrappedMessageFunc;
+        }
+
+        // Allow passing callsite-logger-type to LogProviderBase using messageFunc
+#if !LIBLOG_PORTABLE
+        [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+        private static Func<string> WrapLogInternal(Func<string> messageFunc)
+        {
+            Func<string> wrappedMessageFunc = () =>
+            {
+                return messageFunc();
+            };
+            return wrappedMessageFunc;
         }
     }
 #endif
@@ -767,19 +798,29 @@ namespace YourRootNamespace.Logging
                 return _logger(logLevel, null);
             }
 
-            Func<string> wrappedMessageFunc = () =>
+#if !LIBLOG_PORTABLE
+            if (messageFunc.Method.DeclaringType == typeof(LogExtensions) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LogExtensions))
             {
-                try
+                // HACK - Using the messageFunc to provide the callsite-logger-type
+                return _logger(logLevel, LogExtensions.WrapLogSafeInternal(this, messageFunc), exception, formatParameters);
+            }
+            else
+#endif
+            {
+                Func<string> wrappedMessageFunc = () =>
                 {
-                    return messageFunc();
-                }
-                catch (Exception ex)
-                {
-                    Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
-                }
-                return null;
-            };
-            return _logger(logLevel, wrappedMessageFunc, exception, formatParameters);
+                    try
+                    {
+                        return messageFunc();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
+                    }
+                    return null;
+                };
+                return _logger(logLevel, wrappedMessageFunc, exception, formatParameters);
+            }
         }
     }
 #endif
@@ -972,18 +1013,27 @@ namespace YourRootNamespace.Logging.LogProviders
                     {
                         throw new InvalidOperationException("Type NLog.LogEventInfo was not found.");
                     }
-                    MethodInfo createLogEventInfoMethodInfo = logEventInfoType.GetMethodPortable("Create",
-                        logEventLevelType, typeof(string), typeof(Exception), typeof(IFormatProvider), typeof(string), typeof(object[]));
+
+                    ConstructorInfo loggingEventConstructor =
+                        logEventInfoType.GetConstructorPortable(logEventLevelType, typeof(string), typeof(IFormatProvider), typeof(string), typeof(object[]), typeof(Exception));
+
                     ParameterExpression loggerNameParam = Expression.Parameter(typeof(string));
                     ParameterExpression levelParam = Expression.Parameter(typeof(object));
                     ParameterExpression messageParam = Expression.Parameter(typeof(string));
                     ParameterExpression exceptionParam = Expression.Parameter(typeof(Exception));
                     UnaryExpression levelCast = Expression.Convert(levelParam, logEventLevelType);
-                    MethodCallExpression createLogEventInfoMethodCall = Expression.Call(null,
-                        createLogEventInfoMethodInfo,
-                        levelCast, loggerNameParam, exceptionParam,
-                        Expression.Constant(null, typeof(IFormatProvider)), messageParam, Expression.Constant(null, typeof(object[])));
-                    _logEventInfoFact = Expression.Lambda<Func<string, object, string, Exception, object>>(createLogEventInfoMethodCall,
+
+                    NewExpression newLoggingEventExpression =
+                        Expression.New(loggingEventConstructor,
+                                       levelCast,
+                                        loggerNameParam,
+                                        Expression.Constant(null, typeof(IFormatProvider)),
+                                        messageParam,
+                                        Expression.Constant(null, typeof(object[])),
+                                        exceptionParam
+                                        );
+
+                    _logEventInfoFact = Expression.Lambda<Func<string, object, string, Exception, object>>(newLoggingEventExpression,
                         loggerNameParam, levelParam, messageParam, exceptionParam).Compile();
                 }
                 catch { }
@@ -1007,40 +1057,27 @@ namespace YourRootNamespace.Logging.LogProviders
                 {
                     if (IsLogLevelEnable(logLevel))
                     {
-                        var nlogLevel = this.TranslateLevel(logLevel);
-                        Type s_callerStackBoundaryType;
+                        Type callsiteLoggerType = typeof(NLogLogger);
 #if !LIBLOG_PORTABLE
-                        StackTrace stack = new StackTrace();
-                        Type thisType = GetType();
-                        Type knownType0 = typeof(LoggerExecutionWrapper);
-                        Type knownType1 = typeof(LogExtensions);
-                        //Maybe inline, so we may can't found any LibLog classes in stack
-                        s_callerStackBoundaryType = null;
-                        for (var i = 0; i < stack.FrameCount; i++)
+                        // Extract the callsite-logger-type from the messageFunc
+                        if (messageFunc.Method.DeclaringType == typeof(LogExtensions) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LogExtensions))
                         {
-                            var declaringType = stack.GetFrame(i).GetMethod().DeclaringType;
-                            if (!IsInTypeHierarchy(thisType, declaringType) &&
-                                !IsInTypeHierarchy(knownType0, declaringType) &&
-                                !IsInTypeHierarchy(knownType1, declaringType))
-                            {
-                                if (i > 1)
-                                    s_callerStackBoundaryType = stack.GetFrame(i - 1).GetMethod().DeclaringType;
-                                break;
-                            }
+                            callsiteLoggerType = typeof(LogExtensions);
                         }
-#else
-                        s_callerStackBoundaryType = null;
+                        else if (messageFunc.Method.DeclaringType == typeof(LoggerExecutionWrapper) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LoggerExecutionWrapper))
+                        {
+                            callsiteLoggerType = typeof(LoggerExecutionWrapper);
+                        }
 #endif
-                        if (s_callerStackBoundaryType != null)
-                            _logger.Log(s_callerStackBoundaryType, _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
-                        else
-                            _logger.Log(_logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                        var nlogLevel = this.TranslateLevel(logLevel);
+                        var nlogEvent = _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception);
+                        _logger.Log(callsiteLoggerType, nlogEvent);
                         return true;
                     }
                     return false;
                 }
 
-                if(exception != null)
+                if (exception != null)
                 {
                     return LogException(logLevel, messageFunc, exception);
                 }
@@ -1088,19 +1125,6 @@ namespace YourRootNamespace.Logging.LogProviders
                             return true;
                         }
                         break;
-                }
-                return false;
-            }
-
-            private static bool IsInTypeHierarchy(Type currentType, Type checkType)
-            {
-                while (currentType != null && currentType != typeof(object))
-                {
-                    if (currentType == checkType)
-                    {
-                        return true;
-                    }
-                    currentType = currentType.GetBaseTypePortable();
                 }
                 return false;
             }
