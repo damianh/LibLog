@@ -440,6 +440,9 @@ namespace YourRootNamespace.Logging
         }
 
         // Allow passing callsite-logger-type to LogProviderBase using messageFunc
+#if !LIBLOG_PORTABLE
+        [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
         internal static Func<string> WrapLogSafeInternal(LoggerExecutionWrapper logger, Func<string> messageFunc)
         {
             Func<string> wrappedMessageFunc = () =>
@@ -775,6 +778,8 @@ namespace YourRootNamespace.Logging
         private readonly Func<bool> _getIsDisabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
 
+        Func<string> _lastExtensionMethod;
+
         internal LoggerExecutionWrapper(Logger logger, Func<bool> getIsDisabled = null)
         {
             _logger = logger;
@@ -799,9 +804,22 @@ namespace YourRootNamespace.Logging
             }
 
 #if !LIBLOG_PORTABLE
-            if (messageFunc.Method.DeclaringType == typeof(LogExtensions) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LogExtensions))
+            // HACK 1 - Using the messageFunc to provide the callsite-logger-type
+            var lastExtensionMethod = _lastExtensionMethod;
+            if (lastExtensionMethod == null || !lastExtensionMethod.Equals(messageFunc))
             {
-                // HACK - Using the messageFunc to provide the callsite-logger-type
+                // HACK 2 - Cache the last validated messageFunc as Equals is faster than type-check
+                lastExtensionMethod = null;
+                var methodType = messageFunc.Method.DeclaringType;
+                if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
+                {
+                    lastExtensionMethod = messageFunc;
+                }
+            }
+
+            if (lastExtensionMethod != null)
+            {
+                _lastExtensionMethod = lastExtensionMethod;
                 return _logger(logLevel, LogExtensions.WrapLogSafeInternal(this, messageFunc), exception, formatParameters);
             }
             else
@@ -1051,6 +1069,8 @@ namespace YourRootNamespace.Logging.LogProviders
                 {
                     return IsLogLevelEnable(logLevel);
                 }
+
+                var callsiteMessageFunc = messageFunc;
                 messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
 
                 if (_logEventInfoFact != null)
@@ -1059,12 +1079,13 @@ namespace YourRootNamespace.Logging.LogProviders
                     {
                         Type callsiteLoggerType = typeof(NLogLogger);
 #if !LIBLOG_PORTABLE
-                        // Extract the callsite-logger-type from the messageFunc
-                        if (messageFunc.Method.DeclaringType == typeof(LogExtensions) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LogExtensions))
+                        // HACK 3 - Extract the callsite-logger-type from the messageFunc
+                        var methodType = callsiteMessageFunc.Method.DeclaringType;
+                        if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
                         {
                             callsiteLoggerType = typeof(LogExtensions);
                         }
-                        else if (messageFunc.Method.DeclaringType == typeof(LoggerExecutionWrapper) || messageFunc.Method.DeclaringType.DeclaringType != null && messageFunc.Method.DeclaringType.DeclaringType == typeof(LoggerExecutionWrapper))
+                        else if (methodType == typeof(LoggerExecutionWrapper) || (methodType != null && methodType.DeclaringType == typeof(LoggerExecutionWrapper)))
                         {
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         }
@@ -1081,6 +1102,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 {
                     return LogException(logLevel, messageFunc, exception);
                 }
+
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
