@@ -440,9 +440,6 @@ namespace YourRootNamespace.Logging
         }
 
         // Allow passing callsite-logger-type to LogProviderBase using messageFunc
-#if !LIBLOG_PORTABLE
-        [MethodImpl(MethodImplOptions.NoInlining)]
-#endif
         internal static Func<string> WrapLogSafeInternal(LoggerExecutionWrapper logger, Func<string> messageFunc)
         {
             Func<string> wrappedMessageFunc = () =>
@@ -453,7 +450,7 @@ namespace YourRootNamespace.Logging
                 }
                 catch (Exception ex)
                 {
-                    logger.Log(LogLevel.Error, () => LoggerExecutionWrapper.FailedToGenerateLogMessage, ex);
+                    logger.WrappedLogger(LogLevel.Error, () => LoggerExecutionWrapper.FailedToGenerateLogMessage, ex);
                 }
                 return null;
             };
@@ -461,9 +458,6 @@ namespace YourRootNamespace.Logging
         }
 
         // Allow passing callsite-logger-type to LogProviderBase using messageFunc
-#if !LIBLOG_PORTABLE
-        [MethodImpl(MethodImplOptions.NoInlining)]
-#endif
         private static Func<string> WrapLogInternal(Func<string> messageFunc)
         {
             Func<string> wrappedMessageFunc = () =>
@@ -768,13 +762,14 @@ namespace YourRootNamespace.Logging
 #endif
     }
 
-#if !LIBLOG_PROVIDERS_ONLY
+    #if !LIBLOG_PROVIDERS_ONLY
 #if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
 #endif
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
+        private readonly ICallSiteExtension _callsiteLogger;
         private readonly Func<bool> _getIsDisabled;
         internal const string FailedToGenerateLogMessage = "Failed to generate log message";
 
@@ -783,6 +778,7 @@ namespace YourRootNamespace.Logging
         internal LoggerExecutionWrapper(Logger logger, Func<bool> getIsDisabled = null)
         {
             _logger = logger;
+            _callsiteLogger = new CallSiteExtension();
             _getIsDisabled = getIsDisabled ?? (() => false);
         }
 
@@ -804,11 +800,11 @@ namespace YourRootNamespace.Logging
             }
 
 #if !LIBLOG_PORTABLE
-            // HACK 1 - Using the messageFunc to provide the callsite-logger-type
+            // Callsite HACK - Using the messageFunc to provide the callsite-logger-type
             var lastExtensionMethod = _lastExtensionMethod;
             if (lastExtensionMethod == null || !lastExtensionMethod.Equals(messageFunc))
             {
-                // HACK 2 - Cache the last validated messageFunc as Equals is faster than type-check
+                // Callsite HACK - Cache the last validated messageFunc as Equals is faster than type-check
                 lastExtensionMethod = null;
                 var methodType = messageFunc.Method.DeclaringType;
                 if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
@@ -819,6 +815,7 @@ namespace YourRootNamespace.Logging
 
             if (lastExtensionMethod != null)
             {
+                // Callsite HACK - LogExtensions has called virtual ILog interface method to get here, callsite-stack is good
                 _lastExtensionMethod = lastExtensionMethod;
                 return _logger(logLevel, LogExtensions.WrapLogSafeInternal(this, messageFunc), exception, formatParameters);
             }
@@ -833,21 +830,36 @@ namespace YourRootNamespace.Logging
                     }
                     catch (Exception ex)
                     {
-                        Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
+                        _logger(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
                     }
                     return null;
                 };
-                return _logger(logLevel, wrappedMessageFunc, exception, formatParameters);
+
+                // Callsite HACK - Need to ensure proper callsite stack without inlining, so calling the logger within a virtual interface method
+                return _callsiteLogger.Log(_logger, logLevel, wrappedMessageFunc, exception, formatParameters);
+            }
+        }
+
+        interface ICallSiteExtension
+        {
+            bool Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters);
+        }
+
+        class CallSiteExtension : ICallSiteExtension
+        {
+            bool ICallSiteExtension.Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters)
+            {
+                return logger(logLevel, messageFunc, exception, formatParameters);
             }
         }
     }
 #endif
-}
+    }
 
 #if LIBLOG_PROVIDERS_ONLY
 namespace YourRootNamespace.LibLog.LogProviders
 #else
-namespace YourRootNamespace.Logging.LogProviders
+    namespace YourRootNamespace.Logging.LogProviders
 #endif
 {
     using System;
@@ -1079,7 +1091,7 @@ namespace YourRootNamespace.Logging.LogProviders
                     {
                         Type callsiteLoggerType = typeof(NLogLogger);
 #if !LIBLOG_PORTABLE
-                        // HACK 3 - Extract the callsite-logger-type from the messageFunc
+                        // Callsite HACK - Extract the callsite-logger-type from the messageFunc
                         var methodType = callsiteMessageFunc.Method.DeclaringType;
                         if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
                         {
