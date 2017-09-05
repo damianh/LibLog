@@ -1318,21 +1318,18 @@ namespace YourRootNamespace.Logging.LogProviders
             private static Type s_callerStackBoundaryType;
             private static readonly object CallerStackBoundaryTypeSync = new object();
 
-            private readonly object _levelDebug;
-            private readonly object _levelInfo;
-            private readonly object _levelWarn;
-            private readonly object _levelError;
-            private readonly object _levelFatal;
-            private readonly Func<object, object, bool> _isEnabledForDelegate;
-            private readonly Action<object, object> _logDelegate;
-            private readonly Func<object, Type, object, string, Exception, object> _createLoggingEvent;
-            private Action<object, string, object> _loggingEventPropertySetter;
+            private static readonly object _levelDebug;
+            private static readonly object _levelInfo;
+            private static readonly object _levelWarn;
+            private static readonly object _levelError;
+            private static readonly object _levelFatal;
+            private static readonly Func<object, object, bool> _isEnabledForDelegate;
+            private static readonly Action<object, object> _logDelegate;
+            private static readonly Func<object, Type, object, string, Exception, object> _createLoggingEvent;
+            private static readonly Action<object, string, object> _loggingEventPropertySetter;
 
-            [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
-            internal Log4NetLogger(dynamic logger)
+            static Log4NetLogger()
             {
-                _logger = logger.Logger;
-
                 var logEventLevelType = Type.GetType("log4net.Core.Level, log4net");
                 if (logEventLevelType == null)
                 {
@@ -1364,7 +1361,13 @@ namespace YourRootNamespace.Logging.LogProviders
 
                 _logDelegate = GetLogDelegate(loggerType, loggingEventType, instanceCast, instanceParam);
 
-                _loggingEventPropertySetter = GetLoggingEventPropertySetter(loggingEventType);
+                _loggingEventPropertySetter = GetLoggingEventPropertySetter(loggingEventType);                
+            }
+
+            [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
+            internal Log4NetLogger(dynamic logger)
+            {
+                _logger = logger.Logger;
             }
 
             private static Action<object, object> GetLogDelegate(Type loggerType, Type loggingEventType, UnaryExpression instanceCast,
@@ -1766,6 +1769,7 @@ namespace YourRootNamespace.Logging.LogProviders
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool s_providerIsAvailableOverride = true;
+        private static Func<string, string, IDisposable> _pushProperty;
 
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "Serilog")]
         public SerilogLogProvider()
@@ -1775,6 +1779,7 @@ namespace YourRootNamespace.Logging.LogProviders
                 throw new InvalidOperationException("Serilog.Log not found");
             }
             _getLoggerByNameDelegate = GetForContextMethodCall();
+            _pushProperty = GetPushProperty();
         }
 
         public static bool ProviderIsAvailableOverride
@@ -1795,12 +1800,12 @@ namespace YourRootNamespace.Logging.LogProviders
 
         protected override OpenNdc GetOpenNdcMethod()
         {
-            return message => GetPushProperty()("NDC", message, false);
+            return message => _pushProperty("NDC", message, false);
         }
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            return (key, value, destructure) => GetPushProperty()(key, value, destructure);
+            return (key, value, destructure) => _pushProperty(key, value, destructure);
         }
 
         private static Func<string, object, bool, IDisposable> GetPushProperty()
