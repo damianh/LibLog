@@ -1769,7 +1769,7 @@ namespace YourRootNamespace.Logging.LogProviders
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool s_providerIsAvailableOverride = true;
-        private static Func<string, string, IDisposable> _pushProperty;
+        private static Func<string, object, bool, IDisposable> _pushProperty;
 
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "Serilog")]
         public SerilogLogProvider()
