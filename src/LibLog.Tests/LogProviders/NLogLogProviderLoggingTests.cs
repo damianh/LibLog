@@ -136,5 +136,31 @@
                 _target.Logs[0].ShouldBe("INFO||value|m|");
             }
         }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, true))
+            {
+                _sut.Info("m");
+
+                _target.Logs[0].ShouldBe("INFO||World|m|");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_not_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, false))
+            {
+                _sut.Info("m");
+
+                _target.Logs[0].ShouldBe("INFO||World|m|");
+            }
+        }
     }
 }

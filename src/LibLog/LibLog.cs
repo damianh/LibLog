@@ -471,7 +471,7 @@ namespace YourRootNamespace.Logging
         /// <param name="key">A key.</param>
         /// <param name="value">A value.</param>
         /// <returns>A disposable that when disposed removes the map from the context.</returns>
-        IDisposable OpenMappedContext(string key, string value);
+        IDisposable OpenMappedContext(string key, object value, bool destructure = false);
     }
 
     /// <summary>
@@ -641,13 +641,13 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenMappedContext(string key, string value)
+        static IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
 
             return logProvider == null
                 ? new DisposableAction(() => { })
-                : logProvider.OpenMappedContext(key, value);
+                : logProvider.OpenMappedContext(key, value, destructure);
         }
 #endif
 
@@ -812,7 +812,7 @@ namespace YourRootNamespace.Logging.LogProviders
     internal abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
-        protected delegate IDisposable OpenMdc(string key, string value);
+        protected delegate IDisposable OpenMdc(string key, object value, bool destructure);
 
         private readonly Lazy<OpenNdc> _lazyOpenNdcMethod;
         private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
@@ -833,9 +833,9 @@ namespace YourRootNamespace.Logging.LogProviders
             return _lazyOpenNdcMethod.Value(message);
         }
 
-        public IDisposable OpenMappedContext(string key, string value)
+        public IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
-            return _lazyOpenMdcMethod.Value(key, value);
+            return _lazyOpenMdcMethod.Value(key, value, destructure);
         }
 
         protected virtual OpenNdc GetOpenNdcMethod()
@@ -845,7 +845,7 @@ namespace YourRootNamespace.Logging.LogProviders
 
         protected virtual OpenMdc GetOpenMdcMethod()
         {
-            return (_, __) => NoopDisposableInstance;
+            return (_, __, ___) => NoopDisposableInstance;
         }
     }
 
@@ -912,9 +912,9 @@ namespace YourRootNamespace.Logging.LogProviders
                 .Lambda<Action<string>>(removeMethodCall, keyParam)
                 .Compile();
 
-            return (key, value) =>
+            return (key, value, _) =>
             {
-                set(key, value);
+                set(key, value.ToString());
                 return new DisposableAction(() => remove(key));
             };
         }
@@ -1288,9 +1288,9 @@ namespace YourRootNamespace.Logging.LogProviders
                 .Lambda<Action<string>>(removeMethodCall, keyParam)
                 .Compile();
 
-            return (key, value) =>
+            return (key, value, _) =>
             {
-                set(key, value);
+                set(key, value.ToString());
                 return new DisposableAction(() => remove(key));
             };
         }
@@ -1769,7 +1769,7 @@ namespace YourRootNamespace.Logging.LogProviders
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool s_providerIsAvailableOverride = true;
-        private static Func<string, string, IDisposable> _pushProperty;
+        private static Func<string, object, bool, IDisposable> _pushProperty;
 
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "Serilog")]
         public SerilogLogProvider()
@@ -1800,15 +1800,15 @@ namespace YourRootNamespace.Logging.LogProviders
 
         protected override OpenNdc GetOpenNdcMethod()
         {
-            return message => _pushProperty("NDC", message);
+            return message => _pushProperty("NDC", message, false);
         }
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            return (key, value) => _pushProperty(key, value);
+            return (key, value, destructure) => _pushProperty(key, value, destructure);
         }
 
-        private static Func<string, string, IDisposable> GetPushProperty()
+        private static Func<string, object, bool, IDisposable> GetPushProperty()
         {
             Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog") ?? 
                                   Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
@@ -1831,8 +1831,8 @@ namespace YourRootNamespace.Logging.LogProviders
                     valueParam,
                     destructureObjectParam)
                 .Compile();
-            
-            return (key, value) => pushProperty(key, value, false);
+
+            return (key, value, destructure) => pushProperty(key, value, destructure);
         }
 
         private static Type GetLogManagerType()
