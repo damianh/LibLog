@@ -499,7 +499,7 @@ namespace YourRootNamespace.Logging
         /// <param name="key">A key.</param>
         /// <param name="value">A value.</param>
         /// <returns>A disposable that when disposed removes the map from the context.</returns>
-        IDisposable OpenMappedContext(string key, string value);
+        IDisposable OpenMappedContext(string key, object value, bool destructure = false);
     }
 
     /// <summary>
@@ -520,6 +520,7 @@ namespace YourRootNamespace.Logging
                                                "with a non-null value first.";
         private static dynamic s_currentLogProvider;
         private static Action<ILogProvider> s_onCurrentLogProviderSet;
+        private static Lazy<ILogProvider> s_resolvedLogProvider = new Lazy<ILogProvider>(() => ForceResolveLogProvider());
 
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static LogProvider()
@@ -669,13 +670,13 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static IDisposable OpenMappedContext(string key, string value)
+        static IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
             ILogProvider logProvider = CurrentLogProvider ?? ResolveLogProvider();
 
             return logProvider == null
                 ? new DisposableAction(() => { })
-                : logProvider.OpenMappedContext(key, value);
+                : logProvider.OpenMappedContext(key, value, destructure);
         }
 #endif
 
@@ -718,9 +719,14 @@ namespace YourRootNamespace.Logging
         }
 #endif
 
+        internal static ILogProvider ResolveLogProvider()
+        {
+            return s_resolvedLogProvider.Value;
+        }
+
         [SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "System.Console.WriteLine(System.String,System.Object,System.Object)")]
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
-        internal static ILogProvider ResolveLogProvider()
+        internal static ILogProvider ForceResolveLogProvider()
         {
             try
             {
@@ -883,7 +889,7 @@ namespace YourRootNamespace.LibLog.LogProviders
     internal abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
-        protected delegate IDisposable OpenMdc(string key, string value);
+        protected delegate IDisposable OpenMdc(string key, object value, bool destructure);
 
         private readonly Lazy<OpenNdc> _lazyOpenNdcMethod;
         private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
@@ -904,9 +910,9 @@ namespace YourRootNamespace.LibLog.LogProviders
             return _lazyOpenNdcMethod.Value(message);
         }
 
-        public IDisposable OpenMappedContext(string key, string value)
+        public IDisposable OpenMappedContext(string key, object value, bool destructure = false)
         {
-            return _lazyOpenMdcMethod.Value(key, value);
+            return _lazyOpenMdcMethod.Value(key, value, destructure);
         }
 
         protected virtual OpenNdc GetOpenNdcMethod()
@@ -916,7 +922,7 @@ namespace YourRootNamespace.LibLog.LogProviders
 
         protected virtual OpenMdc GetOpenMdcMethod()
         {
-            return (_, __) => NoopDisposableInstance;
+            return (_, __, ___) => NoopDisposableInstance;
         }
     }
 
@@ -983,9 +989,9 @@ namespace YourRootNamespace.LibLog.LogProviders
                 .Lambda<Action<string>>(removeMethodCall, keyParam)
                 .Compile();
 
-            return (key, value) =>
+            return (key, value, _) =>
             {
-                set(key, value);
+                set(key, value.ToString());
                 return new DisposableAction(() => remove(key));
             };
         }
@@ -1346,9 +1352,9 @@ namespace YourRootNamespace.LibLog.LogProviders
                 .Lambda<Action<string>>(removeMethodCall, keyParam)
                 .Compile();
 
-            return (key, value) =>
+            return (key, value, _) =>
             {
-                set(key, value);
+                set(key, value.ToString());
                 return new DisposableAction(() => remove(key));
             };
         }
@@ -1827,7 +1833,7 @@ namespace YourRootNamespace.LibLog.LogProviders
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
         private static bool s_providerIsAvailableOverride = true;
-        private static Func<string, string, IDisposable> _pushProperty;
+        private static Func<string, object, bool, IDisposable> _pushProperty;
 
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "Serilog")]
         public SerilogLogProvider()
@@ -1858,15 +1864,15 @@ namespace YourRootNamespace.LibLog.LogProviders
 
         protected override OpenNdc GetOpenNdcMethod()
         {
-            return message => _pushProperty("NDC", message);
+            return message => _pushProperty("NDC", message, false);
         }
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            return (key, value) => _pushProperty(key, value);
+            return (key, value, destructure) => _pushProperty(key, value, destructure);
         }
 
-        private static Func<string, string, IDisposable> GetPushProperty()
+        private static Func<string, object, bool, IDisposable> GetPushProperty()
         {
             Type ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog") ?? 
                                   Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
@@ -1889,8 +1895,8 @@ namespace YourRootNamespace.LibLog.LogProviders
                     valueParam,
                     destructureObjectParam)
                 .Compile();
-            
-            return (key, value) => pushProperty(key, value, false);
+
+            return (key, value, destructure) => pushProperty(key, value, destructure);
         }
 
         private static Type GetLogManagerType()

@@ -61,6 +61,9 @@
     <Compile Include="..\LibLog.Tests\LogProviders\LogExtensions.cs">
       <Link>LogExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\LibLog.Tests\LogProviders\MyMappedContext.cs">
+      <Link>MyMappedContext.cs</Link>
+    </Compile>
     <Compile Include="..\LibLog.Tests\LogProviders\NLogLogProviderLoggingTests.cs">
       <Link>NLogLogProviderLoggingTests.cs</Link>
     </Compile>

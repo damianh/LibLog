@@ -133,6 +133,36 @@
         }
 
         [Fact]
+        public void Can_open_mapped_diagnostics_context_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, true))
+            {
+                _sut.Info("m");
+                var loggingEvent = _memoryAppender.GetEvents().Single();
+
+                loggingEvent.Properties.GetKeys().ShouldContain("key");
+                loggingEvent.Properties["key"].ShouldBe("World");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_not_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, false))
+            {
+                _sut.Info("m");
+                var loggingEvent = _memoryAppender.GetEvents().Single();
+
+                loggingEvent.Properties.GetKeys().ShouldContain("key");
+                loggingEvent.Properties["key"].ShouldBe("World");
+            }
+        }
+
+        [Fact]
         public void Should_log_message_with_curly_brackets()
         {
             _sut.Log(LogLevel.Debug, () => "Query language substitutions: {'true'='1', 'false'='0', 'yes'=''Y'', 'no'=''N''}");

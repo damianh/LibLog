@@ -155,5 +155,31 @@
             myTarget.Logs[myTarget.Logs.Count - 1].ShouldBe(string.Format("INFO|{0}.{1}|c|", GetType().FullName, nameof(Can_capture_callsite)));
         }
 #endif
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, true))
+            {
+                _sut.Info("m");
+
+                _target.Logs[0].ShouldBe("INFO||World|m|");
+            }
+        }
+
+        [Fact]
+        public void Can_open_mapped_diagnostics_context_not_destructured()
+        {
+            var context = new MyMappedContext();
+
+            using (_logProvider.OpenMappedContext("key", context, false))
+            {
+                _sut.Info("m");
+
+                _target.Logs[0].ShouldBe("INFO||World|m|");
+            }
+        }
     }
 }
