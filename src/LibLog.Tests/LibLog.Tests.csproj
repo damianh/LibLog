@@ -136,7 +136,6 @@
     <Compile Include="LogMessageFormatterTests.cs" />
     <Compile Include="LogProviders\LoupeLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\Log4NetLogProviderLoggingTests.cs" />
-    <Compile Include="LogProviders\EntLibLogProviderLoggingTests.cs" />
     <Compile Include="LogProviders\LogExtensions.cs" />
     <Compile Include="LogProviders\MyMappedContext.cs" />
     <Compile Include="LogProviders\SerilogLogProviderLoggingTests.cs" />
