@@ -132,53 +132,55 @@ namespace YourRootNamespace.Logging
 #endif
     static partial class LogExtensions
     {
+        internal static readonly object[] EmptyParams = new object[0];
+
         public static bool IsDebugEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Debug, null);
+            return logger.Log(LogLevel.Debug, null, null, EmptyParams);
         }
 
         public static bool IsErrorEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Error, null);
+            return logger.Log(LogLevel.Error, null, null, EmptyParams);
         }
 
         public static bool IsFatalEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Fatal, null);
+            return logger.Log(LogLevel.Fatal, null, null, EmptyParams);
         }
 
         public static bool IsInfoEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Info, null);
+            return logger.Log(LogLevel.Info, null, null, EmptyParams);
         }
 
         public static bool IsTraceEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Trace, null);
+            return logger.Log(LogLevel.Trace, null, null, EmptyParams);
         }
 
         public static bool IsWarnEnabled(this ILog logger)
         {
             GuardAgainstNullLogger(logger);
-            return logger.Log(LogLevel.Warn, null);
+            return logger.Log(LogLevel.Warn, null, null, EmptyParams);
         }
 
         public static void Debug(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Debug, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Debug, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Debug(this ILog logger, string message)
         {
             if (logger.IsDebugEnabled())
             {
-                logger.Log(LogLevel.Debug, message.AsFunc());
+                logger.Log(LogLevel.Debug, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -187,9 +189,40 @@ namespace YourRootNamespace.Logging
             logger.DebugFormat(message, args);
         }
 
+        public static void Debug(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                logger.DebugFormat(message, arg0);
+            }
+        }
+
+        public static void Debug(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                logger.DebugFormat(message, arg0, arg1);
+            }
+        }
+        public static void Debug(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                logger.DebugFormat(message, arg0, arg1, arg2);
+            }
+        }
+
         public static void Debug(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.DebugException(message, exception, args);
+        }
+
+        public static void Debug(this ILog logger, Exception exception, string message, object arg0)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                logger.DebugException(message, exception, arg0);
+            }
         }
 
         public static void DebugFormat(this ILog logger, string message, params object[] args)
@@ -200,14 +233,68 @@ namespace YourRootNamespace.Logging
             }
         }
 
+        public static void DebugFormat(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Debug, message, arg0);
+            }
+        }
+
+        public static void DebugFormat(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Debug, message, arg0, arg1);
+            }
+        }
+
+        public static void DebugFormat(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Debug, message, arg0, arg1, arg2);
+            }
+        }
+
         public static void DebugException(this ILog logger, string message, Exception exception)
         {
             if (logger.IsDebugEnabled())
             {
-                logger.Log(LogLevel.Debug, message.AsFunc(), exception);
+                logger.Log(LogLevel.Debug, message.AsFunc(), exception, EmptyParams);
             }
         }
 
+        public static void DebugException(this ILog logger, string message, Exception exception, object formatParam0)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Debug, message.AsFunc(), exception, formatParam0);
+            }
+        }
+
+        public static void DebugException(this ILog logger, string message, Exception exception, object formatParam0, object formatParam1)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Debug, message.AsFunc(), exception, formatParam0, formatParam1);
+            }
+        }
+
+        public static void DebugException(this ILog logger, string message, Exception exception, object formatParam0, object formatParam1, object formatParam2)
+        {
+            if (logger.IsDebugEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Debug, message.AsFunc(), exception, formatParam0, formatParam1, formatParam2);
+            }
+        }
+        
         public static void DebugException(this ILog logger, string message, Exception exception, params object[] formatParams)
         {
             if (logger.IsDebugEnabled())
@@ -219,14 +306,14 @@ namespace YourRootNamespace.Logging
         public static void Error(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Error, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Error, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Error(this ILog logger, string message)
         {
             if (logger.IsErrorEnabled())
             {
-                logger.Log(LogLevel.Error, message.AsFunc());
+                logger.Log(LogLevel.Error, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -258,14 +345,14 @@ namespace YourRootNamespace.Logging
 
         public static void Fatal(this ILog logger, Func<string> messageFunc)
         {
-            logger.Log(LogLevel.Fatal, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Fatal, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Fatal(this ILog logger, string message)
         {
             if (logger.IsFatalEnabled())
             {
-                logger.Log(LogLevel.Fatal, message.AsFunc());
+                logger.Log(LogLevel.Fatal, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -298,14 +385,14 @@ namespace YourRootNamespace.Logging
         public static void Info(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Info, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Info, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Info(this ILog logger, string message)
         {
             if (logger.IsInfoEnabled())
             {
-                logger.Log(LogLevel.Info, message.AsFunc());
+                logger.Log(LogLevel.Info, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -314,9 +401,60 @@ namespace YourRootNamespace.Logging
             logger.InfoFormat(message, args);
         }
 
+        public static void Info(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                logger.InfoFormat(message, arg0);
+            }
+        }
+
+        public static void Info(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                logger.InfoFormat(message, arg0, arg1);
+            }
+        }
+
+        public static void Info(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                logger.InfoFormat(message, arg0, arg1, arg2);
+            }
+        }
+
         public static void Info(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.InfoException(message, exception, args);
+        }
+
+        public static void Info(this ILog logger, Exception exception, string message, object arg0)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.InfoException(message, exception, arg0);
+            }
+        }
+
+        public static void Info(this ILog logger, Exception exception, string message, object arg0, object arg1)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.InfoException(message, exception, arg0, arg1);
+            }
+        }
+
+        public static void Info(this ILog logger, Exception exception, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.InfoException(message, exception, arg0, arg1, arg2);
+            }
         }
 
         public static void InfoFormat(this ILog logger, string message, params object[] args)
@@ -324,6 +462,33 @@ namespace YourRootNamespace.Logging
             if (logger.IsInfoEnabled())
             {
                 logger.LogFormat(LogLevel.Info, message, args);
+            }
+        }
+
+        public static void InfoFormat(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Info, message, arg0);
+            }
+        }
+
+        public static void InfoFormat(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Info, message, arg0, arg1);
+            }
+        }
+
+        public static void InfoFormat(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsInfoEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Info, message, arg0, arg1, arg2);
             }
         }
 
@@ -338,14 +503,14 @@ namespace YourRootNamespace.Logging
         public static void Trace(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Trace, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Trace, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Trace(this ILog logger, string message)
         {
             if (logger.IsTraceEnabled())
             {
-                logger.Log(LogLevel.Trace, message.AsFunc());
+                logger.Log(LogLevel.Trace, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -354,9 +519,57 @@ namespace YourRootNamespace.Logging
             logger.TraceFormat(message, args);
         }
 
+        public static void Trace(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceFormat(message, arg0);
+            }
+        }
+
+        public static void Trace(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceFormat(message, arg0, arg1);
+            }
+        }
+
+        public static void Trace(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceFormat(message, arg0, arg1, arg2);
+            }
+        }
+
         public static void Trace(this ILog logger, Exception exception, string message, params object[] args)
         {
             logger.TraceException(message, exception, args);
+        }
+
+        public static void Trace(this ILog logger, Exception exception, string message, object arg0)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceException(message, exception, arg0);
+            }
+        }
+
+        public static void Trace(this ILog logger, Exception exception, string message, object arg0, object arg1)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceException(message, exception, arg0, arg1);
+            }
+        }
+
+        public static void Trace(this ILog logger, Exception exception, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                logger.TraceException(message, exception, arg0, arg1, arg2);
+            }
         }
 
         public static void TraceFormat(this ILog logger, string message, params object[] args)
@@ -364,6 +577,33 @@ namespace YourRootNamespace.Logging
             if (logger.IsTraceEnabled())
             {
                 logger.LogFormat(LogLevel.Trace, message, args);
+            }
+        }
+
+        public static void TraceFormat(this ILog logger, string message, object arg0)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Trace, message, arg0);
+            }
+        }
+
+        public static void TraceFormat(this ILog logger, string message, object arg0, object arg1)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Trace, message, arg0, arg1);
+            }
+        }
+
+        public static void TraceFormat(this ILog logger, string message, object arg0, object arg1, object arg2)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.LogFormat(LogLevel.Trace, message, arg0, arg1, arg2);
             }
         }
 
@@ -375,17 +615,44 @@ namespace YourRootNamespace.Logging
             }
         }
 
+        public static void TraceException(this ILog logger, string message, Exception exception, object formatParam0)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Trace, message.AsFunc(), exception, formatParam0);
+            }
+        }
+
+        public static void TraceException(this ILog logger, string message, Exception exception, object formatParam0, object formatParam1)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Trace, message.AsFunc(), exception, formatParam0, formatParam1);
+            }
+        }
+
+        public static void TraceException(this ILog logger, string message, Exception exception, object formatParam0, object formatParam1, object formatParam2)
+        {
+            if (logger.IsTraceEnabled())
+            {
+                // ReSharper disable once HeapView.ObjectAllocation
+                logger.Log(LogLevel.Trace, message.AsFunc(), exception, formatParam0, formatParam1, formatParam2);
+            }
+        }
+
         public static void Warn(this ILog logger, Func<string> messageFunc)
         {
             GuardAgainstNullLogger(logger);
-            logger.Log(LogLevel.Warn, WrapLogInternal(messageFunc));
+            logger.Log(LogLevel.Warn, WrapLogInternal(messageFunc), null, EmptyParams);
         }
 
         public static void Warn(this ILog logger, string message)
         {
             if (logger.IsWarnEnabled())
             {
-                logger.Log(LogLevel.Warn, message.AsFunc());
+                logger.Log(LogLevel.Warn, message.AsFunc(), null, EmptyParams);
             }
         }
 
@@ -451,7 +718,7 @@ namespace YourRootNamespace.Logging
                 }
                 catch (Exception ex)
                 {
-                    logger.WrappedLogger(LogLevel.Error, () => LoggerExecutionWrapper.FailedToGenerateLogMessage, ex);
+                    logger.WrappedLogger(LogLevel.Error, () => LoggerExecutionWrapper.FailedToGenerateLogMessage, ex, EmptyParams);
                 }
                 return null;
             };
@@ -803,7 +1070,7 @@ namespace YourRootNamespace.Logging
             }
             if (messageFunc == null)
             {
-                return _logger(logLevel, null);
+                return _logger(logLevel, null, null, LogExtensions.EmptyParams);
             }
 
 #if !LIBLOG_PORTABLE
@@ -837,7 +1104,7 @@ namespace YourRootNamespace.Logging
                     }
                     catch (Exception ex)
                     {
-                        _logger(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
+                        _logger(LogLevel.Error, () => FailedToGenerateLogMessage, ex, LogExtensions.EmptyParams);
                     }
                     return null;
                 };
