@@ -3,7 +3,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>LibLog.Example.Library</RootNamespace>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;LIBLOG_PUBLIC</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;LIBLOG_PUBLIC</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LibLog" Version="5.0.0-build.410" />
+    <PackageReference Include="LibLog" Version="5.0.0-build.416" />
   </ItemGroup>
 </Project>

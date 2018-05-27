@@ -1,4 +1,8 @@
-﻿namespace LibLog.Example.Library
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("LibLog.Example.ColoredConsoleLogProvider")]
+
+namespace LibLog.Example.Library
 {
     using LibLog.Example.Library.Logging;
 
