@@ -1676,10 +1676,13 @@ namespace YourRootNamespace.LibLog.LogProviders
         private static Func<string, object> GetGetLoggerMethodCall()
         {
             Type logManagerType = GetLogManagerType();
-            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", typeof(string));
+            var log4netAssembly = Assembly.GetAssembly(logManagerType);
+            MethodInfo method = logManagerType.GetMethodPortable("GetLogger", typeof(Assembly), typeof(string));
+            ParameterExpression repositoryAssemblyParam = Expression.Parameter(typeof(Assembly), "repositoryAssembly");
             ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
-            MethodCallExpression methodCall = Expression.Call(null, method, nameParam);
-            return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
+            MethodCallExpression methodCall = Expression.Call(null, method, repositoryAssemblyParam, nameParam);
+            var lambda = Expression.Lambda<Func<Assembly, string, object>>(methodCall, repositoryAssemblyParam, nameParam).Compile();
+            return name => lambda(log4netAssembly, name);
         }
 
 #if !LIBLOG_PORTABLE
@@ -2210,6 +2213,7 @@ namespace YourRootNamespace.LibLog.LogProviders
 
         private static bool s_providerIsAvailableOverride = true;
         private readonly WriteDelegate _logWriteDelegate;
+        private const string LoupeAgentDll = "Loupe.Agent.NETCore";
 
         public LoupeLogProvider()
         {
@@ -2245,14 +2249,14 @@ namespace YourRootNamespace.LibLog.LogProviders
 
         private static Type GetLogManagerType()
         {
-            return Type.GetType("Gibraltar.Agent.Log, Gibraltar.Agent");
+            return Type.GetType($"Gibraltar.Agent.Log, {LoupeAgentDll}");
         }
 
         private static WriteDelegate GetLogWriteDelegate()
         {
             Type logManagerType = GetLogManagerType();
-            Type logMessageSeverityType = Type.GetType("Gibraltar.Agent.LogMessageSeverity, Gibraltar.Agent");
-            Type logWriteModeType = Type.GetType("Gibraltar.Agent.LogWriteMode, Gibraltar.Agent");
+            Type logMessageSeverityType = Type.GetType($"Gibraltar.Agent.LogMessageSeverity, {LoupeAgentDll}");
+            Type logWriteModeType = Type.GetType($"Gibraltar.Agent.LogWriteMode, {LoupeAgentDll}");
 
             MethodInfo method = logManagerType.GetMethodPortable(
                 "Write",

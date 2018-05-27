@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using System.Reflection;
     using log4net;
     using log4net.Appender;
     using log4net.Config;
@@ -21,7 +22,7 @@
         public Log4NetLogProviderLoggingTests()
         {
             _memoryAppender = new MemoryAppender();
-            BasicConfigurator.Configure(_memoryAppender);
+            BasicConfigurator.Configure(LogManager.GetRepository(Assembly.GetAssembly(typeof(LogManager))), _memoryAppender);
             _logProvider = new Log4NetLogProvider();
             _sut = new LoggerExecutionWrapper(new Log4NetLogProvider().GetLogger("Test"));
         }
