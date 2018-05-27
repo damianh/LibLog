@@ -6,19 +6,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog", "LibLog\LibLog.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Tests", "LibLog.Tests\LibLog.Tests.csproj", "{543C177D-4ED3-45C2-BAC8-6A4E89D802BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Log4Net", "LibLog.Example.Log4Net\LibLog.Example.Log4Net.csproj", "{48E74C66-66A7-4DD7-9762-D90F1E20B00F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.Log4Net", "LibLog.Example.Log4Net\LibLog.Example.Log4Net.csproj", "{48E74C66-66A7-4DD7-9762-D90F1E20B00F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{C63C1E27-7A81-450C-90A6-62E91C389AC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Library", "LibLog.Example.Library\LibLog.Example.Library.csproj", "{E7F9CE74-9F02-4DDF-822F-FA9B9F4FA139}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.Library", "LibLog.Example.Library\LibLog.Example.Library.csproj", "{E7F9CE74-9F02-4DDF-822F-FA9B9F4FA139}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.NLog", "LibLog.Example.NLog\LibLog.Example.NLog.csproj", "{454FADA3-7AB4-4FBE-945A-80C6C55DA8D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.NLog", "LibLog.Example.NLog\LibLog.Example.NLog.csproj", "{454FADA3-7AB4-4FBE-945A-80C6C55DA8D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.Serilog", "LibLog.Example.Serilog\LibLog.Example.Serilog.csproj", "{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.Serilog", "LibLog.Example.Serilog\LibLog.Example.Serilog.csproj", "{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Example.ColoredConsoleLogProvider", "LibLog.Example.ColoredConsoleLogProvider\LibLog.Example.ColoredConsoleLogProvider.csproj", "{AE63060E-10DB-497E-B161-3C13FF865C7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.ColoredConsoleLogProvider", "LibLog.Example.ColoredConsoleLogProvider\LibLog.Example.ColoredConsoleLogProvider.csproj", "{AE63060E-10DB-497E-B161-3C13FF865C7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibLog.Tests.NoLogFwkReferences", "LibLog.Tests.NoLogFwkReferences\LibLog.Tests.NoLogFwkReferences.csproj", "{71AF4769-AF1A-4913-A79D-08314EC06A63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Tests.NoLogFwkReferences", "LibLog.Tests.NoLogFwkReferences\LibLog.Tests.NoLogFwkReferences.csproj", "{71AF4769-AF1A-4913-A79D-08314EC06A63}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibLog.Example.ProvidersOnly", "LibLog.Example.ProvidersOnly\LibLog.Example.ProvidersOnly.csproj", "{781257E2-E9DF-45DE-A124-40293F66EF53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,6 +128,18 @@ Global
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Release|x64.Build.0 = Release|Any CPU
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Release|x86.ActiveCfg = Release|Any CPU
 		{71AF4769-AF1A-4913-A79D-08314EC06A63}.Release|x86.Build.0 = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|x64.Build.0 = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Debug|x86.Build.0 = Debug|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|x64.ActiveCfg = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|x64.Build.0 = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|x86.ActiveCfg = Release|Any CPU
+		{781257E2-E9DF-45DE-A124-40293F66EF53}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,9 +150,10 @@ Global
 		{454FADA3-7AB4-4FBE-945A-80C6C55DA8D2} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 		{2D86ADF2-1C4C-4C85-B2BC-66282C3349B4} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 		{AE63060E-10DB-497E-B161-3C13FF865C7B} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
+		{781257E2-E9DF-45DE-A124-40293F66EF53} = {C63C1E27-7A81-450C-90A6-62E91C389AC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {CEC4A5C3-27B3-4C4C-A692-2E314648E55A}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.0\lib\NET35;packages\Unity.Interception.2.1.505.0\lib\NET35;packages\EnterpriseLibrary.Common.5.0.505.0\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.0\lib\NET35;packages\Unity.2.1.505.2\lib\NET35;packages\Unity.Interception.2.1.505.2\lib\NET35;packages\EnterpriseLibrary.Logging.5.0.505.1\lib\NET35
+		SolutionGuid = {CEC4A5C3-27B3-4C4C-A692-2E314648E55A}
 	EndGlobalSection
 EndGlobal
