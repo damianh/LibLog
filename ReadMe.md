@@ -9,8 +9,9 @@ Please see [Wiki](https://github.com/damianh/LibLog/wiki) for more information.
 LibLog uses `.pp` file to do a namespace transform (aka [source
 transform](https://docs.microsoft.com/en-us/nuget/create-packages/source-and-config-file-transformations))
 so it fits into your project's namespace. This is handled transparently by the
-new dotnet sdk as of LibLog version 5.0.0. For older project formats, please
-continue to use LibLog 4.x versions.
+new dotnet sdk as of LibLog version 5.0.0. If you change your projects root
+namespace then LibLog will automatically change also. For older project
+formats, please continue to use LibLog 4.x versions.
 
 ## Compiler Options
 
