@@ -1,5 +1,4 @@
-﻿#if !LIBLOG_PROVIDERS_ONLY
-namespace YourRootNamespace.Logging
+﻿namespace YourRootNamespace.Logging
 {
     using System;
 
@@ -30,4 +29,3 @@ namespace YourRootNamespace.Logging
             params object[] formatParameters);
     }
 }
-#endif
