@@ -25,6 +25,7 @@
 // SOFTWARE.
 //===============================================================================
 
+// @formatter:off — disable resharper formatter after this line
 // ReSharper disable PossibleNullReferenceException
 
 // Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
@@ -2715,3 +2716,4 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 }
+// @formatter:on — enable resharper formatter after this line
