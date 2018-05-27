@@ -28,10 +28,11 @@ This package is a variation of option 3 but will automatically wire things up to
             <frameworkAssembly assemblyName="Microsoft.CSharp" />
         </frameworkAssemblies>
         <contentFiles>
-            <files include="LibLog.cs.pp" />
+            <files include="*.cs.pp" />
+            <files include="LogProviders/*.cs.pp" />
         </contentFiles>
     </metadata>
     <files>
-        <file src="LibLog.cs.pp" target="contentFiles/cs/netstandard2.0/LibLog.cs.pp" />
+        <file src="**/*.cs.pp" target="contentFiles/cs/netstandard2.0" />
     </files>
 </package>

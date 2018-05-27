@@ -5,7 +5,15 @@ $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
 
 dotnet build src\LibLog.sln -c Release -
 dotnet test src\LibLog.Tests -c Release --no-build
-(Get-Content ./src/LibLog/LibLog.cs).Replace('YourRootNamespace.', '$rootnamespace$.') `
-    | Set-Content ./src/LibLog/LibLog.cs.pp
+
+Get-ChildItem ./src/*.pp -Recurse | ForEach-Object { Remove-Item $_ }
+
+$files = (Get-ChildItem -Path ./src/LibLog -Filter *.cs -File) +
+         (Get-ChildItem -Path ./src/LibLog/LogProviders -Filter *.cs -File)
+
+$files | ForEach-Object { 
+    (Get-Content $_.FullName).Replace('YourRootNamespace.', '$rootnamespace$.') |
+    Set-Content ($_.FullName + ".pp")
+}
 
 & $NUGET_EXE pack src/LibLog/LibLog.nuspec -Suffix $suffix -OutputDirectory artifacts -MinClientVersion 4.3
