@@ -3,7 +3,6 @@ namespace $rootnamespace$.Logging
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-#if !LIBLOG_PROVIDERS_ONLY
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
@@ -83,5 +82,4 @@ namespace $rootnamespace$.Logging
             }
         }
     }
-#endif
 }

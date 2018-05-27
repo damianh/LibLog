@@ -164,7 +164,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 params object[] formatParameters)
             {
                 if (!Initialized.Value)
-                    throw new LibLogException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                    throw new LibLogException(ErrorInitializingProvider, s_initializeException);
 
                 if (messageFunc == null) return IsLogLevelEnable(logLevel);
 

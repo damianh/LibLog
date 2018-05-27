@@ -1,4 +1,3 @@
-#if !LIBLOG_PROVIDERS_ONLY
 namespace $rootnamespace$.Logging
 {
     using System;
@@ -30,4 +29,3 @@ namespace $rootnamespace$.Logging
             params object[] formatParameters);
     }
 }
-#endif
