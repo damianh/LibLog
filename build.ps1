@@ -1,8 +1,4 @@
-Param(
-    [string]$buildNumber = "0"
-    )
-
-$suffix = "build." + $buildNumber
+$suffix = "build." + $env:APPVEYOR_BUILD_NUMBER
 $TOOLS_DIR = Join-Path $PSScriptRoot "tools"
 $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
 
