@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RootNamespace>LibLog.Example</RootNamespace>
+    <RootNamespace>LibLog.Example.Library</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="LibLog" Version="5.0.0-build.401" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
   </ItemGroup>
 </Project>

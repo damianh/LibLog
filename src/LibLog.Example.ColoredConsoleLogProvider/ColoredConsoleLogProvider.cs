@@ -1,11 +1,12 @@
-﻿namespace LibLog.Example.ColouredConsoleLogProvider
+﻿namespace LibLog.Example.ColoredConsoleLogProvider
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using LibLog.Example.Library.Logging;
+    using LibLog.Example.Library.Logging.LogProviders;
 
-    public class ColoredConsoleLogProvider : ILogProvider
+    public class ColoredConsoleLogProvider : LogProviderBase
     {
         private static readonly Dictionary<LogLevel, ConsoleColor> Colors = new Dictionary<LogLevel, ConsoleColor>
             {
@@ -17,7 +18,7 @@
                 {LogLevel.Trace, ConsoleColor.DarkGray},
             };
 
-        public Logger GetLogger(string name)
+        public override Logger GetLogger(string name)
         {
             return (logLevel, messageFunc, exception, formatParameters) =>
             {
@@ -26,8 +27,7 @@
                     return true; // All log levels are enabled
                 }
 
-                ConsoleColor consoleColor;
-                if (Colors.TryGetValue(logLevel, out consoleColor))
+                if (Colors.TryGetValue(logLevel, out ConsoleColor consoleColor))
                 {
                     var originalForground = Console.ForegroundColor;
                     try
@@ -62,24 +62,6 @@
                 message = message + "|" + exception;
             }
             Console.WriteLine("{0} | {1} | {2} | {3}", DateTime.UtcNow, logLevel, name, message);
-        }
-
-        public IDisposable OpenNestedContext(string message)
-        {
-            return NullDisposable.Instance;
-        }
-
-        public IDisposable OpenMappedContext(string key, string value)
-        {
-            return NullDisposable.Instance;
-        }
-
-        private class NullDisposable : IDisposable
-        {
-            internal static readonly IDisposable Instance = new NullDisposable();
-
-            public void Dispose()
-            {}
         }
     }
 }
