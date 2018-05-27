@@ -122,6 +122,7 @@
 #endif
         internal class Log4NetLogger
         {
+            private static object s_levelAll;
             private static object s_levelDebug;
             private static object s_levelInfo;
             private static object s_levelWarn;
@@ -152,6 +153,7 @@
                     if (logEventLevelType == null) throw new LibLogException("Type log4net.Core.Level was not found.");
 
                     var levelFields = logEventLevelType.GetFields().ToList();
+                    s_levelAll = levelFields.First(x => x.Name == "All").GetValue(null);
                     s_levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
                     s_levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
                     s_levelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
@@ -357,6 +359,7 @@
                 switch (logLevel)
                 {
                     case LogLevel.Trace:
+                        return s_levelAll;
                     case LogLevel.Debug:
                         return s_levelDebug;
                     case LogLevel.Info:

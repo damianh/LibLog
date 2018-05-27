@@ -22,9 +22,11 @@
         public Log4NetLogProviderLoggingTests()
         {
             _memoryAppender = new MemoryAppender();
-            BasicConfigurator.Configure(LogManager.GetRepository(Assembly.GetAssembly(typeof(LogManager))), _memoryAppender);
+            var repository = LogManager.GetRepository(Assembly.GetAssembly(typeof(LogManager)));
+            BasicConfigurator.Configure(repository, _memoryAppender);
             _logProvider = new Log4NetLogProvider();
             _sut = new LoggerExecutionWrapper(new Log4NetLogProvider().GetLogger("Test"));
+            ((log4net.Repository.Hierarchy.Hierarchy)repository).Root.Level = Level.All;
         }
 
         public void Dispose()
@@ -37,7 +39,7 @@
         [InlineData(LogLevel.Error, "ERROR")]
         [InlineData(LogLevel.Fatal, "FATAL")]
         [InlineData(LogLevel.Info, "INFO")]
-        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Trace, "ALL")] //Trace messages in log4net are rendered as ALL
         [InlineData(LogLevel.Warn, "WARN")]
         public void Should_be_able_to_log_message(LogLevel logLevel, string messagePrefix)
         {
@@ -51,7 +53,7 @@
         [InlineData(LogLevel.Error, "ERROR")]
         [InlineData(LogLevel.Fatal, "FATAL")]
         [InlineData(LogLevel.Info, "INFO")]
-        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Trace, "ALL")] //Trace messages in log4net are rendered as ALL
         [InlineData(LogLevel.Warn, "WARN")]
         public void Should_be_able_to_log_message_and_exception(LogLevel logLevel, string messagePrefix)
         {
@@ -65,7 +67,7 @@
         [InlineData(LogLevel.Error, "ERROR")]
         [InlineData(LogLevel.Fatal, "FATAL")]
         [InlineData(LogLevel.Info, "INFO")]
-        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Trace, "ALL")] //Trace messages in log4net are rendered as ALL
         [InlineData(LogLevel.Warn, "WARN")]
         public void Should_be_able_to_log_message_with_formatParams(LogLevel logLevel, string messagePrefix)
         {
@@ -79,7 +81,7 @@
         [InlineData(LogLevel.Error, "ERROR")]
         [InlineData(LogLevel.Fatal, "FATAL")]
         [InlineData(LogLevel.Info, "INFO")]
-        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Trace, "ALL")] //Trace messages in log4net are rendered as ALL
         [InlineData(LogLevel.Warn, "WARN")]
         public void Should_be_able_to_log_message_and_exception_with_formatParams(LogLevel logLevel, string messagePrefix)
         {
@@ -92,7 +94,7 @@
         [InlineData(LogLevel.Error, "ERROR")]
         [InlineData(LogLevel.Fatal, "FATAL")]
         [InlineData(LogLevel.Info, "INFO")]
-        [InlineData(LogLevel.Trace, "DEBUG")] //Trace messages in log4net are rendered as Debug
+        [InlineData(LogLevel.Trace, "ALL")] //Trace messages in log4net are rendered as ALL
         [InlineData(LogLevel.Warn, "WARN")]
         public void Should_be_able_to_log_message_and_exception_with_formatParams_modifiers(LogLevel logLevel, string messagePrefix)
         {
