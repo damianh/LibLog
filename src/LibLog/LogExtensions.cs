@@ -3,8 +3,9 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-#if !LIBLOG_PROVIDERS_ONLY
+#if !LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
+#endif
 #if LIBLOG_PUBLIC
     public
 #else
@@ -465,5 +466,4 @@
             return WrappedMessageFunc;
         }
     }
-#endif
 }
