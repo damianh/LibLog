@@ -49,11 +49,7 @@ namespace YourRootNamespace.Logging
 {
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
-#if LIBLOG_PROVIDERS_ONLY
     using global::YourRootNamespace.Logging.LogProviders;
-#else
-    using global::YourRootNamespace.Logging.LogProviders;
-#endif
     using global::System;
 #if !LIBLOG_PROVIDERS_ONLY
     using global::System.Diagnostics;
@@ -77,7 +73,6 @@ namespace YourRootNamespace.Logging
         private static dynamic s_currentLogProvider;
         private static Action<ILogProvider> s_onCurrentLogProviderSet;
         private static readonly Lazy<ILogProvider> ResolvedLogProvider = new Lazy<ILogProvider>(ForceResolveLogProvider);
-        internal static string ErrorInitializingProvider = "Unable to log due to problem initializing the log provider. See inner exception for details.";
 
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static LogProvider()

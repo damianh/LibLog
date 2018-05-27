@@ -196,7 +196,7 @@
                 params object[] formatParameters)
             {
                 if (!Initialized.Value)
-                    throw new LibLogException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                    throw new LibLogException(ErrorInitializingProvider, s_initializeException);
 
                 var translatedLevel = TranslateLevel(logLevel);
                 if (messageFunc == null) return s_isEnabled(_logger, translatedLevel);
