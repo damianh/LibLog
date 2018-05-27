@@ -50,7 +50,7 @@ namespace $rootnamespace$.Logging
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
 #if LIBLOG_PROVIDERS_ONLY
-    using global::$rootnamespace$.LibLog.LogProviders;
+    using global::$rootnamespace$.Logging.LogProviders;
 #else
     using global::$rootnamespace$.Logging.LogProviders;
 #endif

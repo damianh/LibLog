@@ -5,7 +5,12 @@ namespace $rootnamespace$.Logging.LogProviders
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
-    public abstract class LogProviderBase : ILogProvider
+#if LIBLOG_PUBLIC
+    public
+#else
+    internal
+#endif
+    abstract class LogProviderBase : ILogProvider
     {
         private static readonly IDisposable NoopDisposableInstance = new DisposableAction();
         private readonly Lazy<OpenMdc> _lazyOpenMdcMethod;
