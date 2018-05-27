@@ -2,6 +2,8 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
+    using log4net;
     using log4net.Config;
     using LibLog.Example.Library;
 
@@ -9,7 +11,9 @@
     {
         private static void Main(string[] args)
         {
-            XmlConfigurator.Configure(new FileInfo("log4net.config"));
+            XmlConfigurator.Configure(
+                LogManager.GetRepository(Assembly.GetAssembly(typeof(LogManager))),
+                new FileInfo("log4net.config"));
 
             Foo.Bar();
 

@@ -3,9 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Runtime.Remoting.Messaging;
     using Serilog;
-    using Serilog.Context;
     using Serilog.Events;
     using Shouldly;
     using Xunit;
@@ -197,7 +195,7 @@
         {
             // Workaround for SerializationException on LogContext when using xUnit.net
             // https://github.com/serilog/serilog/issues/109#issuecomment-40256706
-            CallContext.FreeNamedDataSlot(typeof(LogContext).FullName);
+            // CallContext.FreeNamedDataSlot(typeof(LogContext).FullName);
         }
 
         private static void AutoRollbackLoggerSetup(LogEventLevel minimumLevel, Action<ILog> @do)

@@ -88,7 +88,7 @@
         {
             _sut.Log(logLevel, () => "m {abc}", new Exception("e"), new []{"replaced"});
 
-            _target.Logs[0].ShouldBe(messagePrefix + "|||m replaced|e");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m \"replaced\"|e");
         }
         [Theory]
         [InlineData(LogLevel.Debug, "DEBUG")]
@@ -101,7 +101,7 @@
         {
             _sut.Log(logLevel, () => "m {@abc}", new Exception("e"), new[] { "replaced" });
 
-            _target.Logs[0].ShouldBe(messagePrefix + "|||m replaced|e");
+            _target.Logs[0].ShouldBe(messagePrefix + "|||m \"replaced\"|e");
         }
         [Fact]
         public void Can_check_is_log_level_enabled()

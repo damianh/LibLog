@@ -17,7 +17,6 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = true;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
@@ -31,7 +30,6 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
@@ -40,26 +38,11 @@
         }
 
         [Fact]
-        public void When_EntLibLog_is_available_Then_should_get_EntLibLogger()
-        {
-            LogProvider.SetCurrentLogProvider(null);
-            SerilogLogProvider.ProviderIsAvailableOverride = false;
-            NLogLogProvider.ProviderIsAvailableOverride = false;
-            Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = true;
-            LoupeLogProvider.ProviderIsAvailableOverride = false;
-
-            var logProvider = LogProvider.ForceResolveLogProvider();
-            logProvider.ShouldBeOfType<EntLibLogProvider>();
-        }
-
-        [Fact]
         public void When_Serilog_is_available_Then_should_get_SeriLogLogger()
         {
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
@@ -73,7 +56,6 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
 
@@ -87,7 +69,6 @@
             LogProvider.SetCurrentLogProvider(null);
             NLogLogProvider.ProviderIsAvailableOverride = false;
             Log4NetLogProvider.ProviderIsAvailableOverride = false;
-            EntLibLogProvider.ProviderIsAvailableOverride = false;
             SerilogLogProvider.ProviderIsAvailableOverride = false;
             LoupeLogProvider.ProviderIsAvailableOverride = false;
 
@@ -152,7 +133,6 @@
         {
             NLogLogProvider.ProviderIsAvailableOverride = true;
             Log4NetLogProvider.ProviderIsAvailableOverride = true;
-            EntLibLogProvider.ProviderIsAvailableOverride = true;
             SerilogLogProvider.ProviderIsAvailableOverride = true;
             LoupeLogProvider.ProviderIsAvailableOverride = true;
             LogProvider.IsDisabled = false;
