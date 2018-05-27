@@ -1,3 +1,4 @@
+if (-not (Test-Path env:APPVEYOR_BUILD_NUMBER)) { $env:APPVEYOR_BUILD_NUMBER = '0' }
 $suffix = "build." + $env:APPVEYOR_BUILD_NUMBER
 $TOOLS_DIR = Join-Path $PSScriptRoot "tools"
 $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"

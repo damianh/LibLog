@@ -913,6 +913,7 @@ namespace $rootnamespace$.Logging
         /// </summary>
         /// <param name="key">A key.</param>
         /// <param name="value">A value.</param>
+        /// <param name="destructure">A optional paramater to indicate message should be destructured.</param>
         /// <returns>An <see cref="IDisposable"/> that closes context when disposed.</returns>
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "SetCurrentLogProvider")]
 #if LIBLOG_PUBLIC
