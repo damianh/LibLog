@@ -50,7 +50,7 @@ namespace YourRootNamespace.Logging
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
 #if LIBLOG_PROVIDERS_ONLY
-    using global::YourRootNamespace.LibLog.LogProviders;
+    using global::YourRootNamespace.Logging.LogProviders;
 #else
     using global::YourRootNamespace.Logging.LogProviders;
 #endif
