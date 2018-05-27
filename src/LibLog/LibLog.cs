@@ -1108,7 +1108,7 @@ namespace YourRootNamespace.LibLog.LogProviders
     using global::System.Reflection;
     using global::System.Text.RegularExpressions;
     [ExcludeFromCodeCoverage]
-    internal abstract class LogProviderBase : ILogProvider
+    public abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
         protected delegate IDisposable OpenMdc(string key, object value, bool destructure);
