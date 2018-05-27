@@ -782,6 +782,7 @@ namespace YourRootNamespace.Logging
         private static dynamic s_currentLogProvider;
         private static Action<ILogProvider> s_onCurrentLogProviderSet;
         private static readonly Lazy<ILogProvider> ResolvedLogProvider = new Lazy<ILogProvider>(ForceResolveLogProvider);
+        internal static string ErrorInitializingProvider = "Unable to log due to problem initializing the log provider. See inner exception for details.";
 
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static LogProvider()
@@ -1099,6 +1100,7 @@ namespace YourRootNamespace.LibLog.LogProviders
     namespace YourRootNamespace.Logging.LogProviders
 #endif
 {
+    using System.Threading;
     using global::System;
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
@@ -1224,18 +1226,20 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             private readonly dynamic _logger;
 
-            private static readonly Func<string, object, string, object[], Exception, object> LogEventInfoFact;
+            private static Func<string, object, string, object[], Exception, object> s_logEventInfoFact;
 
-            private static readonly object LevelTrace;
-            private static readonly object LevelDebug;
-            private static readonly object LevelInfo;
-            private static readonly object LevelWarn;
-            private static readonly object LevelError;
-            private static readonly object LevelFatal;
+            private static object s_levelTrace;
+            private static object s_levelDebug;
+            private static object s_levelInfo;
+            private static object s_levelWarn;
+            private static object s_levelError;
+            private static object s_levelFatal;
 
-            private static readonly bool StructuredLoggingEnabled;
+            private static bool s_structuredLoggingEnabled;
+            private static readonly Lazy<bool> Initialized = new Lazy<bool>(Initialize);
+            private static Exception s_initializeException;
 
-            static NLogLogger()
+            private static bool Initialize()
             {
                 try
                 {
@@ -1246,12 +1250,12 @@ namespace YourRootNamespace.LibLog.LogProviders
                     }
 
                     var levelFields = logEventLevelType.GetFields().ToList();
-                    LevelTrace = levelFields.First(x => x.Name == "Trace").GetValue(null);
-                    LevelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
-                    LevelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
-                    LevelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
-                    LevelError = levelFields.First(x => x.Name == "Error").GetValue(null);
-                    LevelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
+                    s_levelTrace = levelFields.First(x => x.Name == "Trace").GetValue(null);
+                    s_levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
+                    s_levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
+                    s_levelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
+                    s_levelError = levelFields.First(x => x.Name == "Error").GetValue(null);
+                    s_levelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
 
                     var logEventInfoType = Type.GetType("NLog.LogEventInfo, NLog");
                     if (logEventInfoType == null)
@@ -1279,12 +1283,17 @@ namespace YourRootNamespace.LibLog.LogProviders
                                         exceptionParam
                                         );
 
-                    LogEventInfoFact = Expression.Lambda<Func<string, object, string, object[], Exception, object>>(newLoggingEventExpression,
+                    s_logEventInfoFact = Expression.Lambda<Func<string, object, string, object[], Exception, object>>(newLoggingEventExpression,
                         loggerNameParam, levelParam, messageParam, messageArgsParam, exceptionParam).Compile();
 
-                    StructuredLoggingEnabled = IsStructuredLoggingEnabled();
+                    s_structuredLoggingEnabled = IsStructuredLoggingEnabled();
                 }
-                catch { }
+                catch(Exception ex)
+                {
+                    s_initializeException = ex;
+                    return false;
+                }
+                return true;
             }
 
             internal NLogLogger(dynamic logger)
@@ -1293,17 +1302,22 @@ namespace YourRootNamespace.LibLog.LogProviders
             [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
+                if (!Initialized.Value)
+                {
+                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                }
+
                 if (messageFunc == null)
                 {
                     return IsLogLevelEnable(logLevel);
                 }
 
-                if (LogEventInfoFact != null)
+                if (s_logEventInfoFact != null)
                 {
                     if (IsLogLevelEnable(logLevel))
                     {
                         var formatMessage = messageFunc();
-                        if (!StructuredLoggingEnabled)
+                        if (!s_structuredLoggingEnabled)
                         {
                             formatMessage =
                                 LogMessageFormatter.FormatStructuredMessage(formatMessage,
@@ -1324,7 +1338,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         }
                         var nlogLevel = TranslateLevel(logLevel);
-                        var nlogEvent = LogEventInfoFact(_logger.Name, nlogLevel, formatMessage, formatParameters, exception);
+                        var nlogEvent = s_logEventInfoFact(_logger.Name, nlogLevel, formatMessage, formatParameters, exception);
                         _logger.Log(callsiteLoggerType, nlogEvent);
                         return true;
                     }
@@ -1460,17 +1474,17 @@ namespace YourRootNamespace.LibLog.LogProviders
                 switch (logLevel)
                 {
                     case LogLevel.Trace:
-                        return LevelTrace;
+                        return s_levelTrace;
                     case LogLevel.Debug:
-                        return LevelDebug;
+                        return s_levelDebug;
                     case LogLevel.Info:
-                        return LevelInfo;
+                        return s_levelInfo;
                     case LogLevel.Warn:
-                        return LevelWarn;
+                        return s_levelWarn;
                     case LogLevel.Error:
-                        return LevelError;
+                        return s_levelError;
                     case LogLevel.Fatal:
-                        return LevelFatal;
+                        return s_levelFatal;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
                 }
@@ -1611,50 +1625,61 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             private readonly dynamic _logger;
 
-            private static readonly object LevelDebug;
-            private static readonly object LevelInfo;
-            private static readonly object LevelWarn;
-            private static readonly object LevelError;
-            private static readonly object LevelFatal;
-            private static readonly Func<object, object, bool> IsEnabledForDelegate;
-            private static readonly Action<object, object> LogDelegate;
-            private static readonly Func<object, Type, object, string, Exception, object> CreateLoggingEvent;
-            private static readonly Action<object, string, object> LoggingEventPropertySetter;
+            private static object s_levelDebug;
+            private static object s_levelInfo;
+            private static object s_levelWarn;
+            private static object s_levelError;
+            private static object s_levelFatal;
+            private static Func<object, object, bool> s_isEnabledForDelegate;
+            private static Action<object, object> s_logDelegate;
+            private static Func<object, Type, object, string, Exception, object> s_createLoggingEvent;
+            private static Action<object, string, object> s_loggingEventPropertySetter;
+            private static readonly Lazy<bool> Initialized = new Lazy<bool>(Initialize, LazyThreadSafetyMode.ExecutionAndPublication);
+            private static Exception s_initializeException;
 
-            static Log4NetLogger()
+            private static bool Initialize()
             {
-                var logEventLevelType = Type.GetType("log4net.Core.Level, log4net");
-                if (logEventLevelType == null)
-                {
-                    throw new InvalidOperationException("Type log4net.Core.Level was not found.");
+                try
+                { 
+                    var logEventLevelType = Type.GetType("log4net.Core.Level, log4net");
+                    if (logEventLevelType == null)
+                    {
+                        throw new InvalidOperationException("Type log4net.Core.Level was not found.");
+                    }
+
+                    var levelFields = logEventLevelType.GetFields().ToList();
+                    s_levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
+                    s_levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
+                    s_levelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
+                    s_levelError = levelFields.First(x => x.Name == "Error").GetValue(null);
+                    s_levelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
+
+                    // Func<object, object, bool> isEnabledFor = (logger, level) => { return ((log4net.Core.ILogger)logger).IsEnabled(level); }
+                    var loggerType = Type.GetType("log4net.Core.ILogger, log4net");
+                    if (loggerType == null)
+                    {
+                        throw new InvalidOperationException("Type log4net.Core.ILogger, was not found.");
+                    }
+                    var instanceParam = Expression.Parameter(typeof(object));
+                    var instanceCast = Expression.Convert(instanceParam, loggerType);
+                    var levelParam = Expression.Parameter(typeof(object));
+                    var levelCast = Expression.Convert(levelParam, logEventLevelType);
+                    s_isEnabledForDelegate = GetIsEnabledFor(loggerType, logEventLevelType, instanceCast, levelCast, instanceParam, levelParam);
+
+                    var loggingEventType = Type.GetType("log4net.Core.LoggingEvent, log4net");
+
+                    s_createLoggingEvent = GetCreateLoggingEvent(instanceParam, instanceCast, levelParam, levelCast, loggingEventType);
+
+                    s_logDelegate = GetLogDelegate(loggerType, loggingEventType, instanceCast, instanceParam);
+
+                    s_loggingEventPropertySetter = GetLoggingEventPropertySetter(loggingEventType);
                 }
-
-                var levelFields = logEventLevelType.GetFields().ToList();
-                LevelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
-                LevelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
-                LevelWarn = levelFields.First(x => x.Name == "Warn").GetValue(null);
-                LevelError = levelFields.First(x => x.Name == "Error").GetValue(null);
-                LevelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
-
-                // Func<object, object, bool> isEnabledFor = (logger, level) => { return ((log4net.Core.ILogger)logger).IsEnabled(level); }
-                var loggerType = Type.GetType("log4net.Core.ILogger, log4net");
-                if (loggerType == null)
+                catch(Exception ex)
                 {
-                    throw new InvalidOperationException("Type log4net.Core.ILogger, was not found.");
+                    s_initializeException = ex;
+                    return false;
                 }
-                var instanceParam = Expression.Parameter(typeof(object));
-                var instanceCast = Expression.Convert(instanceParam, loggerType);
-                var levelParam = Expression.Parameter(typeof(object));
-                var levelCast = Expression.Convert(levelParam, logEventLevelType);
-                IsEnabledForDelegate = GetIsEnabledFor(loggerType, logEventLevelType, instanceCast, levelCast, instanceParam, levelParam);
-
-                var loggingEventType = Type.GetType("log4net.Core.LoggingEvent, log4net");
-
-                CreateLoggingEvent = GetCreateLoggingEvent(instanceParam, instanceCast, levelParam, levelCast, loggingEventType);
-
-                LogDelegate = GetLogDelegate(loggerType, loggingEventType, instanceCast, instanceParam);
-
-                LoggingEventPropertySetter = GetLoggingEventPropertySetter(loggingEventType);                
+                return true;
             }
 
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
@@ -1767,6 +1792,11 @@ namespace YourRootNamespace.LibLog.LogProviders
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
+                if (!Initialized.Value)
+                {
+                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                }
+
                 if (messageFunc == null)
                 {
                     return IsLogLevelEnable(logLevel);
@@ -1796,11 +1826,11 @@ namespace YourRootNamespace.LibLog.LogProviders
 
                 var translatedLevel = TranslateLevel(logLevel);
 
-                object loggingEvent = CreateLoggingEvent(_logger, callerStackBoundaryType, translatedLevel, formattedMessage, exception);
+                object loggingEvent = s_createLoggingEvent(_logger, callerStackBoundaryType, translatedLevel, formattedMessage, exception);
 
                 PopulateProperties(loggingEvent, patternMatches, formatParameters);
 
-                LogDelegate(_logger, loggingEvent);
+                s_logDelegate(_logger, loggingEvent);
 
                 return true;
             }
@@ -1816,7 +1846,7 @@ namespace YourRootNamespace.LibLog.LogProviders
 
                     foreach (var keyValuePair in keyToValue)
                     {
-                        LoggingEventPropertySetter(loggingEvent, keyValuePair.Key, keyValuePair.Value);
+                        s_loggingEventPropertySetter(loggingEvent, keyValuePair.Key, keyValuePair.Value);
                     }
                 }
             }
@@ -1824,7 +1854,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             private bool IsLogLevelEnable(LogLevel logLevel)
             {
                 var level = TranslateLevel(logLevel);
-                return IsEnabledForDelegate(_logger, level);
+                return s_isEnabledForDelegate(_logger, level);
             }
 
             private object TranslateLevel(LogLevel logLevel)
@@ -1833,15 +1863,15 @@ namespace YourRootNamespace.LibLog.LogProviders
                 {
                     case LogLevel.Trace:
                     case LogLevel.Debug:
-                        return LevelDebug;
+                        return s_levelDebug;
                     case LogLevel.Info:
-                        return LevelInfo;
+                        return s_levelInfo;
                     case LogLevel.Warn:
-                        return LevelWarn;
+                        return s_levelWarn;
                     case LogLevel.Error:
-                        return LevelError;
+                        return s_levelError;
                     case LogLevel.Fatal:
-                        return LevelFatal;
+                        return s_levelFatal;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
                 }
@@ -1936,90 +1966,99 @@ namespace YourRootNamespace.LibLog.LogProviders
         internal class SerilogLogger
         {
             private readonly object _logger;
-            private static readonly object DebugLevel;
-            private static readonly object ErrorLevel;
-            private static readonly object FatalLevel;
-            private static readonly object InformationLevel;
-            private static readonly object VerboseLevel;
-            private static readonly object WarningLevel;
-            private static readonly Func<object, object, bool> IsEnabled;
-            private static readonly Action<object, object, string, object[]> Write;
-            private static readonly Action<object, object, Exception, string, object[]> WriteException;
+            private static object s_debugLevel;
+            private static object s_errorLevel;
+            private static object s_fatalLevel;
+            private static object s_informationLevel;
+            private static object s_verboseLevel;
+            private static object s_warningLevel;
+            private static Func<object, object, bool> s_isEnabled;
+            private static Action<object, object, string, object[]> s_write;
+            private static Action<object, object, Exception, string, object[]> s_writeException;
+            private static readonly Lazy<bool> Initialized = new Lazy<bool>(Initialize);
+            private static Exception s_initializeException;
 
-            [SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations")]
             [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "LogEventLevel")]
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "Serilog")]
-            static SerilogLogger()
+            private static bool Initialize()
             {
-                var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
-                if (logEventLevelType == null)
-                {
-                    throw new InvalidOperationException("Type Serilog.Events.LogEventLevel was not found.");
+                try { 
+                    var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                    if (logEventLevelType == null)
+                    {
+                        throw new InvalidOperationException("Type Serilog.Events.LogEventLevel was not found.");
+                    }
+                    s_debugLevel = Enum.Parse(logEventLevelType, "Debug", false);
+                    s_errorLevel = Enum.Parse(logEventLevelType, "Error", false);
+                    s_fatalLevel = Enum.Parse(logEventLevelType, "Fatal", false);
+                    s_informationLevel = Enum.Parse(logEventLevelType, "Information", false);
+                    s_verboseLevel = Enum.Parse(logEventLevelType, "Verbose", false);
+                    s_warningLevel = Enum.Parse(logEventLevelType, "Warning", false);
+
+                    // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
+                    var loggerType = Type.GetType("Serilog.ILogger, Serilog");
+                    if (loggerType == null)
+                    {
+                        throw new InvalidOperationException("Type Serilog.ILogger was not found.");
+                    }
+                    var isEnabledMethodInfo = loggerType.GetMethod("IsEnabled", logEventLevelType);
+                    var instanceParam = Expression.Parameter(typeof(object));
+                    var instanceCast = Expression.Convert(instanceParam, loggerType);
+                    var levelParam = Expression.Parameter(typeof(object));
+                    var levelCast = Expression.Convert(levelParam, logEventLevelType);
+                    var isEnabledMethodCall = Expression.Call(instanceCast, isEnabledMethodInfo, levelCast);
+                    s_isEnabled = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, instanceParam, levelParam).Compile();
+
+                    // Action<object, object, string> Write =
+                    // (logger, level, message, params) => { ((SeriLog.ILoggerILogger)logger).Write(level, message, params); }
+                    var writeMethodInfo = loggerType.GetMethod("Write", logEventLevelType, typeof(string), typeof(object[]));
+                    var messageParam = Expression.Parameter(typeof(string));
+                    var propertyValuesParam = Expression.Parameter(typeof(object[]));
+                    var writeMethodExp = Expression.Call(
+                        instanceCast,
+                        writeMethodInfo,
+                        levelCast,
+                        messageParam,
+                        propertyValuesParam);
+                    var expression = Expression.Lambda<Action<object, object, string, object[]>>(
+                        writeMethodExp, 
+                        instanceParam,
+                        levelParam,
+                        messageParam,
+                        propertyValuesParam);
+                    s_write = expression.Compile();
+
+                    // Action<object, object, string, Exception> WriteException =
+                    // (logger, level, exception, message) => { ((ILogger)logger).Write(level, exception, message, new object[]); }
+                    var writeExceptionMethodInfo = loggerType.GetMethod("Write", 
+                        logEventLevelType,
+                        typeof(Exception),
+                        typeof(string),
+                        typeof(object[]));
+                    var exceptionParam = Expression.Parameter(typeof(Exception));
+                    writeMethodExp = Expression.Call(
+                        instanceCast,
+                        writeExceptionMethodInfo,
+                        levelCast,
+                        exceptionParam,
+                        messageParam,
+                        propertyValuesParam);
+                    s_writeException = Expression.Lambda<Action<object, object, Exception, string, object[]>>(
+                        writeMethodExp, 
+                        instanceParam,
+                        levelParam,
+                        exceptionParam,
+                        messageParam,
+                        propertyValuesParam).Compile();
                 }
-                DebugLevel = Enum.Parse(logEventLevelType, "Debug", false);
-                ErrorLevel = Enum.Parse(logEventLevelType, "Error", false);
-                FatalLevel = Enum.Parse(logEventLevelType, "Fatal", false);
-                InformationLevel = Enum.Parse(logEventLevelType, "Information", false);
-                VerboseLevel = Enum.Parse(logEventLevelType, "Verbose", false);
-                WarningLevel = Enum.Parse(logEventLevelType, "Warning", false);
-
-                // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
-                var loggerType = Type.GetType("Serilog.ILogger, Serilog");
-                if (loggerType == null)
+                catch(Exception ex)
                 {
-                    throw new InvalidOperationException("Type Serilog.ILogger was not found.");
+                    s_initializeException = ex;
+                    return false;
                 }
-                var isEnabledMethodInfo = loggerType.GetMethod("IsEnabled", logEventLevelType);
-                var instanceParam = Expression.Parameter(typeof(object));
-                var instanceCast = Expression.Convert(instanceParam, loggerType);
-                var levelParam = Expression.Parameter(typeof(object));
-                var levelCast = Expression.Convert(levelParam, logEventLevelType);
-                var isEnabledMethodCall = Expression.Call(instanceCast, isEnabledMethodInfo, levelCast);
-                IsEnabled = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, instanceParam, levelParam).Compile();
-
-                // Action<object, object, string> Write =
-                // (logger, level, message, params) => { ((SeriLog.ILoggerILogger)logger).Write(level, message, params); }
-                var writeMethodInfo = loggerType.GetMethod("Write", logEventLevelType, typeof(string), typeof(object[]));
-                var messageParam = Expression.Parameter(typeof(string));
-                var propertyValuesParam = Expression.Parameter(typeof(object[]));
-                var writeMethodExp = Expression.Call(
-                    instanceCast,
-                    writeMethodInfo,
-                    levelCast,
-                    messageParam,
-                    propertyValuesParam);
-                var expression = Expression.Lambda<Action<object, object, string, object[]>>(
-                    writeMethodExp, 
-                    instanceParam,
-                    levelParam,
-                    messageParam,
-                    propertyValuesParam);
-                Write = expression.Compile();
-
-                // Action<object, object, string, Exception> WriteException =
-                // (logger, level, exception, message) => { ((ILogger)logger).Write(level, exception, message, new object[]); }
-                var writeExceptionMethodInfo = loggerType.GetMethod("Write", 
-                    logEventLevelType,
-                    typeof(Exception),
-                    typeof(string),
-                    typeof(object[]));
-                var exceptionParam = Expression.Parameter(typeof(Exception));
-                writeMethodExp = Expression.Call(
-                    instanceCast,
-                    writeExceptionMethodInfo,
-                    levelCast,
-                    exceptionParam,
-                    messageParam,
-                    propertyValuesParam);
-                WriteException = Expression.Lambda<Action<object, object, Exception, string, object[]>>(
-                    writeMethodExp, 
-                    instanceParam,
-                    levelParam,
-                    exceptionParam,
-                    messageParam,
-                    propertyValuesParam).Compile();
+                return true;
             }
 
             internal SerilogLogger(object logger) 
@@ -2027,13 +2066,18 @@ namespace YourRootNamespace.LibLog.LogProviders
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
             {
+                if (!Initialized.Value)
+                {
+                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                }
+
                 var translatedLevel = TranslateLevel(logLevel);
                 if (messageFunc == null)
                 {
-                    return IsEnabled(_logger, translatedLevel);
+                    return s_isEnabled(_logger, translatedLevel);
                 }
 
-                if (!IsEnabled(_logger, translatedLevel))
+                if (!s_isEnabled(_logger, translatedLevel))
                 {
                     return false;
                 }
@@ -2051,27 +2095,27 @@ namespace YourRootNamespace.LibLog.LogProviders
             }
 
             private void LogMessage(object translatedLevel, Func<string> messageFunc, object[] formatParameters) 
-                => Write(_logger, translatedLevel, messageFunc(), formatParameters);
+                => s_write(_logger, translatedLevel, messageFunc(), formatParameters);
 
             private void LogException(object logLevel, Func<string> messageFunc, Exception exception, object[] formatParams) 
-                => WriteException(_logger, logLevel, exception, messageFunc(), formatParams);
+                => s_writeException(_logger, logLevel, exception, messageFunc(), formatParams);
 
             private static object TranslateLevel(LogLevel logLevel)
             {
                 switch (logLevel)
                 {
                     case LogLevel.Fatal:
-                        return FatalLevel;
+                        return s_fatalLevel;
                     case LogLevel.Error:
-                        return ErrorLevel;
+                        return s_errorLevel;
                     case LogLevel.Warn:
-                        return WarningLevel;
+                        return s_warningLevel;
                     case LogLevel.Info:
-                        return InformationLevel;
+                        return s_informationLevel;
                     case LogLevel.Trace:
-                        return VerboseLevel;
+                        return s_verboseLevel;
                     default:
-                        return DebugLevel;
+                        return s_debugLevel;
                 }
             }
         }
