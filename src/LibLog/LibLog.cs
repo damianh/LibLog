@@ -39,7 +39,7 @@
 
 #pragma warning disable 1591
 
-using System.Diagnostics.CodeAnalysis;
+using global::System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "YourRootNamespace.Logging")]
 [assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "YourRootNamespace.Logging.Logger.#Invoke(YourRootNamespace.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]
@@ -52,18 +52,18 @@ namespace YourRootNamespace.LibLog
 namespace YourRootNamespace.Logging
 #endif
 {
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
+    using global::System.Collections.Generic;
+    using global::System.Diagnostics.CodeAnalysis;
 #if LIBLOG_PROVIDERS_ONLY
-    using YourRootNamespace.LibLog.LogProviders;
+    using global::YourRootNamespace.LibLog.LogProviders;
 #else
-    using YourRootNamespace.Logging.LogProviders;
+    using global::YourRootNamespace.Logging.LogProviders;
 #endif
-    using System;
+    using global::System;
 #if !LIBLOG_PROVIDERS_ONLY
-    using System.Diagnostics;
+    using global::System.Diagnostics;
 #if !LIBLOG_PORTABLE
-    using System.Runtime.CompilerServices;
+    using global::System.Runtime.CompilerServices;
 #endif
 #endif
 
@@ -1136,20 +1136,20 @@ namespace YourRootNamespace.LibLog.LogProviders
     namespace YourRootNamespace.Logging.LogProviders
 #endif
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
+    using global::System;
+    using global::System.Collections.Generic;
+    using global::System.Diagnostics.CodeAnalysis;
 #if !LIBLOG_PORTABLE
-    using System.Diagnostics;
+    using global::System.Diagnostics;
 #endif
-    using System.Globalization;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Reflection;
+    using global::System.Globalization;
+    using global::System.Linq;
+    using global::System.Linq.Expressions;
+    using global::System.Reflection;
 #if !LIBLOG_PORTABLE
-    using System.Text;
+    using global::System.Text;
 #endif
-    using System.Text.RegularExpressions;
+    using global::System.Text.RegularExpressions;
 
 #if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
