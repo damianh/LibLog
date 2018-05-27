@@ -4,7 +4,6 @@
     <RootNamespace>LibLog.Example.Library</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LibLog" Version="5.0.0-build.401" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
+    <PackageReference Include="LibLog" Version="5.0.0-build.410" />
   </ItemGroup>
 </Project>
