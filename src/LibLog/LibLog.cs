@@ -1094,6 +1094,9 @@ namespace YourRootNamespace.Logging
 #endif
     }
 
+
+    
+
 #if LIBLOG_PROVIDERS_ONLY
 namespace YourRootNamespace.LibLog.LogProviders
 #else
@@ -1109,6 +1112,7 @@ namespace YourRootNamespace.LibLog.LogProviders
     using global::System.Linq.Expressions;
     using global::System.Reflection;
     using global::System.Text.RegularExpressions;
+
     [ExcludeFromCodeCoverage]
     public abstract class LogProviderBase : ILogProvider
     {
@@ -1150,6 +1154,17 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
+    public class LibLogException : Exception
+    {
+        public LibLogException(string message)
+            : base(message)
+        { }
+
+        public LibLogException(string message, Exception inner)
+            :base(message, inner)
+        {}
+    }
+
     [ExcludeFromCodeCoverage]
     internal class NLogLogProvider : LogProviderBase
     {
@@ -1161,7 +1176,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             if (!IsLoggerAvailable())
             {
-                throw new InvalidOperationException("NLog.LogManager not found");
+                throw new LibLogException("NLog.LogManager not found");
             }
             _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
@@ -1246,7 +1261,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var logEventLevelType = Type.GetType("NLog.LogLevel, NLog");
                     if (logEventLevelType == null)
                     {
-                        throw new InvalidOperationException("Type NLog.LogLevel was not found.");
+                        throw new LibLogException("Type NLog.LogLevel was not found.");
                     }
 
                     var levelFields = logEventLevelType.GetFields().ToList();
@@ -1260,7 +1275,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var logEventInfoType = Type.GetType("NLog.LogEventInfo, NLog");
                     if (logEventInfoType == null)
                     {
-                        throw new InvalidOperationException("Type NLog.LogEventInfo was not found.");
+                        throw new LibLogException("Type NLog.LogEventInfo was not found.");
                     }
 
                     var loggingEventConstructor =
@@ -1304,7 +1319,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             {
                 if (!Initialized.Value)
                 {
-                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                    throw new LibLogException(LogProvider.ErrorInitializingProvider, s_initializeException);
                 }
 
                 if (messageFunc == null)
@@ -1529,7 +1544,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             if (!IsLoggerAvailable())
             {
-                throw new InvalidOperationException("log4net.LogManager not found");
+                throw new LibLogException("log4net.LogManager not found");
             }
             _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
@@ -1644,7 +1659,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var logEventLevelType = Type.GetType("log4net.Core.Level, log4net");
                     if (logEventLevelType == null)
                     {
-                        throw new InvalidOperationException("Type log4net.Core.Level was not found.");
+                        throw new LibLogException("Type log4net.Core.Level was not found.");
                     }
 
                     var levelFields = logEventLevelType.GetFields().ToList();
@@ -1658,7 +1673,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var loggerType = Type.GetType("log4net.Core.ILogger, log4net");
                     if (loggerType == null)
                     {
-                        throw new InvalidOperationException("Type log4net.Core.ILogger, was not found.");
+                        throw new LibLogException("Type log4net.Core.ILogger, was not found.");
                     }
                     var instanceParam = Expression.Parameter(typeof(object));
                     var instanceCast = Expression.Convert(instanceParam, loggerType);
@@ -1794,7 +1809,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             {
                 if (!Initialized.Value)
                 {
-                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                    throw new LibLogException(LogProvider.ErrorInitializingProvider, s_initializeException);
                 }
 
                 if (messageFunc == null)
@@ -1890,7 +1905,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             if (!IsLoggerAvailable())
             {
-                throw new InvalidOperationException("Serilog.Log not found");
+                throw new LibLogException("Serilog.Log not found");
             }
             _getLoggerByNameDelegate = GetForContextMethodCall();
             s_pushProperty = GetPushProperty();
@@ -1988,7 +2003,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
                     if (logEventLevelType == null)
                     {
-                        throw new InvalidOperationException("Type Serilog.Events.LogEventLevel was not found.");
+                        throw new LibLogException("Type Serilog.Events.LogEventLevel was not found.");
                     }
                     s_debugLevel = Enum.Parse(logEventLevelType, "Debug", false);
                     s_errorLevel = Enum.Parse(logEventLevelType, "Error", false);
@@ -2001,7 +2016,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                     var loggerType = Type.GetType("Serilog.ILogger, Serilog");
                     if (loggerType == null)
                     {
-                        throw new InvalidOperationException("Type Serilog.ILogger was not found.");
+                        throw new LibLogException("Type Serilog.ILogger was not found.");
                     }
                     var isEnabledMethodInfo = loggerType.GetMethod("IsEnabled", logEventLevelType);
                     var instanceParam = Expression.Parameter(typeof(object));
@@ -2068,7 +2083,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             {
                 if (!Initialized.Value)
                 {
-                    throw new InvalidOperationException(LogProvider.ErrorInitializingProvider, s_initializeException);
+                    throw new LibLogException(LogProvider.ErrorInitializingProvider, s_initializeException);
                 }
 
                 var translatedLevel = TranslateLevel(logLevel);
@@ -2148,7 +2163,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         {
             if (!IsLoggerAvailable())
             {
-                throw new InvalidOperationException("Gibraltar.Agent.Log (Loupe) not found");
+                throw new LibLogException("Gibraltar.Agent.Log (Loupe) not found");
             }
 
             _logWriteDelegate = GetLogWriteDelegate();
