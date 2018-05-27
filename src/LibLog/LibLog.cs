@@ -28,8 +28,6 @@
 // @formatter:off — disable resharper formatter after this line
 // ReSharper disable PossibleNullReferenceException
 
-// Define LIBLOG_PORTABLE conditional compilation symbol for PCL compatibility
-//
 // Define LIBLOG_PUBLIC to enable ability to GET a logger (LogProvider.For<>() etc) from outside this library. NOTE:
 // this can have unintended consequences of consumers of your library using your library to resolve a logger. If the
 // reason is because you want to open this functionality to other projects within your solution,
@@ -63,9 +61,7 @@ namespace YourRootNamespace.Logging
     using global::System;
 #if !LIBLOG_PROVIDERS_ONLY
     using global::System.Diagnostics;
-#if !LIBLOG_PORTABLE
     using global::System.Runtime.CompilerServices;
-#endif
 #endif
 
 #if LIBLOG_PROVIDERS_ONLY
@@ -123,9 +119,7 @@ namespace YourRootNamespace.Logging
     }
 
 #if !LIBLOG_PROVIDERS_ONLY
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
 #if LIBLOG_PUBLIC
     public
 #else
@@ -774,9 +768,7 @@ namespace YourRootNamespace.Logging
     /// <summary>
     /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
     /// </summary>
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
 #if LIBLOG_PROVIDERS_ONLY
     internal
 #else
@@ -854,7 +846,6 @@ namespace YourRootNamespace.Logging
             return GetLogger(typeof(T));
         }
 
-#if !LIBLOG_PORTABLE
         /// <summary>
         /// Gets a logger for the current class.
         /// </summary>
@@ -870,7 +861,6 @@ namespace YourRootNamespace.Logging
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
-#endif
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -1008,11 +998,7 @@ namespace YourRootNamespace.Logging
             }
             catch (Exception ex)
             {
-#if LIBLOG_PORTABLE
-                Debug.WriteLine(
-#else
                 Console.WriteLine(
-#endif
                     "Exception occurred resolving a log provider. Logging for this assembly {0} is disabled. {1}",
                     typeof(LogProvider).GetAssemblyPortable().FullName,
                     ex);
@@ -1021,9 +1007,7 @@ namespace YourRootNamespace.Logging
         }
 
 #if !LIBLOG_PROVIDERS_ONLY
-#if !LIBLOG_PORTABLE
         [ExcludeFromCodeCoverage]
-#endif
         internal class NoOpLogger : ILog
         {
             internal static readonly NoOpLogger Instance = new NoOpLogger();
@@ -1037,9 +1021,7 @@ namespace YourRootNamespace.Logging
     }
 
     #if !LIBLOG_PROVIDERS_ONLY
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class LoggerExecutionWrapper : ILog
     {
         private readonly Logger _logger;
@@ -1073,7 +1055,6 @@ namespace YourRootNamespace.Logging
                 return _logger(logLevel, null, null, LogExtensions.EmptyParams);
             }
 
-#if !LIBLOG_PORTABLE
             // Callsite HACK - Using the messageFunc to provide the callsite-logger-type
             var lastExtensionMethod = _lastExtensionMethod;
             if (lastExtensionMethod == null || !lastExtensionMethod.Equals(messageFunc))
@@ -1093,25 +1074,22 @@ namespace YourRootNamespace.Logging
                 _lastExtensionMethod = lastExtensionMethod;
                 return _logger(logLevel, LogExtensions.WrapLogSafeInternal(this, messageFunc), exception, formatParameters);
             }
-            else
-#endif
-            {
-                Func<string> wrappedMessageFunc = () =>
-                {
-                    try
-                    {
-                        return messageFunc();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger(LogLevel.Error, () => FailedToGenerateLogMessage, ex, LogExtensions.EmptyParams);
-                    }
-                    return null;
-                };
 
-                // Callsite HACK - Need to ensure proper callsite stack without inlining, so calling the logger within a virtual interface method
-                return _callsiteLogger.Log(_logger, logLevel, wrappedMessageFunc, exception, formatParameters);
+            string WrappedMessageFunc()
+            {
+                try
+                {
+                    return messageFunc();
+                }
+                catch (Exception ex)
+                {
+                    _logger(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
+                }
+                return null;
             }
+
+            // Callsite HACK - Need to ensure proper callsite stack without inlining, so calling the logger within a virtual interface method
+            return _callsiteLogger.Log(_logger, logLevel, WrappedMessageFunc, exception, formatParameters);
         }
 
         interface ICallSiteExtension
@@ -1139,21 +1117,12 @@ namespace YourRootNamespace.LibLog.LogProviders
     using global::System;
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
-#if !LIBLOG_PORTABLE
-    using global::System.Diagnostics;
-#endif
     using global::System.Globalization;
     using global::System.Linq;
     using global::System.Linq.Expressions;
     using global::System.Reflection;
-#if !LIBLOG_PORTABLE
-    using global::System.Text;
-#endif
     using global::System.Text.RegularExpressions;
-
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal abstract class LogProviderBase : ILogProvider
     {
         protected delegate IDisposable OpenNdc(string message);
@@ -1194,9 +1163,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class NLogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -1278,9 +1245,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             return Expression.Lambda<Func<string, object>>(methodCall, nameParam).Compile();
         }
 
-#if !LIBLOG_PORTABLE
         [ExcludeFromCodeCoverage]
-#endif
         internal class NLogLogger
         {
             private readonly dynamic _logger;
@@ -1377,7 +1342,6 @@ namespace YourRootNamespace.LibLog.LogProviders
                         }
 
                         Type callsiteLoggerType = typeof(NLogLogger);
-#if !LIBLOG_PORTABLE
                         // Callsite HACK - Extract the callsite-logger-type from the messageFunc
                         var methodType = messageFunc.Method.DeclaringType;
                         if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
@@ -1388,8 +1352,7 @@ namespace YourRootNamespace.LibLog.LogProviders
                         {
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         }
-#endif
-                        var nlogLevel = this.TranslateLevel(logLevel);
+                        var nlogLevel = TranslateLevel(logLevel);
                         var nlogEvent = _logEventInfoFact(_logger.Name, nlogLevel, formatMessage, formatParameters, exception);
                         _logger.Log(callsiteLoggerType, nlogEvent);
                         return true;
@@ -1571,9 +1534,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class Log4NetLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -1685,9 +1646,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             return name => lambda(log4netAssembly, name);
         }
 
-#if !LIBLOG_PORTABLE
         [ExcludeFromCodeCoverage]
-#endif
         internal class Log4NetLogger
         {
             private readonly dynamic _logger;
@@ -1867,7 +1826,6 @@ namespace YourRootNamespace.LibLog.LogProviders
                                                                 out patternMatches);
 
                 Type callerStackBoundaryType = typeof(Log4NetLogger);
-#if !LIBLOG_PORTABLE
                 // Callsite HACK - Extract the callsite-logger-type from the messageFunc
                 var methodType = messageFunc.Method.DeclaringType;
                 if (methodType == typeof(LogExtensions) || (methodType != null && methodType.DeclaringType == typeof(LogExtensions)))
@@ -1878,9 +1836,6 @@ namespace YourRootNamespace.LibLog.LogProviders
                 {
                     callerStackBoundaryType = typeof(LoggerExecutionWrapper);
                 }
-#else
-                callerStackBoundaryType = typeof(LoggerExecutionWrapper);
-#endif
 
                 var translatedLevel = TranslateLevel(logLevel);
 
@@ -1936,9 +1891,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class SerilogLogProvider : LogProviderBase
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -2036,9 +1989,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             return name => func("SourceContext", name, false);
         }
 
-#if !LIBLOG_PORTABLE
         [ExcludeFromCodeCoverage]
-#endif
         internal class SerilogLogger
         {
             private readonly object _logger;
@@ -2189,9 +2140,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class LoupeLogProvider : LogProviderBase
     {
         /// <summary>
@@ -2267,9 +2216,7 @@ namespace YourRootNamespace.LibLog.LogProviders
             return callDelegate;
         }
 
-#if !LIBLOG_PORTABLE
         [ExcludeFromCodeCoverage]
-#endif
         internal class LoupeLogger
         {
             private const string LogSystem = "LibLog";
@@ -2328,9 +2275,7 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal static class TraceEventTypeValues
     {
         internal static readonly Type Type;
@@ -2358,17 +2303,10 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal static class LogMessageFormatter
     {
-        //private static readonly Regex Pattern = new Regex(@"\{@?\w{1,}\}");
-#if LIBLOG_PORTABLE
-        private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^\d{][^ }]*)}");
-#else
         private static readonly Regex Pattern = new Regex(@"(?<!{){@?(?<arg>[^ :{}]+)(?<format>:[^}]+)?}", RegexOptions.Compiled);
-#endif
 
         /// <summary>
         /// Some logging frameworks support structured logging, such as serilog. This will allow you to add names to structured data in a format string:
@@ -2448,101 +2386,51 @@ namespace YourRootNamespace.LibLog.LogProviders
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal static class TypeExtensions
     {
         internal static ConstructorInfo GetConstructorPortable(this Type type, params Type[] types)
         {
-#if LIBLOG_PORTABLE
-            return type.GetTypeInfo().DeclaredConstructors.FirstOrDefault
-                       (constructor =>
-                            constructor.GetParameters()
-                                       .Select(parameter => parameter.ParameterType)
-                                       .SequenceEqual(types));
-#else
             return type.GetConstructor(types);
-#endif
         }
 
         internal static MethodInfo GetMethodPortable(this Type type, string name)
         {
-#if LIBLOG_PORTABLE
-            return type.GetRuntimeMethods().SingleOrDefault(m => m.Name == name);
-#else
             return type.GetMethod(name);
-#endif
         }
 
         internal static MethodInfo GetMethodPortable(this Type type, string name, params Type[] types)
         {
-#if LIBLOG_PORTABLE
-            return type.GetRuntimeMethod(name, types);
-#else
             return type.GetMethod(name, types);
-#endif
         }
 
         internal static PropertyInfo GetPropertyPortable(this Type type, string name)
         {
-#if LIBLOG_PORTABLE
-            return type.GetRuntimeProperty(name);
-#else
             return type.GetProperty(name);
-#endif
         }
 
         internal static IEnumerable<FieldInfo> GetFieldsPortable(this Type type)
         {
-#if LIBLOG_PORTABLE
-            return type.GetRuntimeFields();
-#else
             return type.GetFields();
-#endif
         }
 
         internal static Type GetBaseTypePortable(this Type type)
         {
-#if LIBLOG_PORTABLE
-            return type.GetTypeInfo().BaseType;
-#else
             return type.BaseType;
-#endif
         }
 
-#if LIBLOG_PORTABLE
-        internal static MethodInfo GetGetMethod(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetMethod;
-        }
-
-        internal static MethodInfo GetSetMethod(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.SetMethod;
-        }
-#endif
-
-#if !LIBLOG_PORTABLE
         internal static object CreateDelegate(this MethodInfo methodInfo, Type delegateType)
         {
             return Delegate.CreateDelegate(delegateType, methodInfo);
         }
-#endif
 
         internal static Assembly GetAssemblyPortable(this Type type)
         {
-#if LIBLOG_PORTABLE
-            return type.GetTypeInfo().Assembly;
-#else
             return type.Assembly;
-#endif
         }
     }
 
-#if !LIBLOG_PORTABLE
     [ExcludeFromCodeCoverage]
-#endif
     internal class DisposableAction : IDisposable
     {
         private readonly Action _onDispose;
