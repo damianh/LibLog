@@ -40,23 +40,23 @@
 
 using global::System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "YourRootNamespace.Logging")]
-[assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "YourRootNamespace.Logging.Logger.#Invoke(YourRootNamespace.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]
+[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "$rootnamespace$.Logging")]
+[assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "$rootnamespace$.Logging.Logger.#Invoke($rootnamespace$.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]
 
 // If you copied this file manually, you need to change all "YourRootNameSpace" so not to clash with other libraries
 // that use LibLog
 #if LIBLOG_PROVIDERS_ONLY
-namespace YourRootNamespace.LibLog
+namespace $rootnamespace$.LibLog
 #else
-namespace YourRootNamespace.Logging
+namespace $rootnamespace$.Logging
 #endif
 {
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
 #if LIBLOG_PROVIDERS_ONLY
-    using global::YourRootNamespace.LibLog.LogProviders;
+    using global::$rootnamespace$.LibLog.LogProviders;
 #else
-    using global::YourRootNamespace.Logging.LogProviders;
+    using global::$rootnamespace$.Logging.LogProviders;
 #endif
     using global::System;
 #if !LIBLOG_PROVIDERS_ONLY
@@ -913,7 +913,6 @@ namespace YourRootNamespace.Logging
         /// </summary>
         /// <param name="key">A key.</param>
         /// <param name="value">A value.</param>
-        /// <param name="destructure">A optional paramater to indicate message should be destructured.</param>
         /// <returns>An <see cref="IDisposable"/> that closes context when disposed.</returns>
         [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "SetCurrentLogProvider")]
 #if LIBLOG_PUBLIC
@@ -1094,9 +1093,9 @@ namespace YourRootNamespace.Logging
     }
 
 #if LIBLOG_PROVIDERS_ONLY
-namespace YourRootNamespace.LibLog.LogProviders
+namespace $rootnamespace$.LibLog.LogProviders
 #else
-    namespace YourRootNamespace.Logging.LogProviders
+    namespace $rootnamespace$.Logging.LogProviders
 #endif
 {
     using global::System;
