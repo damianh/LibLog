@@ -13,19 +13,6 @@ new dotnet sdk as of LibLog version 5.0.0. If you change your projects root
 namespace then LibLog will automatically change also. For older project
 formats, please continue to use LibLog 4.x versions.
 
-## Compiler Options
-
- - Define `LIBLOG_PUBLIC` to have the LibLog API as part of your libraries
-   _public_ API. Note: this can have unintended consequences of consumers of
-   your library using your library to resolve a logger. If the reason is because
-   you want to open this functionality to other projects within a solution,
-   consider `[InternalsVisibleTo]` instead.
- - Define `LIBLOG_EXCLUDE_CODE_COVERAGE` to exclude LibLog from your code
-   coverage reports
- - Define `LIBLOG_PROVIDERS_ONLY` if your library provides its own logging API and
-   you just want to use the LibLog providers internally to provide built in
-   support for popular logging frameworks.
-
 ### License
 
 LibLog is licensed under [MIT Licence][2].
