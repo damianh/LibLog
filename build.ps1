@@ -16,4 +16,4 @@ $files | ForEach-Object {
     Set-Content ($_.FullName + ".pp")
 }
 
-& $NUGET_EXE pack src/LibLog/LibLog.nuspec -Suffix $suffix -OutputDirectory artifacts -MinClientVersion 4.3
+& $NUGET_EXE pack src/LibLog/LibLog.nuspec -Suffix $suffix -OutputDirectory artifacts
