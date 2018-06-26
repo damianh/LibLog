@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Loupe.Agent.Core" Version="4.5.0.2" />
+    <PackageReference Include="Loupe.Agent.Core" Version="4.5.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="NLog" Version="4.5.0" />
     <PackageReference Include="Serilog" Version="2.5.0" />
