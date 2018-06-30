@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>5.0.0</version>
+        <version>5.0.1</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
