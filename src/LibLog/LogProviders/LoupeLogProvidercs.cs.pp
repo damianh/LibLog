@@ -25,7 +25,8 @@ namespace $rootnamespace$.Logging.LogProviders
         );
 
         private readonly WriteDelegate _logWriteDelegate;
-        private const string LoupeAgentDll = "Loupe.Agent.NETCore";
+        private const string LoupeAgentNetCoreDll = "Loupe.Agent.NETCore";
+        private const string LoupeAgentNetFrameworkDll = "Gibraltar.Agent";
 
         public LoupeLogProvider()
         {
@@ -52,16 +53,21 @@ namespace $rootnamespace$.Logging.LogProviders
             return ProviderIsAvailableOverride && GetLogManagerType() != null;
         }
 
+        private static Type GetTypeFromCoreOrFrameworkDll(string typeName)
+        {
+            return Type.GetType($"{typeName}, {LoupeAgentNetCoreDll}") ?? Type.GetType($"{typeName}, {LoupeAgentNetFrameworkDll}");
+        }
+
         private static Type GetLogManagerType()
         {
-            return Type.GetType($"Gibraltar.Agent.Log, {LoupeAgentDll}");
+            return GetTypeFromCoreOrFrameworkDll("Gibraltar.Agent.Log");
         }
 
         private static WriteDelegate GetLogWriteDelegate()
         {
             var logManagerType = GetLogManagerType();
-            var logMessageSeverityType = Type.GetType($"Gibraltar.Agent.LogMessageSeverity, {LoupeAgentDll}");
-            var logWriteModeType = Type.GetType($"Gibraltar.Agent.LogWriteMode, {LoupeAgentDll}");
+            var logMessageSeverityType = GetTypeFromCoreOrFrameworkDll("Gibraltar.Agent.LogMessageSeverity");
+            var logWriteModeType = GetTypeFromCoreOrFrameworkDll("Gibraltar.Agent.LogWriteMode");
 
             var method = logManagerType.GetMethod(
                 "Write",

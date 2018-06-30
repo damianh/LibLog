@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net461;net452</TargetFrameworks>
     <RootNamespace>LibLog.Logging</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
