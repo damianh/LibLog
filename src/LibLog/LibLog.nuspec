@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>LibLog</id>
-        <version>5.0.1</version>
+        <version>5.0.2</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <licenseUrl>https://github.com/damianh/LibLog/blob/master/licence.txt</licenseUrl>
@@ -10,7 +10,7 @@
         <iconUrl>https://raw.githubusercontent.com/damianh/LibLog/master/docs/liblog_icon.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <developmentDependency>true</developmentDependency>
-        <description>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. As of 5.0.0 it works with NetStandard2.0 and SDK projects. For .NET 4.x support and legacy project formats, use 4.x versions.
+        <description>A source code package designed primarily for library and framework authors who want dependency free logging support in their component. Also useful in end applications. As of 5.0.0 it works with NetStandard2.0 and SDK projects. For legacy csproj format support use 4.x versions.
 
 If you are a library or framework author and you wish to provide logging support in your component there are a  number of options: 1) Depend on a specific logging framework 2) Depend on Common.Logging 3) Implement your own ILog interface and make your consumers wire it up.
 
