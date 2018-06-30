@@ -180,7 +180,7 @@ namespace LibLog.Logging.LogProviders
             public void WaitForMessages()
             {
                 Gibraltar.Monitor.Log.Flush();
-                Task.Delay(1000).GetAwaiter().GetResult();
+                Task.Delay(250).GetAwaiter().GetResult(); // TODO: do better signalling with a task.
             }
 
             /// <summary>
