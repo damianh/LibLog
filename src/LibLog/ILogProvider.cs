@@ -33,6 +33,7 @@ namespace YourRootNamespace.Logging
         /// </summary>
         /// <param name="key">A key.</param>
         /// <param name="value">A value.</param>
+        /// <param name="destructure">Determines whether to call the destructor or not.</param>
         /// <returns>A disposable that when disposed removes the map from the context.</returns>
         IDisposable OpenMappedContext(string key, object value, bool destructure = false);
     }
