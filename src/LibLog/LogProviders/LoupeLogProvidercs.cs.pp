@@ -2,6 +2,7 @@
 namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
