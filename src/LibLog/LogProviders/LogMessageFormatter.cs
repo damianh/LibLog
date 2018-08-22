@@ -1,6 +1,7 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
