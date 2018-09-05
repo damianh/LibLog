@@ -72,7 +72,7 @@
             var removeMethod = logicalThreadContextPropertiesType.GetMethod("Remove");
 
             var keyParam = Expression.Parameter(typeof(string), "key");
-            var valueParam = Expression.Parameter(typeof(string), "value");
+            var valueParam = Expression.Parameter(typeof(object), "value");
 
             var propertiesExpression = Expression.Property(null, propertiesProperty);
 
@@ -85,7 +85,7 @@
             var removeMethodCall = Expression.Call(propertiesExpression, removeMethod, keyParam);
 
             var set = Expression
-                .Lambda<Action<string, string>>(setProperties, keyParam, valueParam)
+                .Lambda<Action<string, object>>(setProperties, keyParam, valueParam)
                 .Compile();
 
             var remove = Expression
@@ -94,7 +94,7 @@
 
             return (key, value, _) =>
             {
-                set(key, value.ToString());
+                set(key, value);
                 return new DisposableAction(() => remove(key));
             };
         }

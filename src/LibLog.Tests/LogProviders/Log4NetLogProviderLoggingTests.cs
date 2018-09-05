@@ -146,7 +146,7 @@
                 var loggingEvent = _memoryAppender.GetEvents().Single();
 
                 loggingEvent.Properties.GetKeys().ShouldContain("key");
-                loggingEvent.Properties["key"].ShouldBe("World");
+                loggingEvent.Properties["key"].ShouldBe(context);
             }
         }
 
@@ -161,7 +161,7 @@
                 var loggingEvent = _memoryAppender.GetEvents().Single();
 
                 loggingEvent.Properties.GetKeys().ShouldContain("key");
-                loggingEvent.Properties["key"].ShouldBe("World");
+                loggingEvent.Properties["key"].ShouldBe(context);
             }
         }
 
