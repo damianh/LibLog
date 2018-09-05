@@ -43,7 +43,7 @@
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            var mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
+            var mdcContextType = Type.GetType("NLog.MappedDiagnosticsLogicalContext, NLog");
 
             var setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(string));
             var removeMethod = mdcContextType.GetMethod("Remove", typeof(string));
