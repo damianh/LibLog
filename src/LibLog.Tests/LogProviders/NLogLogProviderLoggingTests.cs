@@ -137,7 +137,6 @@
             }
         }
 
-#if NLOG4
         [Fact]
         public void Can_capture_callsite()
         {
@@ -154,7 +153,6 @@
             _sut.Info(() => "c");
             myTarget.Logs[myTarget.Logs.Count - 1].ShouldBe(string.Format("INFO|{0}.{1}|c|", GetType().FullName, nameof(Can_capture_callsite)));
         }
-#endif
 
         [Fact]
         public void Can_open_mapped_diagnostics_context_destructured()

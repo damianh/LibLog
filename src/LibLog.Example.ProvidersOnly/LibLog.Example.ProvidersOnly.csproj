@@ -10,6 +10,6 @@
     <DefineConstants>TRACE;LIBLOG_PROVIDERS_ONLY</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LibLog" Version="5.0.0-build.421" />
+    <PackageReference Include="LibLog" Version="5.0.0" />
   </ItemGroup>
 </Project>
