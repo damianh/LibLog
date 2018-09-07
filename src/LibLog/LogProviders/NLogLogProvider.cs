@@ -45,26 +45,43 @@
         {
             var mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
 
-            var setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(object));
-            var removeMethod = mdcContextType.GetMethod("Remove", typeof(string));
             var keyParam = Expression.Parameter(typeof(string), "key");
-            var valueParam = Expression.Parameter(typeof(object), "value");
-
-            var setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+            var removeMethod = mdcContextType.GetMethod("Remove", typeof(string));
             var removeMethodCall = Expression.Call(null, removeMethod, keyParam);
-
-            var set = Expression
-                .Lambda<Action<string, object>>(setMethodCall, keyParam, valueParam)
-                .Compile();
             var remove = Expression
                 .Lambda<Action<string>>(removeMethodCall, keyParam)
                 .Compile();
 
-            return (key, value, _) =>
+            var setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(object));
+            if (setMethod != null)
             {
-                set(key, value);
-                return new DisposableAction(() => remove(key));
-            };
+                var valueParam = Expression.Parameter(typeof(object), "value");
+                var setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+                var set = Expression
+                    .Lambda<Action<string, object>>(setMethodCall, keyParam, valueParam)
+                    .Compile();
+
+                return (key, value, _) =>
+                {
+                    set(key, value);
+                    return new DisposableAction(() => remove(key));
+                };
+            }
+            else
+            {
+                setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(string));
+                var valueParam = Expression.Parameter(typeof(string), "value");
+                var setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
+                var set = Expression
+                    .Lambda<Action<string, string>>(setMethodCall, keyParam, valueParam)
+                    .Compile();
+
+                return (key, value, _) =>
+                {
+                    set(key, value.ToString());
+                    return new DisposableAction(() => remove(key));
+                };
+            }
         }
 
         private static Type GetLogManagerType()
