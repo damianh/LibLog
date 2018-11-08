@@ -34,22 +34,55 @@
 
         protected override OpenNdc GetOpenNdcMethod()
         {
+            var messageParam = Expression.Parameter(typeof(string), "message");
+
+            var ndlcContextType = Type.GetType("NLog.NestedDiagnosticsLogicalContext, NLog");
+            if (ndlcContextType != null)
+            {
+                var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
+                if (pushObjectMethod != null)
+                {
+                    var pushObjectMethodCall = Expression.Call(null, pushObjectMethod, messageParam);
+                    return Expression.Lambda<OpenNdc>(pushObjectMethodCall, messageParam).Compile();
+                }
+            }
+
             var ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
             var pushMethod = ndcContextType.GetMethod("Push", typeof(string));
-            var messageParam = Expression.Parameter(typeof(string), "message");
+
             var pushMethodCall = Expression.Call(null, pushMethod, messageParam);
             return Expression.Lambda<OpenNdc>(pushMethodCall, messageParam).Compile();
         }
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            var mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
+            var keyParam = Expression.Parameter(typeof(string), "key");
 
+            var ndlcContextType = Type.GetType("NLog.NestedDiagnosticsLogicalContext, NLog");
+            if (ndlcContextType != null)
+            {
+                var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
+                if (pushObjectMethod != null)
+                {
+                    var mdlcContextType = Type.GetType("NLog.MappedDiagnosticsLogicalContext, NLog");
+                    if (mdlcContextType != null)
+                    {
+                        var setScopedMethod = mdlcContextType.GetMethod("SetScoped", typeof(string), typeof(object));
+                        if (setScopedMethod != null)
+                        {
+                            var valueObjParam = Expression.Parameter(typeof(object), "value");
+                            var setScopedMethodCall = Expression.Call(null, setScopedMethod, keyParam, valueObjParam);
+                            var setMethodLambda = Expression.Lambda<Func<string, object, IDisposable>>(setScopedMethodCall, keyParam, valueObjParam).Compile();
+                            return (key, value, _) => setMethodLambda(key, value);
+                        }
+                    }
+                }
+            }
+
+            var mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
             var setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(string));
             var removeMethod = mdcContextType.GetMethod("Remove", typeof(string));
-            var keyParam = Expression.Parameter(typeof(string), "key");
             var valueParam = Expression.Parameter(typeof(string), "value");
-
             var setMethodCall = Expression.Call(null, setMethod, keyParam, valueParam);
             var removeMethodCall = Expression.Call(null, removeMethod, keyParam);
 
