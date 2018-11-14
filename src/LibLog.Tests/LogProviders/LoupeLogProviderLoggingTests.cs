@@ -1,4 +1,4 @@
-﻿#if !NET452
+﻿#if !NET45
 
 namespace LibLog.Logging.LogProviders
 {

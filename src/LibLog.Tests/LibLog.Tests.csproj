@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461;net452</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net461;net45</TargetFrameworks>
     <RootNamespace>LibLog.Logging</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gibraltar.Agent" Version="4.6.4" Condition=" '$(TargetFramework)' == 'net452' " />
+    <PackageReference Include="Gibraltar.Agent" Version="4.6.4" Condition=" '$(TargetFramework)' == 'net45' " />
     <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Loupe.Agent.Core" Version="4.5.1" Condition=" '$(TargetFramework)' != 'net452' " />
+    <PackageReference Include="Loupe.Agent.Core" Version="4.5.1" Condition=" '$(TargetFramework)' != 'net45' " />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="NLog" Version="4.5.0" />
     <PackageReference Include="Serilog" Version="2.5.0" />
