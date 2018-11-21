@@ -3,7 +3,7 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-#if !LIBLOG_EXCLUDE_CODE_COVERAGE
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
 #if LIBLOG_PUBLIC
