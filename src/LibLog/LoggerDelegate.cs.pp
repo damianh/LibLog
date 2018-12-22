@@ -4,7 +4,7 @@ namespace $rootnamespace$.Logging
     using System;
 
 #if !LIBLOG_PROVIDERS_ONLY || LIBLOG_PUBLIC
-	/// <summary>
+    /// <summary>
     /// Logger delegate.
     /// </summary>
     /// <param name="logLevel">The log level</param>

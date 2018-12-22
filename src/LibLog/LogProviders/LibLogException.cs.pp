@@ -3,12 +3,12 @@ namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
 
-	/// <summary>
+    /// <summary>
     /// Exception thrown by LibLog.
     /// </summary>
     public class LibLogException : Exception
     {
-		/// <summary>
+        /// <summary>
         /// Initializes a new LibLogException with the specified message.
         /// </summary>
         /// <param name="message">The message</param>
@@ -17,7 +17,7 @@ namespace $rootnamespace$.Logging.LogProviders
         {
         }
 
-		/// <summary>
+        /// <summary>
         /// Initializes a new LibLogException with the specified message and inner exception.
         /// </summary>
         /// <param name="message">The message.</param>
