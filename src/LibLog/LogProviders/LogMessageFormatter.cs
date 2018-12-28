@@ -34,6 +34,7 @@
             return () =>
             {
                 var targetMessage = messageBuilder();
+				IEnumerable<string> _;
                 return FormatStructuredMessage(targetMessage, formatParameters, out _);
             };
         }
@@ -60,7 +61,8 @@
             {
                 var arg = match.Groups["arg"].Value;
 
-                if (!int.TryParse(arg, out _))
+				int result;
+                if (!int.TryParse(arg, out result))
                 {
                     processedArguments = processedArguments ?? new List<string>(formatParameters.Length);
                     var argumentIndex = processedArguments.IndexOf(arg);

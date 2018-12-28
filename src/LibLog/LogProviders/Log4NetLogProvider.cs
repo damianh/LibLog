@@ -371,7 +371,7 @@
                     case LogLevel.Fatal:
                         return s_levelFatal;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+                        throw new ArgumentOutOfRangeException("logLevel", logLevel, null);
                 }
             }
         }

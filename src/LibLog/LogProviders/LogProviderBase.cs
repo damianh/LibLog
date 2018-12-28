@@ -73,7 +73,7 @@
         /// <returns>A provider-specific method to open a nested diagnostics context.</returns>
         protected virtual OpenNdc GetOpenNdcMethod()
         {
-            return _ => NoopDisposableInstance;
+            return (_) => NoopDisposableInstance;
         }
 
         /// <summary>

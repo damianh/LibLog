@@ -17,7 +17,7 @@
 
         public void Dispose()
         {
-            _onDispose?.Invoke();
+            if(_onDispose != null) _onDispose.Invoke();
         }
     }
 }

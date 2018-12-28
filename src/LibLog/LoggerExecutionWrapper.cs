@@ -49,8 +49,7 @@
                     formatParameters);
             }
 
-            string WrappedMessageFunc()
-            {
+            var WrappedMessageFunc = new Func<string>(() => {
                 try
                 {
                     return messageFunc();
@@ -61,7 +60,7 @@
                 }
 
                 return null;
-            }
+            });
 
             // Callsite HACK - Need to ensure proper callsite stack without inlining, so calling the logger within a virtual interface method
             return _callsiteLogger.Log(WrappedLogger, logLevel, WrappedMessageFunc, exception, formatParameters);
