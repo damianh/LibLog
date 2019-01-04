@@ -1,10 +1,24 @@
+function Run-Task
+{
+    param(
+        [scriptblock] $block
+    )
+
+    & $block
+
+    if($LASTEXITCODE -ne 0)
+    {
+        exit $LASTEXITCODE
+    }
+}
+
 if (-not (Test-Path env:APPVEYOR_BUILD_NUMBER)) { $env:APPVEYOR_BUILD_NUMBER = '0' }
 $suffix = "build." + $env:APPVEYOR_BUILD_NUMBER
 $TOOLS_DIR = Join-Path $PSScriptRoot "tools"
 $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
 
-dotnet build src\LibLog.sln -c Release
-dotnet test src\LibLog.Tests -c Release --no-build
+Run-Task { dotnet build src\LibLog.sln -c Release }
+Run-Task { dotnet test src\LibLog.Tests -c Release --no-build }
 
 Get-ChildItem ./src/*.pp -Recurse | ForEach-Object { Remove-Item $_ }
 
