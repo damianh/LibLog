@@ -71,7 +71,7 @@ namespace $rootnamespace$.Logging
     {
         private static readonly Lazy<ILogProvider> ResolvedLogProvider = new Lazy<ILogProvider>(ForceResolveLogProvider);
 #if !LIBLOG_PROVIDERS_ONLY
-        private static dynamic s_currentLogProvider;
+        private static ILogProvider s_currentLogProvider;
         private static Action<ILogProvider> s_onCurrentLogProviderSet;
 
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]

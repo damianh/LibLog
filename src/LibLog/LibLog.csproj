@@ -4,7 +4,4 @@
     <LangVersion>7</LangVersion>
     <RootNamespace>YourRootNamespace.Logging</RootNamespace>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
-  </ItemGroup>
 </Project>

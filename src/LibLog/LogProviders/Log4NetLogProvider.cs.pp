@@ -138,12 +138,12 @@ namespace $rootnamespace$.Logging.LogProviders
                 new Lazy<bool>(Initialize, LazyThreadSafetyMode.ExecutionAndPublication);
 
             private static Exception s_initializeException;
-            private readonly dynamic _logger;
+            private readonly object _logger;
 
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
-            internal Log4NetLogger(dynamic logger)
+            internal Log4NetLogger(object logger)
             {
-                _logger = logger.Logger;
+                _logger = logger.GetType().GetProperty("Logger").GetValue(logger);
             }
 
             private static bool Initialize()
