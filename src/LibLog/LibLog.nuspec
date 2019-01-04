@@ -24,21 +24,10 @@ This package is a variation of option 3 but will automatically wire things up to
         <copyright>Damian Hickey and Contributors 2011-2018</copyright>
         <releaseNotes>Support for NetStandard2.0 and NET452. Only works with .NET SDK project formats.</releaseNotes>
         <tags>logging, framework, component, nlog, log4net, entlib, serilog, loupe, pcl</tags>
-        <frameworkAssemblies>
-            <frameworkAssembly assemblyName="Microsoft.CSharp" />
-        </frameworkAssemblies>
         <contentFiles>
             <files include="*.cs.pp" />
             <files include="LogProviders/*.cs.pp" />
         </contentFiles>
-        <dependencies>
-            <group targetFramework="netstandard2.0">
-                <dependency id="Microsoft.CSharp" version="4.4.0" />
-            </group>
-            <group targetFramework="net45">
-                <dependency id="Microsoft.CSharp" version="4.4.0" />
-            </group>
-        </dependencies>
     </metadata>
     <files>
         <file src="**/*.cs.pp" target="contentFiles/cs/netstandard2.0" />
