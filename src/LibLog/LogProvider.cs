@@ -115,11 +115,11 @@ namespace YourRootNamespace.Logging
 
         internal static ILogProvider CurrentLogProvider { get { return s_currentLogProvider; } }
 
-		/// <summary>
-		/// Gets a logger for the specified type.
-		/// </summary>
-		/// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
-		/// <returns>An instance of <see cref="ILog"/></returns>
+        /// <summary>
+        /// Gets a logger for the specified type.
+        /// </summary>
+        /// <typeparam name="T">The type whose name will be used for the logger.</typeparam>
+        /// <returns>An instance of <see cref="ILog"/></returns>
 #if LIBLOG_PUBLIC
         public
 #else
@@ -296,8 +296,10 @@ namespace YourRootNamespace.Logging
         {
             internal static readonly NoOpLogger Instance = new NoOpLogger();
 
-			public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
-			{ return false; }
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
+            { 
+                return false; 
+            }
         }
 #endif
     }
