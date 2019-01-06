@@ -2,7 +2,8 @@
 namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
+	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
 
@@ -21,7 +22,12 @@ namespace $rootnamespace$.Logging.LogProviders
             _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
 
-        public static bool ProviderIsAvailableOverride { get; set; } = true;
+        static NLogLogProvider()
+        {
+            ProviderIsAvailableOverride = true;
+        }
+        
+        public static bool ProviderIsAvailableOverride { get; set; }
 
         public override Logger GetLogger(string name)
         {
@@ -284,6 +290,7 @@ namespace $rootnamespace$.Logging.LogProviders
                         var formatMessage = messageFunc();
                         if (!s_structuredLoggingEnabled)
                         {
+							IEnumerable<string> _;
                             formatMessage =
                                 LogMessageFormatter.FormatStructuredMessage(formatMessage,
                                     formatParameters,

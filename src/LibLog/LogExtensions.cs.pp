@@ -508,7 +508,7 @@ namespace $rootnamespace$.Logging
         // ReSharper disable once UnusedParameter.Local
         private static void GuardAgainstNullLogger(ILog logger)
         {
-            if (logger == null) throw new ArgumentNullException(nameof(logger));
+            if (logger == null) throw new ArgumentNullException("logger");
         }
 
         private static void LogFormat(this ILog logger, LogLevel logLevel, string message, params object[] args)
@@ -530,8 +530,7 @@ namespace $rootnamespace$.Logging
         // Allow passing callsite-logger-type to LogProviderBase using messageFunc
         internal static Func<string> WrapLogSafeInternal(LoggerExecutionWrapper logger, Func<string> messageFunc)
         {
-            string WrappedMessageFunc()
-            {
+            var WrappedMessageFunc = new Func<string>(() => {
                 try
                 {
                     return messageFunc();
@@ -543,7 +542,7 @@ namespace $rootnamespace$.Logging
                 }
 
                 return null;
-            }
+            });
 
             return WrappedMessageFunc;
         }
@@ -551,10 +550,10 @@ namespace $rootnamespace$.Logging
         // Allow passing callsite-logger-type to LogProviderBase using messageFunc
         private static Func<string> WrapLogInternal(Func<string> messageFunc)
         {
-            string WrappedMessageFunc()
+            var WrappedMessageFunc = new Func<string>(() =>
             {
                 return messageFunc();
-            }
+            });
 
             return WrappedMessageFunc;
         }
