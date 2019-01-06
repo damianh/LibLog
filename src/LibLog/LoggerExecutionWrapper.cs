@@ -49,7 +49,8 @@
                     formatParameters);
             }
 
-            var WrappedMessageFunc = new Func<string>(() => {
+            var WrappedMessageFunc = new Func<string>(() => 
+            {
                 try
                 {
                     return messageFunc();
@@ -68,14 +69,12 @@
 
         private interface ICallSiteExtension
         {
-            bool Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception,
-                object[] formatParameters);
+            bool Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters);
         }
 
         private class CallSiteExtension : ICallSiteExtension
         {
-            bool ICallSiteExtension.Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception,
-                object[] formatParameters)
+            bool ICallSiteExtension.Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters)
             {
                 return logger(logLevel, messageFunc, exception, formatParameters);
             }
