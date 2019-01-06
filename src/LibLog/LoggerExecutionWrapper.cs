@@ -49,7 +49,7 @@
                     formatParameters);
             }
 
-            string WrappedMessageFunc()
+            var WrappedMessageFunc = new Func<string>(() => 
             {
                 try
                 {
@@ -61,7 +61,7 @@
                 }
 
                 return null;
-            }
+            });
 
             // Callsite HACK - Need to ensure proper callsite stack without inlining, so calling the logger within a virtual interface method
             return _callsiteLogger.Log(WrappedLogger, logLevel, WrappedMessageFunc, exception, formatParameters);
@@ -69,14 +69,12 @@
 
         private interface ICallSiteExtension
         {
-            bool Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception,
-                object[] formatParameters);
+            bool Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters);
         }
 
         private class CallSiteExtension : ICallSiteExtension
         {
-            bool ICallSiteExtension.Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception,
-                object[] formatParameters)
+            bool ICallSiteExtension.Log(Logger logger, LogLevel logLevel, Func<string> messageFunc, Exception exception, object[] formatParameters)
             {
                 return logger(logLevel, messageFunc, exception, formatParameters);
             }

@@ -113,7 +113,10 @@ namespace YourRootNamespace.Logging
             }
         }
 
-        internal static ILogProvider CurrentLogProvider => s_currentLogProvider;
+        internal static ILogProvider CurrentLogProvider
+        { 
+            get { return s_currentLogProvider; } 
+        }
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -125,7 +128,10 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog For<T>() => GetLogger(typeof(T));
+        static ILog For<T>() 
+        {
+            return GetLogger(typeof(T));
+        }
 
         /// <summary>
         /// Gets a logger for the current class.
@@ -297,7 +303,9 @@ namespace YourRootNamespace.Logging
             internal static readonly NoOpLogger Instance = new NoOpLogger();
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
-                => false;
+            { 
+                return false; 
+            }
         }
 #endif
     }
