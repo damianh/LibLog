@@ -21,10 +21,11 @@
             _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
 
-		static NLogLogProvider()
-		{
-			ProviderIsAvailableOverride = true;
-		}
+        static NLogLogProvider()
+        {
+            ProviderIsAvailableOverride = true;
+        }
+        
         public static bool ProviderIsAvailableOverride { get; set; }
 
         public override Logger GetLogger(string name)
