@@ -34,7 +34,7 @@
             return () =>
             {
                 var targetMessage = messageBuilder();
-				IEnumerable<string> _;
+                IEnumerable<string> _;
                 return FormatStructuredMessage(targetMessage, formatParameters, out _);
             };
         }
