@@ -3,12 +3,13 @@
 namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///     Base class for specific log providers.
     /// </summary>
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+
     [ExcludeFromCodeCoverage]
 #endif
 #if LIBLOG_PUBLIC

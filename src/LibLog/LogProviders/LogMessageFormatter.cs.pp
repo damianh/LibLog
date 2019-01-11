@@ -3,13 +3,14 @@
 namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Text.RegularExpressions;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+
     [ExcludeFromCodeCoverage]
 #endif
     internal static class LogMessageFormatter

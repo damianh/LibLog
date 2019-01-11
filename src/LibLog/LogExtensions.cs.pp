@@ -3,12 +3,13 @@
 namespace $rootnamespace$.Logging
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     ///     Extension methods for the <see cref="ILog"/> interface.
     /// </summary>
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+
     [ExcludeFromCodeCoverage]
 #endif
 #if LIBLOG_PUBLIC
