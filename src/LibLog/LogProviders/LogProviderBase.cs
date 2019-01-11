@@ -1,7 +1,9 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
     using System.Diagnostics.CodeAnalysis;
+#endif
 
     /// <summary>
     ///     Base class for specific log providers.

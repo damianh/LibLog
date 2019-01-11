@@ -1,7 +1,9 @@
 ﻿namespace YourRootNamespace.Logging
 {
     using System;
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
     using System.Diagnostics.CodeAnalysis;
+#endif
 
     /// <summary>
     ///     Extension methods for the <see cref="ILog"/> interface.

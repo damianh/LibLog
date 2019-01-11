@@ -1,9 +1,10 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+
     [ExcludeFromCodeCoverage]
 #endif
     internal class LoupeLogProvider : LogProviderBase
