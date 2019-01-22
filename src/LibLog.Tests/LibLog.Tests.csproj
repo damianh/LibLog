@@ -4,7 +4,7 @@
     <RootNamespace>LibLog.Logging</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Gibraltar.Agent" Version="4.6.4" Condition=" '$(TargetFramework)' == 'net452' " />
+    <PackageReference Include="Gibraltar.Agent" Version="4.7.10" Condition=" '$(TargetFramework)' == 'net452' " />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Loupe.Agent.Core" Version="4.7.0" Condition=" '$(TargetFramework)' != 'net452' " />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
