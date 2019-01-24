@@ -159,7 +159,7 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="args">Optional format parameters for the message.</param>
+        /// <param name="formatParams">Optional format parameters for the message.</param>
         public static void DebugException(this ILog logger, string message, Exception exception,
             params object[] formatParams)
         {
