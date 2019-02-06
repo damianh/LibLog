@@ -130,7 +130,6 @@
             logger.DebugException(message, exception, args);
         }
 
-
         /// <summary>
         ///     Logs a message at the <see cref="LogLevel.Debug"/> log level, if enabled.
         /// </summary>
@@ -355,7 +354,6 @@
         {
             if (logger.IsInfoEnabled()) logger.LogFormat(LogLevel.Info, message, args);
         }
-
 
         /// <summary>
         ///     Logs an exception at the <see cref="LogLevel.Info"/> log level, if enabled.
