@@ -159,11 +159,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void DebugException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsDebugEnabled()) logger.Log(LogLevel.Debug, message.AsFunc(), exception, formatParams);
+            if (logger.IsDebugEnabled()) logger.Log(LogLevel.Debug, message.AsFunc(), exception, args);
         }
 
         /// <summary>
@@ -227,11 +227,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void ErrorException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsErrorEnabled()) logger.Log(LogLevel.Error, message.AsFunc(), exception, formatParams);
+            if (logger.IsErrorEnabled()) logger.Log(LogLevel.Error, message.AsFunc(), exception, args);
         }
 
         /// <summary>
@@ -294,11 +294,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void FatalException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsFatalEnabled()) logger.Log(LogLevel.Fatal, message.AsFunc(), exception, formatParams);
+            if (logger.IsFatalEnabled()) logger.Log(LogLevel.Fatal, message.AsFunc(), exception, args);
         }
 
         /// <summary>
@@ -363,11 +363,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void InfoException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsInfoEnabled()) logger.Log(LogLevel.Info, message.AsFunc(), exception, formatParams);
+            if (logger.IsInfoEnabled()) logger.Log(LogLevel.Info, message.AsFunc(), exception, args);
         }
 
         /// <summary>
@@ -431,11 +431,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void TraceException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsTraceEnabled()) logger.Log(LogLevel.Trace, message.AsFunc(), exception, formatParams);
+            if (logger.IsTraceEnabled()) logger.Log(LogLevel.Trace, message.AsFunc(), exception, args);
         }
 
         /// <summary>
@@ -499,11 +499,11 @@
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
-        /// <param name="formatParams">Optional format parameters for the message.</param>
+        /// <param name="args">Optional format parameters for the message.</param>
         public static void WarnException(this ILog logger, string message, Exception exception,
-            params object[] formatParams)
+            params object[] args)
         {
-            if (logger.IsWarnEnabled()) logger.Log(LogLevel.Warn, message.AsFunc(), exception, formatParams);
+            if (logger.IsWarnEnabled()) logger.Log(LogLevel.Warn, message.AsFunc(), exception, args);
         }
 
         // ReSharper disable once UnusedParameter.Local
