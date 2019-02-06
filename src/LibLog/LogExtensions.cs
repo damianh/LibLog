@@ -146,8 +146,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Debug"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         public static void DebugException(this ILog logger, string message, Exception exception)
         {
             if (logger.IsDebugEnabled()) logger.Log(LogLevel.Debug, message.AsFunc(), exception, EmptyParams);
@@ -157,8 +157,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Debug"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void DebugException(this ILog logger, string message, Exception exception,
             params object[] args)
@@ -225,8 +225,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Error"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void ErrorException(this ILog logger, string message, Exception exception,
             params object[] args)
@@ -292,8 +292,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Fatal"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void FatalException(this ILog logger, string message, Exception exception,
             params object[] args)
@@ -361,8 +361,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Info"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void InfoException(this ILog logger, string message, Exception exception,
             params object[] args)
@@ -429,8 +429,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Trace"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void TraceException(this ILog logger, string message, Exception exception,
             params object[] args)
@@ -497,8 +497,8 @@
         ///     Logs an exception at the <see cref="LogLevel.Warn"/> log level, if enabled.
         /// </summary>
         /// <param name="logger">The <see cref="ILog"/> to use.</param>
-        /// <param name="exception">The exception.</param>
         /// <param name="message">The message.</param>
+        /// <param name="exception">The exception.</param>
         /// <param name="args">Optional format parameters for the message.</param>
         public static void WarnException(this ILog logger, string message, Exception exception,
             params object[] args)
