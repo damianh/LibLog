@@ -36,7 +36,7 @@
 
         protected override OpenNdc GetOpenNdcMethod()
         {
-            var logicalThreadContextType = Type.GetType("log4net.LogicalThreadContext, log4net");
+            var logicalThreadContextType = FindType("log4net.LogicalThreadContext", "log4net");
             var stacksProperty = logicalThreadContextType.GetProperty("Stacks");
             var logicalThreadContextStacksType = stacksProperty.PropertyType;
             var stacksIndexerProperty = logicalThreadContextStacksType.GetProperty("Item");
@@ -64,7 +64,7 @@
 
         protected override OpenMdc GetOpenMdcMethod()
         {
-            var logicalThreadContextType = Type.GetType("log4net.LogicalThreadContext, log4net");
+            var logicalThreadContextType = FindType("log4net.LogicalThreadContext", "log4net");
             var propertiesProperty = logicalThreadContextType.GetProperty("Properties");
             var logicalThreadContextPropertiesType = propertiesProperty.PropertyType;
             var propertiesIndexerProperty = logicalThreadContextPropertiesType.GetProperty("Item");
@@ -101,7 +101,7 @@
 
         private static Type GetLogManagerType()
         {
-            return Type.GetType("log4net.LogManager, log4net");
+            return FindType("log4net.LogManager", "log4net");
         }
 
         private static Func<string, object> GetGetLoggerMethodCall()
@@ -149,7 +149,7 @@
             {
                 try
                 {
-                    var logEventLevelType = Type.GetType("log4net.Core.Level, log4net");
+                    var logEventLevelType = FindType("log4net.Core.Level", "log4net");
                     if (logEventLevelType == null) throw new LibLogException("Type log4net.Core.Level was not found.");
 
                     var levelFields = logEventLevelType.GetFields().ToList();
@@ -161,7 +161,7 @@
                     s_levelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
 
                     // Func<object, object, bool> isEnabledFor = (logger, level) => { return ((log4net.Core.ILogger)logger).IsEnabled(level); }
-                    var loggerType = Type.GetType("log4net.Core.ILogger, log4net");
+                    var loggerType = FindType("log4net.Core.ILogger", "log4net");
                     if (loggerType == null) throw new LibLogException("Type log4net.Core.ILogger, was not found.");
                     var instanceParam = Expression.Parameter(typeof(object));
                     var instanceCast = Expression.Convert(instanceParam, loggerType);
@@ -170,7 +170,7 @@
                     s_isEnabledForDelegate = GetIsEnabledFor(loggerType, logEventLevelType, instanceCast, levelCast,
                         instanceParam, levelParam);
 
-                    var loggingEventType = Type.GetType("log4net.Core.LoggingEvent, log4net");
+                    var loggingEventType = FindType("log4net.Core.LoggingEvent", "log4net");
 
                     s_createLoggingEvent = GetCreateLoggingEvent(instanceParam, instanceCast, levelParam, levelCast,
                         loggingEventType);
