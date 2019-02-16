@@ -3,13 +3,17 @@
 namespace $rootnamespace$.Logging.LogProviders
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+#endif
 
     /// <summary>
     ///     Base class for specific log providers.
     /// </summary>
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
-    using System.Diagnostics.CodeAnalysis;
-
     [ExcludeFromCodeCoverage]
 #endif
 #if LIBLOG_PUBLIC
@@ -103,5 +107,29 @@ namespace $rootnamespace$.Logging.LogProviders
         /// <param name="destructure">Determines whether to call the destructor or not.</param>
         /// <returns>A disposable that when disposed removes the map from the context.</returns>
         protected delegate IDisposable OpenMdc(string key, object value, bool destructure);
+
+        /// <summary>
+        ///     Finds a type using a type name and assembly name.
+        /// </summary>
+        /// <param name="typeName">The name of the type.</param>
+        /// <param name="assemblyName">The name of the assembly.</param>
+        /// <returns>The requested type or null if it was not found.</returns>
+        protected static Type FindType(string typeName, string assemblyName)
+        {
+            return FindType(typeName, new[] {assemblyName});
+        }
+
+        /// <summary>
+        ///     Finds a type using a type name and a list of assembly names to search.
+        /// </summary>
+        /// <param name="typeName">The name of the type.</param>
+        /// <param name="assemblyNames">A list of assembly names to search.</param>
+        /// <returns>The request type or null if it was not found.</returns>
+        protected static Type FindType(string typeName, IReadOnlyList<string> assemblyNames)
+        {
+            return assemblyNames
+                       .Select(assemblyName => Type.GetType($"{typeName}, {assemblyName}"))
+                       .FirstOrDefault(type => type != null) ?? Type.GetType(typeName);
+        }
     }
 }

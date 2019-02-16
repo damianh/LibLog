@@ -42,7 +42,7 @@
         {
             var messageParam = Expression.Parameter(typeof(string), "message");
 
-            var ndlcContextType = Type.GetType("NLog.NestedDiagnosticsLogicalContext, NLog");
+            var ndlcContextType = FindType("NLog.NestedDiagnosticsLogicalContext", "NLog");
             if (ndlcContextType != null)
             {
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
@@ -53,7 +53,7 @@
                 }
             }
 
-            var ndcContextType = Type.GetType("NLog.NestedDiagnosticsContext, NLog");
+            var ndcContextType = FindType("NLog.NestedDiagnosticsContext", "NLog");
             var pushMethod = ndcContextType.GetMethod("Push", typeof(string));
 
             var pushMethodCall = Expression.Call(null, pushMethod, messageParam);
@@ -64,13 +64,13 @@
         {
             var keyParam = Expression.Parameter(typeof(string), "key");
 
-            var ndlcContextType = Type.GetType("NLog.NestedDiagnosticsLogicalContext, NLog");
+            var ndlcContextType = FindType("NLog.NestedDiagnosticsLogicalContext", "NLog");
             if (ndlcContextType != null)
             {
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
                 if (pushObjectMethod != null)
                 {
-                    var mdlcContextType = Type.GetType("NLog.MappedDiagnosticsLogicalContext, NLog");
+                    var mdlcContextType = FindType("NLog.MappedDiagnosticsLogicalContext", "NLog");
                     if (mdlcContextType != null)
                     {
                         var setScopedMethod = mdlcContextType.GetMethod("SetScoped", typeof(string), typeof(object));
@@ -85,7 +85,7 @@
                 }
             }
 
-            var mdcContextType = Type.GetType("NLog.MappedDiagnosticsContext, NLog");
+            var mdcContextType = FindType("NLog.MappedDiagnosticsContext", "NLog");
             var setMethod = mdcContextType.GetMethod("Set", typeof(string), typeof(string));
             var removeMethod = mdcContextType.GetMethod("Remove", typeof(string));
             var valueParam = Expression.Parameter(typeof(string), "value");
@@ -108,7 +108,7 @@
 
         private static Type GetLogManagerType()
         {
-            return Type.GetType("NLog.LogManager, NLog");
+            return FindType("NLog.LogManager", "NLog");
         }
 
         private static Func<string, object> GetGetLoggerMethodCall()
@@ -194,7 +194,7 @@
 
                 _nameDelegate = (NameDelegate)loggerType.GetProperty("Name").GetGetMethod().CreateDelegate(typeof(NameDelegate), logger);
 
-                var logEventInfoType = Type.GetType("NLog.LogEventInfo, NLog");
+                var logEventInfoType = FindType("NLog.LogEventInfo", "NLog");
                 _logEventDelegate = (type, e) => loggerType.GetMethod("Log", new Type[] { typeof(Type), logEventInfoType }).Invoke(logger, new object[] { type, e });
 
                 _isTraceEnabledDelegate = GetIsEnabledDelegate(logger, "IsTraceEnabled");
@@ -223,7 +223,7 @@
             {
                 try
                 {
-                    var logEventLevelType = Type.GetType("NLog.LogLevel, NLog");
+                    var logEventLevelType = FindType("NLog.LogLevel", "NLog");
                     if (logEventLevelType == null) throw new LibLogException("Type NLog.LogLevel was not found.");
 
                     var levelFields = logEventLevelType.GetFields().ToList();
@@ -234,7 +234,7 @@
                     s_levelError = levelFields.First(x => x.Name == "Error").GetValue(null);
                     s_levelFatal = levelFields.First(x => x.Name == "Fatal").GetValue(null);
 
-                    var logEventInfoType = Type.GetType("NLog.LogEventInfo, NLog");
+                    var logEventInfoType = FindType("NLog.LogEventInfo", "NLog");
                     if (logEventInfoType == null) throw new LibLogException("Type NLog.LogEventInfo was not found.");
 
                     var loggingEventConstructor =
@@ -474,7 +474,7 @@
 
             private static bool IsStructuredLoggingEnabled()
             {
-                var configFactoryType = Type.GetType("NLog.Config.ConfigurationItemFactory, NLog");
+                var configFactoryType = FindType("NLog.Config.ConfigurationItemFactory", "NLog");
                 if (configFactoryType != null)
                 {
                     var parseMessagesProperty = configFactoryType.GetProperty("ParseMessageTemplates");

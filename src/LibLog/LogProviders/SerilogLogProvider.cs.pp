@@ -38,8 +38,7 @@ namespace $rootnamespace$.Logging.LogProviders
 
         private static Func<string, object, bool, IDisposable> GetPushProperty()
         {
-            var ndcContextType = Type.GetType("Serilog.Context.LogContext, Serilog") ??
-                                 Type.GetType("Serilog.Context.LogContext, Serilog.FullNetFx");
+            var ndcContextType = FindType("Serilog.Context.LogContext", new[] {"Serilog", "Serilog.FullNetFx"});
 
             var pushPropertyMethod = ndcContextType.GetMethod(
                 "PushProperty",
@@ -64,7 +63,7 @@ namespace $rootnamespace$.Logging.LogProviders
         }
 
         private static Type GetLogManagerType()
-            => Type.GetType("Serilog.Log, Serilog");
+            => FindType("Serilog.Log", "Serilog");
 
         private static Func<string, object> GetForContextMethodCall()
         {
@@ -120,7 +119,7 @@ namespace $rootnamespace$.Logging.LogProviders
             {
                 try
                 {
-                    var logEventLevelType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                    var logEventLevelType = FindType("Serilog.Events.LogEventLevel", "Serilog");
                     if (logEventLevelType == null)
                         throw new LibLogException("Type Serilog.Events.LogEventLevel was not found.");
                     s_debugLevel = Enum.Parse(logEventLevelType, "Debug", false);
@@ -131,7 +130,7 @@ namespace $rootnamespace$.Logging.LogProviders
                     s_warningLevel = Enum.Parse(logEventLevelType, "Warning", false);
 
                     // Func<object, object, bool> isEnabled = (logger, level) => { return ((SeriLog.ILogger)logger).IsEnabled(level); }
-                    var loggerType = Type.GetType("Serilog.ILogger, Serilog");
+                    var loggerType = FindType("Serilog.ILogger", "Serilog");
                     if (loggerType == null) throw new LibLogException("Type Serilog.ILogger was not found.");
                     var isEnabledMethodInfo = loggerType.GetMethod("IsEnabled", logEventLevelType);
                     var instanceParam = Expression.Parameter(typeof(object));

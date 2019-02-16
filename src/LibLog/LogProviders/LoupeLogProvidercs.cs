@@ -57,7 +57,7 @@
 
         private static Type GetTypeFromCoreOrFrameworkDll(string typeName)
         {
-            return Type.GetType($"{typeName}, {LoupeAgentNetCoreDll}") ?? Type.GetType($"{typeName}, {LoupeAgentNetFrameworkDll}");
+            return FindType(typeName, new[] {LoupeAgentNetCoreDll, LoupeAgentNetFrameworkDll});
         }
 
         private static Type GetLogManagerType()
