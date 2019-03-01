@@ -45,11 +45,13 @@
             var ndlcContextType = FindType("NLog.NestedDiagnosticsLogicalContext", "NLog");
             if (ndlcContextType != null)
             {
-                var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
-                if (pushObjectMethod != null)
+                var pushGenericMethod = ndlcContextType.GetMethods()
+                    .FirstOrDefault(m => m.Name == "Push" && m.IsGenericMethodDefinition && m.ContainsGenericParameters && m.GetParameters().Length == 1);
+                if (pushGenericMethod != null)
                 {
-                    var pushObjectMethodCall = Expression.Call(null, pushObjectMethod, messageParam);
-                    return Expression.Lambda<OpenNdc>(pushObjectMethodCall, messageParam).Compile();
+                    var pushStringMethod = pushGenericMethod.MakeGenericMethod(typeof(string));
+                    var pushStringMethodCall = Expression.Call(null, pushStringMethod, messageParam);
+                    return Expression.Lambda<OpenNdc>(pushStringMethodCall, messageParam).Compile();
                 }
             }
 
@@ -64,24 +66,16 @@
         {
             var keyParam = Expression.Parameter(typeof(string), "key");
 
-            var ndlcContextType = FindType("NLog.NestedDiagnosticsLogicalContext", "NLog");
-            if (ndlcContextType != null)
+            var mdlcContextType = FindType("NLog.MappedDiagnosticsLogicalContext", "NLog");
+            if (mdlcContextType != null)
             {
-                var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
-                if (pushObjectMethod != null)
+                var setScopedMethod = mdlcContextType.GetMethod("SetScoped", typeof(string), typeof(object));
+                if (setScopedMethod != null)
                 {
-                    var mdlcContextType = FindType("NLog.MappedDiagnosticsLogicalContext", "NLog");
-                    if (mdlcContextType != null)
-                    {
-                        var setScopedMethod = mdlcContextType.GetMethod("SetScoped", typeof(string), typeof(object));
-                        if (setScopedMethod != null)
-                        {
-                            var valueObjParam = Expression.Parameter(typeof(object), "value");
-                            var setScopedMethodCall = Expression.Call(null, setScopedMethod, keyParam, valueObjParam);
-                            var setMethodLambda = Expression.Lambda<Func<string, object, IDisposable>>(setScopedMethodCall, keyParam, valueObjParam).Compile();
-                            return (key, value, _) => setMethodLambda(key, value);
-                        }
-                    }
+                    var valueObjParam = Expression.Parameter(typeof(object), "value");
+                    var setScopedMethodCall = Expression.Call(null, setScopedMethod, keyParam, valueObjParam);
+                    var setMethodLambda = Expression.Lambda<Func<string, object, IDisposable>>(setScopedMethodCall, keyParam, valueObjParam).Compile();
+                    return (key, value, _) => setMethodLambda(key, value);
                 }
             }
 
