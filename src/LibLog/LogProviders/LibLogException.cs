@@ -2,10 +2,15 @@
 {
     using System;
 
+#if !LIBLOG_PROVIDERS_ONLY || LIBLOG_PUBLIC
     /// <summary>
     /// Exception thrown by LibLog.
     /// </summary>
-    public class LibLogException : Exception
+    public
+#else
+    internal
+#endif
+    class LibLogException : InvalidOperationException
     {
         /// <summary>
         /// Initializes a new LibLogException with the specified message.
