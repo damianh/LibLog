@@ -9,6 +9,6 @@
     <ProjectReference Include="..\LibLog.Example.Library\LibLog.Example.Library.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.11" />
+    <PackageReference Include="NLog" Version="4.6.0" />
   </ItemGroup>
 </Project>
