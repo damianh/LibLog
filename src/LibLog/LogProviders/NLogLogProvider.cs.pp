@@ -50,6 +50,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
                 if (pushObjectMethod != null)
                 {
+                    // NLog 4.6 introduces PushObject with correct handling of logical callcontext (NDLC)
                     var pushObjectMethodCall = Expression.Call(null, pushObjectMethod, messageParam);
                     return Expression.Lambda<OpenNdc>(pushObjectMethodCall, messageParam).Compile();
                 }
@@ -72,6 +73,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
                 if (pushObjectMethod != null)
                 {
+                    // NLog 4.6 introduces SetScoped with correct handling of logical callcontext (MDLC)
                     var mdlcContextType = FindType("NLog.MappedDiagnosticsLogicalContext", "NLog");
                     if (mdlcContextType != null)
                     {

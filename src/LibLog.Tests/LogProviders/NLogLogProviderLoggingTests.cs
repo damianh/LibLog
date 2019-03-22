@@ -21,7 +21,7 @@
             var config = new LoggingConfiguration();
             _target = new MemoryTarget
             {
-                Layout = "${level:uppercase=true}|${ndc}|${mdc:item=key}|${message}|${exception}"
+                Layout = "${level:uppercase=true}|${ndlc}|${mdlc:item=key}|${message}|${exception}"
             };
             config.AddTarget("memory", _target);
             config.LoggingRules.Add(new LoggingRule("*", NLog.LogLevel.Trace, _target));
