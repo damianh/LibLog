@@ -29,7 +29,7 @@
 
                 if (Colors.TryGetValue(logLevel, out ConsoleColor consoleColor))
                 {
-                    var originalForground = Console.ForegroundColor;
+                    var originalForeground = Console.ForegroundColor;
                     try
                     {
                         Console.ForegroundColor = consoleColor;
@@ -37,7 +37,7 @@
                     }
                     finally
                     {
-                        Console.ForegroundColor = originalForground;
+                        Console.ForegroundColor = originalForeground;
                     }
                 }
                 else
