@@ -36,6 +36,12 @@
 // Define LIBLOG_PROVIDERS_ONLY if your library provides its own logging API and you just want to use the
 // LibLog providers internally to provide built in support for popular logging frameworks.
 
+// Define LIBLOG_NLOG_STRUCTURED_LOGGING if you want to take advantage of structured logging in NLog 4.5 or upper.
+// You can get more information about this feature in followed links:
+// https://github.com/NLog/NLog/wiki/How-to-use-structured-logging
+// https://github.com/damianh/LibLog/issues/239
+// https://github.com/damianh/LibLog/issues/45
+
 #pragma warning disable 1591
 
 using System.Diagnostics.CodeAnalysis;
@@ -858,9 +864,11 @@ namespace YourRootNamespace.Logging.LogProviders
         internal class NLogLogger
         {
             private readonly dynamic _logger;
-
+#if LIBLOG_NLOG_STRUCTURED_LOGGING
+            private static Func<string, object, string, Exception, object[], object> _logEventInfoFact;
+#else
             private static Func<string, object, string, Exception, object> _logEventInfoFact;
-
+#endif
             private static readonly object _levelTrace;
             private static readonly object _levelDebug;
             private static readonly object _levelInfo;
@@ -902,8 +910,14 @@ namespace YourRootNamespace.Logging.LogProviders
                         createLogEventInfoMethodInfo,
                         levelCast, loggerNameParam, exceptionParam,
                         Expression.Constant(null, typeof(IFormatProvider)), messageParam, Expression.Constant(null, typeof(object[])));
+#if LIBLOG_NLOG_STRUCTURED_LOGGING
+                    ParameterExpression parametersParam = Expression.Parameter(typeof(object[]));
+                    _logEventInfoFact = Expression.Lambda<Func<string, object, string, Exception, object[], object>>(createLogEventInfoMethodCall,
+                        loggerNameParam, levelParam, messageParam, exceptionParam, parametersParam).Compile();
+#else
                     _logEventInfoFact = Expression.Lambda<Func<string, object, string, Exception, object>>(createLogEventInfoMethodCall,
-                        loggerNameParam, levelParam, messageParam, exceptionParam).Compile();
+                        loggerNameParam, levelParam, messageParam, exceptionParam).Compile(); 
+#endif
                 }
                 catch { }
             }
@@ -920,7 +934,9 @@ namespace YourRootNamespace.Logging.LogProviders
                 {
                     return IsLogLevelEnable(logLevel);
                 }
+#if !LIBLOG_NLOG_STRUCTURED_LOGGING
                 messageFunc = LogMessageFormatter.SimulateStructuredLogging(messageFunc, formatParameters);
+#endif
 
                 if (_logEventInfoFact != null)
                 {
@@ -950,10 +966,15 @@ namespace YourRootNamespace.Logging.LogProviders
 #else
                         s_callerStackBoundaryType = null;
 #endif
+#if LIBLOG_NLOG_STRUCTURED_LOGGING
+                        var logEvent = _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception, formatParameters);
+#else
+                        var logEvent = _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception);
+#endif
                         if (s_callerStackBoundaryType != null)
-                            _logger.Log(s_callerStackBoundaryType, _logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                            _logger.Log(s_callerStackBoundaryType, logEvent);
                         else
-                            _logger.Log(_logEventInfoFact(_logger.Name, nlogLevel, messageFunc(), exception));
+                            _logger.Log(logEvent);
                         return true;
                     }
                     return false;
