@@ -37,13 +37,19 @@
             _logWriteDelegate = GetLogWriteDelegate();
         }
 
+        private static bool s_providerIsAvaiableOverride = true;
+
         /// <summary>
         ///     Gets or sets a value indicating whether [provider is available override]. Used in tests.
         /// </summary>
         /// <value>
         ///     <c>true</c> if [provider is available override]; otherwise, <c>false</c>.
         /// </value>
-        public static bool ProviderIsAvailableOverride { get; set; } = true;
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return s_providerIsAvaiableOverride; }
+            set { s_providerIsAvaiableOverride = value; }
+        }
 
         public override Logger GetLogger(string name)
         {
@@ -57,7 +63,7 @@
 
         private static Type GetTypeFromCoreOrFrameworkDll(string typeName)
         {
-            return FindType(typeName, new[] {LoupeAgentNetCoreDll, LoupeAgentNetFrameworkDll});
+            return FindType(typeName, new[] { LoupeAgentNetCoreDll, LoupeAgentNetFrameworkDll });
         }
 
         private static Type GetLogManagerType()
@@ -76,7 +82,7 @@
                 logMessageSeverityType, typeof(string), typeof(int), typeof(Exception), typeof(bool),
                 logWriteModeType, typeof(string), typeof(string), typeof(string), typeof(string), typeof(object[]));
 
-            var callDelegate = (WriteDelegate) method.CreateDelegate(typeof(WriteDelegate));
+            var callDelegate = (WriteDelegate)method.CreateDelegate(typeof(WriteDelegate));
             return callDelegate;
         }
 
@@ -132,7 +138,7 @@
                     case LogLevel.Fatal:
                         return TraceEventTypeValues.Critical;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(logLevel));
+                        throw new ArgumentOutOfRangeException("logLevel");
                 }
             }
         }

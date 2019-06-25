@@ -20,7 +20,7 @@
             _getIsDisabled = getIsDisabled ?? (() => false);
         }
 
-        internal Logger WrappedLogger { get; }
+        internal Logger WrappedLogger { get; private set; }
 
         [SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes")]
         public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null,
@@ -49,7 +49,7 @@
                     formatParameters);
             }
 
-            var WrappedMessageFunc = new Func<string>(() => 
+            var WrappedMessageFunc = new Func<string>(() =>
             {
                 try
                 {

@@ -114,7 +114,7 @@
         /// <returns>The requested type or null if it was not found.</returns>
         protected static Type FindType(string typeName, string assemblyName)
         {
-            return FindType(typeName, new[] {assemblyName});
+            return FindType(typeName, new[] { assemblyName });
         }
 
         /// <summary>
@@ -126,7 +126,7 @@
         protected static Type FindType(string typeName, IReadOnlyList<string> assemblyNames)
         {
             return assemblyNames
-                       .Select(assemblyName => Type.GetType($"{typeName}, {assemblyName}"))
+                       .Select(assemblyName => Type.GetType(string.Format("{0}, {1}", typeName, assemblyName)))
                        .FirstOrDefault(type => type != null) ?? Type.GetType(typeName);
         }
     }

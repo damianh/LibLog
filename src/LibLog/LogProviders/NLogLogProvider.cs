@@ -1,8 +1,8 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
-	using System.Collections.Generic;
-	using System.Diagnostics.CodeAnalysis;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
 
@@ -25,7 +25,7 @@
         {
             ProviderIsAvailableOverride = true;
         }
-        
+
         public static bool ProviderIsAvailableOverride { get; set; }
 
         public override Logger GetLogger(string name)
@@ -289,7 +289,7 @@
                         var formatMessage = messageFunc();
                         if (!s_structuredLoggingEnabled)
                         {
-							IEnumerable<string> _;
+                            IEnumerable<string> _;
                             formatMessage =
                                 LogMessageFormatter.FormatStructuredMessage(formatMessage,
                                     formatParameters,
@@ -468,7 +468,7 @@
                     case LogLevel.Fatal:
                         return s_levelFatal;
                     default:
-                        throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+                        throw new ArgumentOutOfRangeException("logLevel", logLevel, null);
                 }
             }
 

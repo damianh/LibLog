@@ -22,7 +22,13 @@
             _getLoggerByNameDelegate = GetGetLoggerMethodCall();
         }
 
-        public static bool ProviderIsAvailableOverride { get; set; } = true;
+        private static bool s_providerIsAvailableOverride = true;
+
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return s_providerIsAvailableOverride; }
+            set { s_providerIsAvailableOverride = value; }
+        }
 
         public override Logger GetLogger(string name)
         {
@@ -306,10 +312,12 @@
 
                 if (!IsLogLevelEnable(logLevel)) return false;
 
+                IEnumerable<string> patternMatches;
+
                 var formattedMessage =
                     LogMessageFormatter.FormatStructuredMessage(messageFunc(),
                         formatParameters,
-                        out var patternMatches);
+                        out patternMatches);
 
                 var callerStackBoundaryType = typeof(Log4NetLogger);
                 // Callsite HACK - Extract the callsite-logger-type from the messageFunc
