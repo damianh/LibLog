@@ -62,7 +62,7 @@
             {
                 var arg = match.Groups["arg"].Value;
 
-				int result;
+                int result;
                 if (!int.TryParse(arg, out result))
                 {
                     processedArguments = processedArguments ?? new List<string>(formatParameters.Length);
