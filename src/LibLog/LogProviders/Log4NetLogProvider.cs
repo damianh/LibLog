@@ -37,9 +37,9 @@
         protected override OpenNdc GetOpenNdcMethod()
         {
             var logicalThreadContextType = FindType("log4net.LogicalThreadContext", "log4net");
-            var stacksProperty = logicalThreadContextType.GetProperty("Stacks");
+            var stacksProperty = logicalThreadContextType.GetTypeInfo().GetProperty("Stacks");
             var logicalThreadContextStacksType = stacksProperty.PropertyType;
-            var stacksIndexerProperty = logicalThreadContextStacksType.GetProperty("Item");
+            var stacksIndexerProperty = logicalThreadContextStacksType.GetTypeInfo().GetProperty("Item");
             var stackType = stacksIndexerProperty.PropertyType;
             var pushMethod = stackType.GetMethod("Push");
 
@@ -65,9 +65,9 @@
         protected override OpenMdc GetOpenMdcMethod()
         {
             var logicalThreadContextType = FindType("log4net.LogicalThreadContext", "log4net");
-            var propertiesProperty = logicalThreadContextType.GetProperty("Properties");
+            var propertiesProperty = logicalThreadContextType.GetTypeInfo().GetProperty("Properties");
             var logicalThreadContextPropertiesType = propertiesProperty.PropertyType;
-            var propertiesIndexerProperty = logicalThreadContextPropertiesType.GetProperty("Item");
+            var propertiesIndexerProperty = logicalThreadContextPropertiesType.GetTypeInfo().GetProperty("Item");
 
             var removeMethod = logicalThreadContextPropertiesType.GetMethod("Remove");
 
@@ -107,7 +107,11 @@
         private static Func<string, object> GetGetLoggerMethodCall()
         {
             var logManagerType = GetLogManagerType();
+#if !NETSTANDARD1_5
             var log4netAssembly = Assembly.GetAssembly(logManagerType);
+#else
+            var log4netAssembly = logManagerType.GetTypeInfo().Assembly;
+#endif
             var method = logManagerType.GetMethod("GetLogger", typeof(Assembly), typeof(string));
             var repositoryAssemblyParam = Expression.Parameter(typeof(Assembly), "repositoryAssembly");
             var nameParam = Expression.Parameter(typeof(string), "name");
@@ -142,7 +146,7 @@
             [SuppressMessage("Microsoft.Naming", "CA2204:Literals should be spelled correctly", MessageId = "ILogger")]
             internal Log4NetLogger(object logger)
             {
-                _logger = logger.GetType().GetProperty("Logger").GetValue(logger);
+                _logger = logger.GetType().GetTypeInfo().GetProperty("Logger").GetValue(logger);
             }
 
             private static bool Initialize()
@@ -152,7 +156,7 @@
                     var logEventLevelType = FindType("log4net.Core.Level", "log4net");
                     if (logEventLevelType == null) throw new LibLogException("Type log4net.Core.Level was not found.");
 
-                    var levelFields = logEventLevelType.GetFields().ToList();
+                    var levelFields = logEventLevelType.GetTypeInfo().GetFields().ToList();
                     s_levelAll = levelFields.First(x => x.Name == "All").GetValue(null);
                     s_levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
                     s_levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
@@ -224,8 +228,8 @@
                 var messageParam = Expression.Parameter(typeof(string));
                 var exceptionParam = Expression.Parameter(typeof(Exception));
 
-                var repositoryProperty = loggingEventType.GetProperty("Repository");
-                var levelProperty = loggingEventType.GetProperty("Level");
+                var repositoryProperty = loggingEventType.GetTypeInfo().GetProperty("Repository");
+                var levelProperty = loggingEventType.GetTypeInfo().GetProperty("Level");
 
                 var loggingEventConstructor =
                     loggingEventType.GetConstructorPortable(typeof(Type), repositoryProperty.PropertyType,
@@ -277,8 +281,8 @@
                 var keyParameter = Expression.Parameter(typeof(string), "key");
                 var valueParameter = Expression.Parameter(typeof(object), "value");
 
-                var propertiesProperty = loggingEventType.GetProperty("Properties");
-                var item = propertiesProperty.PropertyType.GetProperty("Item");
+                var propertiesProperty = loggingEventType.GetTypeInfo().GetProperty("Properties");
+                var item = propertiesProperty.PropertyType.GetTypeInfo().GetProperty("Item");
 
                 // ((LoggingEvent)loggingEvent).Properties[key] = value;
                 var body =
@@ -313,7 +317,7 @@
 
                 var callerStackBoundaryType = typeof(Log4NetLogger);
                 // Callsite HACK - Extract the callsite-logger-type from the messageFunc
-                var methodType = messageFunc.Method.DeclaringType;
+                var methodType = messageFunc.GetMethodInfo().DeclaringType;
                 if (methodType == typeof(LogExtensions) ||
                     methodType != null && methodType.DeclaringType == typeof(LogExtensions))
                     callerStackBoundaryType = typeof(LogExtensions);

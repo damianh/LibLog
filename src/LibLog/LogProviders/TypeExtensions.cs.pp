@@ -14,7 +14,7 @@ namespace $rootnamespace$.Logging.LogProviders
     {
         internal static ConstructorInfo GetConstructorPortable(this Type type, params Type[] types)
         {
-            return type.GetConstructor(types);
+            return type.GetTypeInfo().GetConstructor(types);
         }
 
         internal static MethodInfo GetMethod(this Type type, string name, params Type[] types)

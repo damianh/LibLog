@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
@@ -18,14 +19,14 @@
         [SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline")]
         static TraceEventTypeValues()
         {
-            var assembly = typeof(Uri).Assembly;
+            var assembly = typeof(Uri).GetTypeInfo().Assembly;
             Type = assembly.GetType("System.Diagnostics.TraceEventType");
             if (Type == null) return;
-            Verbose = (int) Enum.Parse(Type, "Verbose", false);
-            Information = (int) Enum.Parse(Type, "Information", false);
-            Warning = (int) Enum.Parse(Type, "Warning", false);
-            Error = (int) Enum.Parse(Type, "Error", false);
-            Critical = (int) Enum.Parse(Type, "Critical", false);
+            Verbose = (int)Enum.Parse(Type, "Verbose", false);
+            Information = (int)Enum.Parse(Type, "Information", false);
+            Warning = (int)Enum.Parse(Type, "Warning", false);
+            Error = (int)Enum.Parse(Type, "Error", false);
+            Critical = (int)Enum.Parse(Type, "Critical", false);
         }
     }
 }

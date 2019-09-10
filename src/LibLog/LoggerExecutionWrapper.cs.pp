@@ -4,6 +4,7 @@ namespace $rootnamespace$.Logging
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using System.Reflection;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
@@ -37,7 +38,7 @@ namespace $rootnamespace$.Logging
             {
                 // Callsite HACK - Cache the last validated messageFunc as Equals is faster than type-check
                 lastExtensionMethod = null;
-                var methodType = messageFunc.Method.DeclaringType;
+                var methodType = messageFunc.GetMethodInfo().DeclaringType;
                 if (methodType == typeof(LogExtensions) ||
                     methodType != null && methodType.DeclaringType == typeof(LogExtensions))
                     lastExtensionMethod = messageFunc;
@@ -51,7 +52,7 @@ namespace $rootnamespace$.Logging
                     formatParameters);
             }
 
-            var WrappedMessageFunc = new Func<string>(() => 
+            var WrappedMessageFunc = new Func<string>(() =>
             {
                 try
                 {

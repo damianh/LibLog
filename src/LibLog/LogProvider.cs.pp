@@ -41,16 +41,17 @@
 
 using global::System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "$rootnamespace$.Logging")]
-[assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "$rootnamespace$.Logging.Logger.#Invoke($rootnamespace$.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]
+[assembly: SuppressMessage("Microsoft.Design", "CA1020:AvoidNamespacesWithFewTypes", Scope = "namespace", Target = "YourRootNamespace.Logging")]
+[assembly: SuppressMessage("Microsoft.Design", "CA1026:DefaultParametersShouldNotBeUsed", Scope = "member", Target = "YourRootNamespace.Logging.Logger.#Invoke(YourRootNamespace.Logging.LogLevel,System.Func`1<System.String>,System.Exception,System.Object[])")]
 
 // If you copied this file manually, you need to change all "YourRootNameSpace" so not to clash with other libraries
 // that use LibLog
 namespace $rootnamespace$.Logging
 {
+    using System.Reflection;
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
-    using global::$rootnamespace$.Logging.LogProviders;
+    using global::YourRootNamespace.Logging.LogProviders;
     using global::System;
 #if !LIBLOG_PROVIDERS_ONLY
     using global::System.Diagnostics;
@@ -116,8 +117,8 @@ namespace $rootnamespace$.Logging
         }
 
         internal static ILogProvider CurrentLogProvider
-        { 
-            get { return s_currentLogProvider; } 
+        {
+            get { return s_currentLogProvider; }
         }
 
         /// <summary>
@@ -130,11 +131,12 @@ namespace $rootnamespace$.Logging
 #else
         internal
 #endif
-        static ILog For<T>() 
+        static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
 
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets a logger for the current class.
         /// </summary>
@@ -150,6 +152,7 @@ namespace $rootnamespace$.Logging
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
+#endif
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -290,7 +293,7 @@ namespace $rootnamespace$.Logging
             {
                 Console.WriteLine(
                     "Exception occurred resolving a log provider. Logging for this assembly {0} is disabled. {1}",
-                    typeof(LogProvider).Assembly.FullName,
+                    typeof(LogProvider).GetTypeInfo().Assembly.FullName,
                     ex);
             }
             return null;
@@ -305,8 +308,8 @@ namespace $rootnamespace$.Logging
             internal static readonly NoOpLogger Instance = new NoOpLogger();
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
-            { 
-                return false; 
+            {
+                return false;
             }
         }
 #endif

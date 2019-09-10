@@ -46,6 +46,7 @@ using global::System.Diagnostics.CodeAnalysis;
 // that use LibLog
 namespace YourRootNamespace.Logging
 {
+    using System.Reflection;
     using global::System.Collections.Generic;
     using global::System.Diagnostics.CodeAnalysis;
     using global::YourRootNamespace.Logging.LogProviders;
@@ -114,8 +115,8 @@ namespace YourRootNamespace.Logging
         }
 
         internal static ILogProvider CurrentLogProvider
-        { 
-            get { return s_currentLogProvider; } 
+        {
+            get { return s_currentLogProvider; }
         }
 
         /// <summary>
@@ -128,11 +129,12 @@ namespace YourRootNamespace.Logging
 #else
         internal
 #endif
-        static ILog For<T>() 
+        static ILog For<T>()
         {
             return GetLogger(typeof(T));
         }
 
+#if !NETSTANDARD1_5
         /// <summary>
         /// Gets a logger for the current class.
         /// </summary>
@@ -148,6 +150,7 @@ namespace YourRootNamespace.Logging
             var stackFrame = new StackFrame(1, false);
             return GetLogger(stackFrame.GetMethod().DeclaringType);
         }
+#endif
 
         /// <summary>
         /// Gets a logger for the specified type.
@@ -288,7 +291,7 @@ namespace YourRootNamespace.Logging
             {
                 Console.WriteLine(
                     "Exception occurred resolving a log provider. Logging for this assembly {0} is disabled. {1}",
-                    typeof(LogProvider).Assembly.FullName,
+                    typeof(LogProvider).GetTypeInfo().Assembly.FullName,
                     ex);
             }
             return null;
@@ -303,8 +306,8 @@ namespace YourRootNamespace.Logging
             internal static readonly NoOpLogger Instance = new NoOpLogger();
 
             public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception, params object[] formatParameters)
-            { 
-                return false; 
+            {
+                return false;
             }
         }
 #endif

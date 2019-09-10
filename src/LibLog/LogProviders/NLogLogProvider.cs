@@ -1,10 +1,11 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
-	using System.Collections.Generic;
-	using System.Diagnostics.CodeAnalysis;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Reflection;
 
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
@@ -25,7 +26,7 @@
         {
             ProviderIsAvailableOverride = true;
         }
-        
+
         public static bool ProviderIsAvailableOverride { get; set; }
 
         public override Logger GetLogger(string name)
@@ -170,7 +171,8 @@
 
             private static IsEnabledDelegate GetIsEnabledDelegate(object logger, string name)
             {
-                var loggerType = logger.GetType();
+                var loggerType = logger.GetType().GetTypeInfo();
+
                 return (IsEnabledDelegate)loggerType.GetProperty(name).GetGetMethod()
                     .CreateDelegate(typeof(IsEnabledDelegate), logger);
             }
@@ -192,7 +194,7 @@
             {
                 var loggerType = logger.GetType();
 
-                _nameDelegate = (NameDelegate)loggerType.GetProperty("Name").GetGetMethod().CreateDelegate(typeof(NameDelegate), logger);
+                _nameDelegate = (NameDelegate)loggerType.GetTypeInfo().GetProperty("Name").GetGetMethod().CreateDelegate(typeof(NameDelegate), logger);
 
                 var logEventInfoType = FindType("NLog.LogEventInfo", "NLog");
                 _logEventDelegate = (type, e) => loggerType.GetMethod("Log", new Type[] { typeof(Type), logEventInfoType }).Invoke(logger, new object[] { type, e });
@@ -226,7 +228,7 @@
                     var logEventLevelType = FindType("NLog.LogLevel", "NLog");
                     if (logEventLevelType == null) throw new LibLogException("Type NLog.LogLevel was not found.");
 
-                    var levelFields = logEventLevelType.GetFields().ToList();
+                    var levelFields = logEventLevelType.GetTypeInfo().GetFields().ToList();
                     s_levelTrace = levelFields.First(x => x.Name == "Trace").GetValue(null);
                     s_levelDebug = levelFields.First(x => x.Name == "Debug").GetValue(null);
                     s_levelInfo = levelFields.First(x => x.Name == "Info").GetValue(null);
@@ -289,7 +291,7 @@
                         var formatMessage = messageFunc();
                         if (!s_structuredLoggingEnabled)
                         {
-							IEnumerable<string> _;
+                            IEnumerable<string> _;
                             formatMessage =
                                 LogMessageFormatter.FormatStructuredMessage(formatMessage,
                                     formatParameters,
@@ -299,7 +301,7 @@
 
                         var callsiteLoggerType = typeof(NLogLogger);
                         // Callsite HACK - Extract the callsite-logger-type from the messageFunc
-                        var methodType = messageFunc.Method.DeclaringType;
+                        var methodType = messageFunc.GetMethodInfo().DeclaringType;
                         if (methodType == typeof(LogExtensions) ||
                             methodType != null && methodType.DeclaringType == typeof(LogExtensions))
                             callsiteLoggerType = typeof(LogExtensions);
@@ -477,10 +479,10 @@
                 var configFactoryType = FindType("NLog.Config.ConfigurationItemFactory", "NLog");
                 if (configFactoryType != null)
                 {
-                    var parseMessagesProperty = configFactoryType.GetProperty("ParseMessageTemplates");
+                    var parseMessagesProperty = configFactoryType.GetTypeInfo().GetProperty("ParseMessageTemplates");
                     if (parseMessagesProperty != null)
                     {
-                        var defaultProperty = configFactoryType.GetProperty("Default");
+                        var defaultProperty = configFactoryType.GetTypeInfo().GetProperty("Default");
                         if (defaultProperty != null)
                         {
                             var configFactoryDefault = defaultProperty.GetValue(null, null);
