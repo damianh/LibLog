@@ -55,15 +55,19 @@ namespace YourRootNamespace.Logging
     using global::System.Runtime.CompilerServices;
 #endif
 
-    /// <summary>
-    /// Provides a mechanism to create instances of <see cref="ILog" /> objects.
-    /// </summary>
 #if LIBLOG_EXCLUDE_CODE_COVERAGE
     [ExcludeFromCodeCoverage]
 #endif
 #if LIBLOG_PROVIDERS_ONLY
+    /// <summary>
+    /// Provides a mechanism to set the <see cref="ILogProvider" />
+	/// and create instances of <see cref="ILog" /> objects. 
+    /// </summary>
     internal
 #else
+    /// <summary>
+    /// Provides a mechanism to set the <see cref="ILogProvider" />.
+    /// </summary>
     public
 #endif
     static class LogProvider

@@ -3,7 +3,7 @@
 namespace YourRootNamespace.Logging
 {
     /// <summary>
-    /// Represents a way to get a <see cref="ILog"/>
+    /// Represents a way to get a <see cref="Logger"/>
     /// </summary>
 #if LIBLOG_PROVIDERS_ONLY
     internal
