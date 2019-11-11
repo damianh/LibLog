@@ -50,6 +50,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
                 if (pushObjectMethod != null)
                 {
+                    // NLog 4.6 introduces PushObject with correct handling of logical callcontext (NDLC)
                     var pushObjectMethodCall = Expression.Call(null, pushObjectMethod, messageParam);
                     return Expression.Lambda<OpenNdc>(pushObjectMethodCall, messageParam).Compile();
                 }
@@ -72,6 +73,7 @@ namespace $rootnamespace$.Logging.LogProviders
                 var pushObjectMethod = ndlcContextType.GetMethod("PushObject", typeof(object));
                 if (pushObjectMethod != null)
                 {
+                    // NLog 4.6 introduces SetScoped with correct handling of logical callcontext (MDLC)
                     var mdlcContextType = FindType("NLog.MappedDiagnosticsLogicalContext", "NLog");
                     if (mdlcContextType != null)
                     {
@@ -140,85 +142,41 @@ namespace $rootnamespace$.Logging.LogProviders
             private static readonly Lazy<bool> Initialized = new Lazy<bool>(Initialize);
             private static Exception s_initializeException;
 
-            delegate string NameDelegate();
-            delegate void LogEventDelegate(Type wrapperType, object logEvent);
-            delegate bool IsEnabledDelegate();
-            delegate void LogDelegate(string message);
-            delegate void LogExceptionDelegate(string message, Exception exception);
+            delegate string LoggerNameDelegate(object logger);
+            delegate void LogEventDelegate(object logger, Type wrapperType, object logEvent);
+            delegate bool IsEnabledDelegate(object logger);
+            delegate void LogDelegate(object logger, string message);
+            delegate void LogExceptionDelegate(object logger, string message, Exception exception);
 
-            private readonly NameDelegate _nameDelegate;
-            private readonly LogEventDelegate _logEventDelegate;
+            private static LoggerNameDelegate s_loggerNameDelegate;
+            private static LogEventDelegate s_logEventDelegate;
 
-            private readonly IsEnabledDelegate _isTraceEnabledDelegate;
-            private readonly IsEnabledDelegate _isDebugEnabledDelegate;
-            private readonly IsEnabledDelegate _isInfoEnabledDelegate;
-            private readonly IsEnabledDelegate _isWarnEnabledDelegate;
-            private readonly IsEnabledDelegate _isErrorEnabledDelegate;
-            private readonly IsEnabledDelegate _isFatalEnabledDelegate;
+            private static IsEnabledDelegate s_isTraceEnabledDelegate;
+            private static IsEnabledDelegate s_isDebugEnabledDelegate;
+            private static IsEnabledDelegate s_isInfoEnabledDelegate;
+            private static IsEnabledDelegate s_isWarnEnabledDelegate;
+            private static IsEnabledDelegate s_isErrorEnabledDelegate;
+            private static IsEnabledDelegate s_isFatalEnabledDelegate;
 
-            private readonly LogDelegate _traceDelegate;
-            private readonly LogDelegate _debugDelegate;
-            private readonly LogDelegate _infoDelegate;
-            private readonly LogDelegate _warnDelegate;
-            private readonly LogDelegate _errorDelegate;
-            private readonly LogDelegate _fatalDelegate;
+            private static LogDelegate s_traceDelegate;
+            private static LogDelegate s_debugDelegate;
+            private static LogDelegate s_infoDelegate;
+            private static LogDelegate s_warnDelegate;
+            private static LogDelegate s_errorDelegate;
+            private static LogDelegate s_fatalDelegate;
 
-            private readonly LogExceptionDelegate _traceExceptionDelegate;
-            private readonly LogExceptionDelegate _debugExceptionDelegate;
-            private readonly LogExceptionDelegate _infoExceptionDelegate;
-            private readonly LogExceptionDelegate _warnExceptionDelegate;
-            private readonly LogExceptionDelegate _errorExceptionDelegate;
-            private readonly LogExceptionDelegate _fatalExceptionDelegate;
+            private static LogExceptionDelegate s_traceExceptionDelegate;
+            private static LogExceptionDelegate s_debugExceptionDelegate;
+            private static LogExceptionDelegate s_infoExceptionDelegate;
+            private static LogExceptionDelegate s_warnExceptionDelegate;
+            private static LogExceptionDelegate s_errorExceptionDelegate;
+            private static LogExceptionDelegate s_fatalExceptionDelegate;
 
-            private static IsEnabledDelegate GetIsEnabledDelegate(object logger, string name)
-            {
-                var loggerType = logger.GetType();
-                return (IsEnabledDelegate)loggerType.GetProperty(name).GetGetMethod()
-                    .CreateDelegate(typeof(IsEnabledDelegate), logger);
-            }
-            private static LogDelegate GetLogDelegate(object logger, string name)
-            {
-                var loggerType = logger.GetType();
-                return (LogDelegate)loggerType.GetMethod(name, new Type[] { typeof(string) })
-                    .CreateDelegate(typeof(LogDelegate), logger);
-            }
-
-            private static LogExceptionDelegate GetLogExceptionDelegate(object logger, string name)
-            {
-                var loggerType = logger.GetType();
-                return (LogExceptionDelegate)loggerType.GetMethod(name, new Type[] { typeof(string), typeof(Exception) })
-                    .CreateDelegate(typeof(LogExceptionDelegate), logger);
-            }
+            private readonly object _logger;
 
             internal NLogLogger(object logger)
             {
-                var loggerType = logger.GetType();
-
-                _nameDelegate = (NameDelegate)loggerType.GetProperty("Name").GetGetMethod().CreateDelegate(typeof(NameDelegate), logger);
-
-                var logEventInfoType = FindType("NLog.LogEventInfo", "NLog");
-                _logEventDelegate = (type, e) => loggerType.GetMethod("Log", new Type[] { typeof(Type), logEventInfoType }).Invoke(logger, new object[] { type, e });
-
-                _isTraceEnabledDelegate = GetIsEnabledDelegate(logger, "IsTraceEnabled");
-                _isDebugEnabledDelegate = GetIsEnabledDelegate(logger, "IsDebugEnabled");
-                _isInfoEnabledDelegate = GetIsEnabledDelegate(logger, "IsInfoEnabled");
-                _isWarnEnabledDelegate = GetIsEnabledDelegate(logger, "IsWarnEnabled");
-                _isErrorEnabledDelegate = GetIsEnabledDelegate(logger, "IsErrorEnabled");
-                _isFatalEnabledDelegate = GetIsEnabledDelegate(logger, "IsFatalEnabled");
-
-                _traceDelegate = GetLogDelegate(logger, "Trace");
-                _debugDelegate = GetLogDelegate(logger, "Debug");
-                _infoDelegate = GetLogDelegate(logger, "Info");
-                _warnDelegate = GetLogDelegate(logger, "Warn");
-                _errorDelegate = GetLogDelegate(logger, "Error");
-                _fatalDelegate = GetLogDelegate(logger, "Fatal");
-
-                _traceExceptionDelegate = GetLogExceptionDelegate(logger, "TraceException");
-                _debugExceptionDelegate = GetLogExceptionDelegate(logger, "DebugException");
-                _infoExceptionDelegate = GetLogExceptionDelegate(logger, "InfoException");
-                _warnExceptionDelegate = GetLogExceptionDelegate(logger, "WarnException");
-                _errorExceptionDelegate = GetLogExceptionDelegate(logger, "ErrorException");
-                _fatalExceptionDelegate = GetLogExceptionDelegate(logger, "FatalException");
+                _logger = logger;
             }
 
             private static bool Initialize()
@@ -264,6 +222,33 @@ namespace $rootnamespace$.Logging.LogProviders
                         newLoggingEventExpression,
                         loggerNameParam, levelParam, messageParam, messageArgsParam, exceptionParam).Compile();
 
+                    var loggerType = FindType("NLog.Logger", "NLog");
+
+                    s_loggerNameDelegate = GetLoggerNameDelegate(loggerType);
+
+                    s_logEventDelegate = GetLogEventDelegate(loggerType, logEventInfoType);
+
+                    s_isTraceEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsTraceEnabled");
+                    s_isDebugEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsDebugEnabled");
+                    s_isInfoEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsInfoEnabled");
+                    s_isWarnEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsWarnEnabled");
+                    s_isErrorEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsErrorEnabled");
+                    s_isFatalEnabledDelegate = GetIsEnabledDelegate(loggerType, "IsFatalEnabled");
+
+                    s_traceDelegate = GetLogDelegate(loggerType, "Trace");
+                    s_debugDelegate = GetLogDelegate(loggerType, "Debug");
+                    s_infoDelegate = GetLogDelegate(loggerType, "Info");
+                    s_warnDelegate = GetLogDelegate(loggerType, "Warn");
+                    s_errorDelegate = GetLogDelegate(loggerType, "Error");
+                    s_fatalDelegate = GetLogDelegate(loggerType, "Fatal");
+
+                    s_traceExceptionDelegate = GetLogExceptionDelegate(loggerType, "TraceException");
+                    s_debugExceptionDelegate = GetLogExceptionDelegate(loggerType, "DebugException");
+                    s_infoExceptionDelegate = GetLogExceptionDelegate(loggerType, "InfoException");
+                    s_warnExceptionDelegate = GetLogExceptionDelegate(loggerType, "WarnException");
+                    s_errorExceptionDelegate = GetLogExceptionDelegate(loggerType, "ErrorException");
+                    s_fatalExceptionDelegate = GetLogExceptionDelegate(loggerType, "FatalException");
+
                     s_structuredLoggingEnabled = IsStructuredLoggingEnabled();
                 }
                 catch (Exception ex)
@@ -273,6 +258,57 @@ namespace $rootnamespace$.Logging.LogProviders
                 }
 
                 return true;
+            }
+
+            private static IsEnabledDelegate GetIsEnabledDelegate(Type loggerType, string propertyName)
+            {
+                var isEnabledPropertyInfo = loggerType.GetProperty(propertyName);
+                var instanceParam = Expression.Parameter(typeof(object));
+                var instanceCast = Expression.Convert(instanceParam, loggerType);
+                var propertyCall = Expression.Property(instanceCast, isEnabledPropertyInfo);
+                return Expression.Lambda<IsEnabledDelegate>(propertyCall, instanceParam).Compile();
+            }
+
+            private static LoggerNameDelegate GetLoggerNameDelegate(Type loggerType)
+            {
+                var isEnabledPropertyInfo = loggerType.GetProperty("Name");
+                var instanceParam = Expression.Parameter(typeof(object));
+                var instanceCast = Expression.Convert(instanceParam, loggerType);
+                var propertyCall = Expression.Property(instanceCast, isEnabledPropertyInfo);
+                return Expression.Lambda<LoggerNameDelegate>(propertyCall, instanceParam).Compile();
+            }
+
+            private static LogDelegate GetLogDelegate(Type loggerType, string name)
+            {
+                var logMethodInfo = loggerType.GetMethod(name, new Type[] { typeof(string) });
+                var instanceParam = Expression.Parameter(typeof(object));
+                var instanceCast = Expression.Convert(instanceParam, loggerType);
+                var messageParam = Expression.Parameter(typeof(string));
+                var logCall = Expression.Call(instanceCast, logMethodInfo, messageParam);
+                return Expression.Lambda<LogDelegate>(logCall, instanceParam, messageParam).Compile();
+            }
+
+            private static LogEventDelegate GetLogEventDelegate(Type loggerType, Type logEventType)
+            {
+                var logMethodInfo = loggerType.GetMethod("Log", new Type[] { typeof(Type), logEventType });
+                var instanceParam = Expression.Parameter(typeof(object));
+                var instanceCast = Expression.Convert(instanceParam, loggerType);
+                var loggerTypeParam = Expression.Parameter(typeof(Type));
+                var logEventParam = Expression.Parameter(typeof(object));
+                var logEventCast = Expression.Convert(logEventParam, logEventType);
+                var logCall = Expression.Call(instanceCast, logMethodInfo, loggerTypeParam, logEventCast);
+                return Expression.Lambda<LogEventDelegate>(logCall, instanceParam, loggerTypeParam, logEventParam).Compile();
+            }
+
+            private static LogExceptionDelegate GetLogExceptionDelegate(Type loggerType, string name)
+            {
+                var logMethodInfo = loggerType.GetMethod(name, new Type[] { typeof(string), typeof(Exception) });
+                var instanceParam = Expression.Parameter(typeof(object));
+                var instanceCast = Expression.Convert(instanceParam, loggerType);
+                var messageParam = Expression.Parameter(typeof(string));
+                var exceptionParam = Expression.Parameter(typeof(Exception));
+                var logCall = Expression.Call(instanceCast, logMethodInfo, messageParam, exceptionParam);
+                return Expression.Lambda<LogExceptionDelegate>(logCall, instanceParam, messageParam, exceptionParam).Compile();
             }
 
             [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
@@ -309,9 +345,9 @@ namespace $rootnamespace$.Logging.LogProviders
                                  methodType.DeclaringType == typeof(LoggerExecutionWrapper))
                             callsiteLoggerType = typeof(LoggerExecutionWrapper);
                         var nlogLevel = TranslateLevel(logLevel);
-                        var nlogEvent = s_logEventInfoFact(_nameDelegate(), nlogLevel, formatMessage, formatParameters,
+                        var nlogEvent = s_logEventInfoFact(s_loggerNameDelegate(_logger), nlogLevel, formatMessage, formatParameters,
                             exception);
-                        _logEventDelegate(callsiteLoggerType, nlogEvent);
+                        s_logEventDelegate(_logger, callsiteLoggerType, nlogEvent);
                         return true;
                     }
 
@@ -324,49 +360,49 @@ namespace $rootnamespace$.Logging.LogProviders
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
-                        if (_isDebugEnabledDelegate())
+                        if (s_isDebugEnabledDelegate(_logger))
                         {
-                            _debugDelegate(messageFunc());
+                            s_debugDelegate(_logger, messageFunc());
                             return true;
                         }
 
                         break;
                     case LogLevel.Info:
-                        if (_isInfoEnabledDelegate())
+                        if (s_isInfoEnabledDelegate(_logger))
                         {
-                            _infoDelegate(messageFunc());
+                            s_infoDelegate(_logger, messageFunc());
                             return true;
                         }
 
                         break;
                     case LogLevel.Warn:
-                        if (_isWarnEnabledDelegate())
+                        if (s_isWarnEnabledDelegate(_logger))
                         {
-                            _warnDelegate(messageFunc());
+                            s_warnDelegate(_logger, messageFunc());
                             return true;
                         }
 
                         break;
                     case LogLevel.Error:
-                        if (_isErrorEnabledDelegate())
+                        if (s_isErrorEnabledDelegate(_logger))
                         {
-                            _errorDelegate(messageFunc());
+                            s_errorDelegate(_logger, messageFunc());
                             return true;
                         }
 
                         break;
                     case LogLevel.Fatal:
-                        if (_isFatalEnabledDelegate())
+                        if (s_isFatalEnabledDelegate(_logger))
                         {
-                            _fatalDelegate(messageFunc());
+                            s_fatalDelegate(_logger, messageFunc());
                             return true;
                         }
 
                         break;
                     default:
-                        if (_isTraceEnabledDelegate())
+                        if (s_isTraceEnabledDelegate(_logger))
                         {
-                            _traceDelegate(messageFunc());
+                            s_traceDelegate(_logger, messageFunc());
                             return true;
                         }
 
@@ -382,49 +418,49 @@ namespace $rootnamespace$.Logging.LogProviders
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
-                        if (_isDebugEnabledDelegate())
+                        if (s_isDebugEnabledDelegate(_logger))
                         {
-                            _debugExceptionDelegate(messageFunc(), exception);
+                            s_debugExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
                         break;
                     case LogLevel.Info:
-                        if (_isInfoEnabledDelegate())
+                        if (s_isInfoEnabledDelegate(_logger))
                         {
-                            _infoExceptionDelegate(messageFunc(), exception);
+                            s_infoExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
                         break;
                     case LogLevel.Warn:
-                        if (_isWarnEnabledDelegate())
+                        if (s_isWarnEnabledDelegate(_logger))
                         {
-                            _warnExceptionDelegate(messageFunc(), exception);
+                            s_warnExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
                         break;
                     case LogLevel.Error:
-                        if (_isErrorEnabledDelegate())
+                        if (s_isErrorEnabledDelegate(_logger))
                         {
-                            _errorExceptionDelegate(messageFunc(), exception);
+                            s_errorExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
                         break;
                     case LogLevel.Fatal:
-                        if (_isFatalEnabledDelegate())
+                        if (s_isFatalEnabledDelegate(_logger))
                         {
-                            _fatalExceptionDelegate(messageFunc(), exception);
+                            s_fatalExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
                         break;
                     default:
-                        if (_isTraceEnabledDelegate())
+                        if (s_isTraceEnabledDelegate(_logger))
                         {
-                            _traceExceptionDelegate(messageFunc(), exception);
+                            s_traceExceptionDelegate(_logger, messageFunc(), exception);
                             return true;
                         }
 
@@ -439,17 +475,17 @@ namespace $rootnamespace$.Logging.LogProviders
                 switch (logLevel)
                 {
                     case LogLevel.Debug:
-                        return _isDebugEnabledDelegate();
+                        return s_isDebugEnabledDelegate(_logger);
                     case LogLevel.Info:
-                        return _isInfoEnabledDelegate();
+                        return s_isInfoEnabledDelegate(_logger);
                     case LogLevel.Warn:
-                        return _isWarnEnabledDelegate();
+                        return s_isWarnEnabledDelegate(_logger);
                     case LogLevel.Error:
-                        return _isErrorEnabledDelegate();
+                        return s_isErrorEnabledDelegate(_logger);
                     case LogLevel.Fatal:
-                        return _isFatalEnabledDelegate();
+                        return s_isFatalEnabledDelegate(_logger);
                     default:
-                        return _isTraceEnabledDelegate();
+                        return s_isTraceEnabledDelegate(_logger);
                 }
             }
 

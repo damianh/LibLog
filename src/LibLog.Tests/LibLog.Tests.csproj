@@ -8,7 +8,7 @@
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Loupe.Agent.Core" Version="4.7.1" Condition=" '$(TargetFramework)' != 'net452' " />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
-    <PackageReference Include="NLog" Version="4.5.11" />
+    <PackageReference Include="NLog" Version="4.6.0" />
     <PackageReference Include="Serilog" Version="2.8.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.Observable" Version="2.0.2" />
