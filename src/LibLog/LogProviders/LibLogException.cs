@@ -1,11 +1,22 @@
 ﻿namespace YourRootNamespace.Logging.LogProviders
 {
     using System;
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
+    using System.Diagnostics.CodeAnalysis;
+#endif
 
+#if LIBLOG_EXCLUDE_CODE_COVERAGE
+    [ExcludeFromCodeCoverage]
+#endif
+#if !LIBLOG_PROVIDERS_ONLY || LIBLOG_PUBLIC
     /// <summary>
     /// Exception thrown by LibLog.
     /// </summary>
-    public class LibLogException : Exception
+    public
+#else
+    internal
+#endif
+    class LibLogException : Exception
     {
         /// <summary>
         /// Initializes a new LibLogException with the specified message.
